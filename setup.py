@@ -13,6 +13,11 @@ setup(
         'docopt < 1.0.0',
         'semantic_version < 1.0.0'
     ],
+    entry_points={
+        'console_scripts': [
+            'changes = changes:main',
+        ],
+    },
     test_suite='nose.collector',
     license=open('LICENSE').read(),
 )

@@ -157,7 +157,7 @@ Options:
 """
 
 
-if __name__ == '__main__':
+def main():
     arguments = docopt(cli, version=__version__)
 
     app_name = arguments['<app_name>']

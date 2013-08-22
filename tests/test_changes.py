@@ -1,7 +1,7 @@
 import tempfile
 
 from unittest2 import TestCase
-from changes import increment, prepend_file
+from changes.cli import increment, prepend_file
 
 
 class ChangesTestCase(TestCase):

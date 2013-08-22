@@ -1,2 +1,2 @@
-import changes
-changes.main()
+import changes.cli
+changes.cli.main()

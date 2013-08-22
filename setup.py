@@ -16,7 +16,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'changes = changes:main',
+            'changes = changes.cli:main',
         ],
     },
     test_suite='nose.collector',

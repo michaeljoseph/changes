@@ -11,7 +11,8 @@ setup(
     packages=[changes.__name__],
     install_requires=[
         'docopt < 1.0.0',
-        'semantic_version < 1.0.0'
+        'path.py < 5.0.0',
+        'semantic_version < 3.0.0'
     ],
     entry_points={
         'console_scripts': [

@@ -5,8 +5,13 @@ from subprocess import call
 from docopt import docopt
 import path
 import semantic_version
+import logging
 
 import changes
+
+
+log = logging.getLogger(__name__)
+
 
 def extract(d, keys):
     return dict((k, d[k]) for k in keys if k in d)
@@ -27,14 +32,24 @@ def increment(version, major=False, minor=False, patch=True):
     return str(version)
 
 
-def prepend_file(filename, content, dry_run=True):
+def write_new_changelog(app_name, filename, content, dry_run=True):
+    heading_and_newline = (
+        '# (Changelog)[%s/releases]\n\n' % 
+        extract_attribute(app_name, '__url__')
+    )
+
+    with open(filename, 'r+') as f:
+        existing = f.readlines()
+
+    output = existing[2:]
+    output.insert(0, content + '\n\n')
+    output.insert(0, heading_and_newline)
+
     if not dry_run:
-        with open(filename, 'r+') as f:
-            existing = f.read()
-            f.seek(0)
-            f.write(content + '\n' + existing)
+        with open(filename, 'w+') as f: 
+            f.writelines(output)
     else:
-        print('Prepending %s to %s' % (content, filename))
+        logger.info('New changelog:\n%s' % '\n'.join(output))
 
 
 def get_new_version(app_name, current_version,
@@ -46,7 +61,6 @@ def get_new_version(app_name, current_version,
         minor=minor,
         patch=patch
     )
-    print('ere')
 
     new_version = raw_input(
         'What is the release version for "%s"'
@@ -82,93 +96,114 @@ def replace_attribute(app_name, attribute_name, new_value, dry_run=True):
     if not dry_run:
         path.move(tmp_file, init_file)
     else:
-      print(execute('diff %s %s' % (tmp_file, init_file)))
+      log.debug(execute(['diff', tmp_file, init_file], dry_run=False))
 
 
 def current_version(app_name):
-    return extract_attribute(
-        arguments['<app_name>'],
-        '__version__'
-    )
+    return extract_attribute(app_name, '__version__')
 
-def execute(command, dry_run=True):
+def execute(commands, dry_run=True):
     if not dry_run:
-        return call([command])
+        return call(commands)
     else:
-        print('execute: %s', command)
+        log.debug('execute: %s' % commands)
 
 def version(arguments):
     dry_run=arguments['--dry-run']
     app_name = arguments['<app_name>']
     new_version = arguments['new_version']
-    print('oi')
+
     replace_attribute(app_name, '__version__', new_version, dry_run=dry_run)
 
-    execute('git ci -m "%s" %s/__init__.py && git push' % (
-        new_version, app_name
-    ), dry_run=dry_run)
+    execute(
+        ['git', 'ci', '-m',
+         '"%s"' % new_version,
+         '%s/__init__.py' % app_name],
+        dry_run=dry_run
+    )
+
+    execute(['git', 'push'], dry_run=dry_run)
 
 def changelog(arguments):
-    prepend_file(
+    dry_run=arguments['--dry-run']
+    app_name = arguments['<app_name>']
+    new_version = arguments['new_version']
+
+    write_new_changelog(
+        app_name,
         'CHANGELOG.md', '\n'.join([
-            '# (Changelog)[https://github.com/michaeljoseph/changes/releases]',
-            '## [%s](https://github.com/yola/demands/compare/%s...%s)',
+            '## [%s](https://github.com/yola/demands/compare/%s...%s)\n',
             '* Fill this in.'
         ]) % (
-            arguments['new_version'],
+            new_version,
             current_version(app_name),
-            arguments['new_version']
+            new_version
         ),
-        dry_run=arguments['--dry-run']
+        dry_run=dry_run
     )
 
 def tag(arguments):
-    execute('git tag -a %s "%s"; git push --tags' % (
-        arguments['new_version'], arguments['new_version']
-    ), dry_run=arguments['--dry-run'])
+    dry_run=arguments['--dry-run']
+    app_name = arguments['<app_name>']
+    new_version = arguments['new_version']
+
+    execute(['git', 'tag', '-a', new_version, '"%s"' % new_version], dry_run=dry_run)
+    # fixme: check for call error
+    execute(['git push --tags'], dry_run=dry_run)
 
 def upload(arguments):
-    upload = 'python setup.py clean sdist upload'
-    if '--pypi' in arguments:
-        upload = upload + ' -r %s' % arguments['--pypi']
-    execute(upload, dry_run=arguments['--dry-run'])
+    dry_run=arguments['--dry-run']
+    pypi = arguments['--pypi']
+
+    upload = ['python', 'setup.py', 'clean', 'sdist', 'upload']
+    if pypi: 
+        upload.append('-r')
+        upload.append(pypi)
+
+    execute(upload, dry_run=dry_run)
 
 cli = """
 changes.
 
 Usage:
-  changes [options] <app_name> version (major|minor|patch)
+  changes [options] <app_name> version
   changes [options] <app_name> changelog
   changes [options] <app_name> tag
   changes [options] <app_name> upload
   changes -h | --help
 
 Options:
-  -h --help             Show this screen.
   --new-version=<ver>   Specify version.
+  -p --patch            Patch-level version increment.
+  -m --minor            Minor-level version increment.
+  -M --major            Minor-level version increment.
+
+  -h --help             Show this screen.
+
   --pypi=<pypi>         Specify alternative pypi
   --dry-run             Prints the commands that would have been executed.
+  --debug               Debug output.
 """
 
 
 def main():
     arguments = docopt(cli, version=changes.__version__)
-
+    debug = arguments['--debug']
+    logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
     app_name = arguments['<app_name>']
-    if '--new-version' in arguments:
+    if arguments['--new-version']:
         new_version = arguments['--new-version']
     else:
         new_version = get_new_version(
             app_name,
             current_version(app_name),
-            **extract(
-                arguments,
-                ['major', 'minor', 'patch']
-            )
+            **dict({
+                (key[2:], value) for key, value in extract(arguments, ['--major', '--minor', '--patch']).items()
+            })
         )
 
     arguments['new_version'] = new_version
-    print(arguments)
+    log.debug('arguments: %s', arguments)
     for command in ['version', 'changelog', 'tag', 'upload']:
         if arguments[command]:
             globals()[command](arguments)

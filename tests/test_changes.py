@@ -1,7 +1,9 @@
 import tempfile
 
 from unittest2 import TestCase
-from changes.cli import increment, prepend_file
+from changes.cli import increment, write_new_changelog
+import os
+import shutil
 
 
 class ChangesTestCase(TestCase):
@@ -23,23 +25,47 @@ class ChangesTestCase(TestCase):
         )
 
     def test_prepend_file(self):
-        _, tmp_file = tempfile.mkstemp()
-        with open(tmp_file, 'w') as existing_file:
-            existing_file.write('This is the first line')
+        os.mkdir('test_app')
+        tmp_file = 'test_app/__init__.py'
 
-        prepend_file(tmp_file, 'Now this is')
+        content = [
+            'This is the heading\n\n',
+            'This is the first line\n',
+        ]
+
+        with open(tmp_file, 'w') as existing_file:
+            existing_file.writelines(content)
+
+        write_new_changelog('test_app', tmp_file, 'Now this is')
+
         self.assertEquals(
-            'This is the first line',
+            ''.join(content),
             ''.join(
                 open(tmp_file).readlines()
             )            
         )
 
-        prepend_file(tmp_file, 'Now this is', dry_run=False)
+        with open(tmp_file, 'w') as existing_file:
+            existing_file.writelines(content)
+
+        write_new_changelog(
+            'test_app',
+            tmp_file,
+            'Now this is',
+            dry_run=False
+        )
+        expected_content = [
+            '# (Changelog)[None/releases]\n\n',
+            'Now this is\n\n',
+            'This is the first line\n'
+        ]
         self.assertEquals(
-            'Now this is\nThis is the first line',
+            ''.join(expected_content),
             ''.join(
                 open(tmp_file).readlines()
             )
         )
+
+        os.remove(tmp_file)
+        os.rmdir('test_app')
 

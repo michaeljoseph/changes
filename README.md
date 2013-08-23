@@ -72,7 +72,7 @@ Tests can then be run by doing:
 
 Run the linting (pep8, pyflakes) with:
 
-    flake8 yousers tests
+    flake8 changes tests
 
 ## API documentation
 

@@ -29,7 +29,28 @@ Install `changes`:
 
 Run the cli:
 
->> insert docopt <<
+```
+changes.
+
+Usage:
+  changes [options] <app_name> version
+  changes [options] <app_name> changelog
+  changes [options] <app_name> tag
+  changes [options] <app_name> upload
+  changes -h | --help
+
+Options:
+  --new-version=<ver>   Specify version.
+  -p --patch            Patch-level version increment.
+  -m --minor            Minor-level version increment.
+  -M --major            Minor-level version increment.
+
+  -h --help             Show this screen.
+
+  --pypi=<pypi>         Specify alternative pypi
+  --dry-run             Prints the commands that would have been executed.
+  --debug               Debug output.
+```
 
 ## Documentation
 

@@ -1,7 +1,7 @@
 changes documentation
 ===========================
 
-.. automodule:: changes
+.. automodule:: changes.cli
     :members:
     :undoc-members:
     :show-inheritance:

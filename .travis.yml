@@ -6,7 +6,7 @@ python:
 install:
     - pip install -r requirements.txt --use-mirrors
 script:
-    - nosetests --with-coverage
+    - nosetests --with-coverage --cover-package=changes
 
 after_success:
   - coveralls

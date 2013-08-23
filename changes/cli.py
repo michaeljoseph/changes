@@ -197,9 +197,9 @@ def main():
         new_version = get_new_version(
             app_name,
             current_version(app_name),
-            **dict({
+            **dict([
                 (key[2:], value) for key, value in extract(arguments, ['--major', '--minor', '--patch']).items()
-            })
+            ])
         )
 
     arguments['new_version'] = new_version

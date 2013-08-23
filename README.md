@@ -1,10 +1,14 @@
 # changes
 
+[![Build Status](https://secure.travis-ci.org/michaeljoseph/changes.png)](http://travis-ci.org/michaeljoseph/changes)
+[![Stories in Ready](https://badge.waffle.io/michaeljoseph/changes.png?label=ready)](https://waffle.io/michaeljoseph/changes)
+[![pypi version](https://badge.fury.io/py/changes.png)](http://badge.fury.io/py/changes)
+[![# of downloads](https://pypip.in/d/changes/badge.png)](https://crate.io/packages/changes?version=latest)
+[![code coverage](https://coveralls.io/repos/michaeljoseph/changes/badge.png?branch=master)](https://coveralls.io/r/michaeljoseph/changes?branch=master)
+
 :musical_note: [Ch-ch-ch-ch-changes](http://www.youtube.com/watch?v=pl3vxEudif8) :musical_note: 
 
 ![changes](https://github.com/michaeljoseph/changes/raw/master/resources/changes.png)
-
-[![Build Status](https://secure.travis-ci.org/michaeljoseph/changes.png)](http://travis-ci.org/michaeljoseph/changes)
 
 ## Overview
 

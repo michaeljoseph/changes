@@ -49,7 +49,7 @@ def write_new_changelog(app_name, filename, content, dry_run=True):
         with open(filename, 'w+') as f: 
             f.writelines(output)
     else:
-        logger.info('New changelog:\n%s' % '\n'.join(output))
+        log.info('New changelog:\n%s' % '\n'.join(output))
 
 
 def get_new_version(app_name, current_version,

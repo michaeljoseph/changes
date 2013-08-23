@@ -32,7 +32,6 @@ sys.path.insert(0, os.path.abspath('..'))
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.coverage',
-    'sphinx.ext.linkcode',
     'sphinxcontrib.httpdomain',
 ]
 
@@ -255,16 +254,3 @@ texinfo_documents = [
 
 html_theme = 'bootstrap'
 html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
-
-
-def linkcode_resolve(domain, info):
-    if domain != 'py':
-        return None
-    if not info['module']:
-        return None
-    filename = info['module'].replace('.', '/')
-    return '%s/blob/master/%s.py' % (
-        changes.__url__,
-        filename
-    )
-

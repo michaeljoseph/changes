@@ -63,7 +63,7 @@ def get_new_version(app_name, current_version,
     )
 
     new_version = raw_input(
-        'What is the release version for "%s"'
+        'What is the release version for "%s" '
         '[Default: %s]: ' % (
             app_name, guess_new_version
         )
@@ -147,9 +147,9 @@ def tag(arguments):
     app_name = arguments['<app_name>']
     new_version = arguments['new_version']
 
-    execute(['git', 'tag', '-a', new_version, '"%s"' % new_version], dry_run=dry_run)
+    execute(['git', 'tag', '-a', new_version, '-m', '"%s"' % new_version], dry_run=dry_run)
     # fixme: check for call error
-    execute(['git push --tags'], dry_run=dry_run)
+    execute(['git', 'push', '--tags'], dry_run=dry_run)
 
 def upload(arguments):
     dry_run=arguments['--dry-run']

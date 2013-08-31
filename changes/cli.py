@@ -1,6 +1,6 @@
 import ast
+import subprocess
 import tempfile
-from subprocess import call
 
 from docopt import docopt
 import path
@@ -32,9 +32,9 @@ def increment(version, major=False, minor=False, patch=True):
     return str(version)
 
 
-def write_new_changelog(app_name, filename, content, dry_run=True):
+def write_new_changelog(app_name, filename, content_lines, dry_run=True):
     heading_and_newline = (
-        '# (Changelog)[%s/releases]\n\n' % 
+        '# (Changelog)[%s/releases]\n' % 
         extract_attribute(app_name, '__url__')
     )
 
@@ -42,14 +42,20 @@ def write_new_changelog(app_name, filename, content, dry_run=True):
         existing = f.readlines()
 
     output = existing[2:]
-    output.insert(0, content + '\n\n')
+    output.insert(0, '\n')
+
+    for index, line in enumerate(content_lines):
+        output.insert(0, content_lines[ len(content_lines) - index - 1])
+
     output.insert(0, heading_and_newline)
+
+    output = ''.join(output)
 
     if not dry_run:
         with open(filename, 'w+') as f: 
-            f.writelines(output)
+            f.write(output)
     else:
-        log.info('New changelog:\n%s' % '\n'.join(output))
+        log.info('New changelog:\n%s' % output) 
 
 
 def get_new_version(app_name, current_version,
@@ -104,7 +110,7 @@ def current_version(app_name):
 
 def execute(commands, dry_run=True):
     if not dry_run:
-        return call(commands)
+        return subprocess.check_output(commands)
     else:
         log.debug('execute: %s' % commands)
 
@@ -129,16 +135,28 @@ def changelog(arguments):
     app_name = arguments['<app_name>']
     new_version = arguments['new_version']
 
+    changelog_content = [
+        '\n## [%s](https://github.com/yola/demands/compare/%s...%s)\n\n' % (
+            new_version, current_version(app_name), new_version
+        )
+    ]
+
+    git_log_content = execute([
+        'git', 'log',  '--oneline', '--no-merges',
+        '%s..master' % current_version(app_name)],
+        dry_run=False
+    )
+    log.debug('git log results: %s' % git_log_content) 
+
+    if git_log_content: 
+        [changelog_content.append('* %s\n' % line) if line else line for line in git_log_content[:-1].split('\n')]
+
+    log.debug('content: <<%s>>' % changelog_content)
+
     write_new_changelog(
         app_name,
-        'CHANGELOG.md', '\n'.join([
-            '## [%s](https://github.com/yola/demands/compare/%s...%s)\n',
-            '* Fill this in.'
-        ]) % (
-            new_version,
-            current_version(app_name),
-            new_version
-        ),
+        'CHANGELOG.md',
+        changelog_content,
         dry_run=dry_run
     )
 

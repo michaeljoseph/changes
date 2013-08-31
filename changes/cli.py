@@ -149,7 +149,7 @@ def tag(arguments):
 
     execute(['git', 'tag', '-a', new_version, '-m', '"%s"' % new_version], dry_run=dry_run)
     # fixme: check for call error
-    execute(['git push --tags'], dry_run=dry_run)
+    execute(['git', 'push', '--tags'], dry_run=dry_run)
 
 def upload(arguments):
     dry_run=arguments['--dry-run']

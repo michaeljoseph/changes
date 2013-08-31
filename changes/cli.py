@@ -147,7 +147,7 @@ def tag(arguments):
     app_name = arguments['<app_name>']
     new_version = arguments['new_version']
 
-    execute(['git', 'tag', '-a', new_version, '"%s"' % new_version], dry_run=dry_run)
+    execute(['git', 'tag', '-a', new_version, '-m', '"%s"' % new_version], dry_run=dry_run)
     # fixme: check for call error
     execute(['git push --tags'], dry_run=dry_run)
 

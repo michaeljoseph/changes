@@ -57,8 +57,8 @@ class ChangesTestCase(TestCase):
             dry_run=False
         )
         expected_content = [
-            '# (Changelog)[None/releases]\n\n',
-            'Now this is\n\n',
+            '# (Changelog)[None/releases]\n',
+            'Now this is\n',
             'This is the first line\n'
         ]
         self.assertEquals(

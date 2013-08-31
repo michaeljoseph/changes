@@ -63,7 +63,7 @@ def get_new_version(app_name, current_version,
     )
 
     new_version = raw_input(
-        'What is the release version for "%s"'
+        'What is the release version for "%s" '
         '[Default: %s]: ' % (
             app_name, guess_new_version
         )

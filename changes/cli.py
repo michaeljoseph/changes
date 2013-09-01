@@ -122,9 +122,7 @@ def version(arguments):
     replace_attribute(app_name, '__version__', new_version, dry_run=dry_run)
 
     execute(
-        ['git', 'ci', '-m',
-         '"%s"' % new_version,
-         '%s/__init__.py' % app_name],
+        ['git', 'ci', '-m', '"%s"' % new_version, '%s/__init__.py' % app_name],
         dry_run=dry_run
     )
 
@@ -145,13 +143,11 @@ def changelog(arguments):
         'git', 'log',  '--oneline', '--no-merges',
         '%s..master' % current_version(app_name)],
         dry_run=False
-    )
-    log.debug('git log results: %s' % git_log_content) 
 
     if git_log_content: 
         [changelog_content.append('* %s\n' % line) if line else line for line in git_log_content[:-1].split('\n')]
 
-    log.debug('content: <<%s>>' % changelog_content)
+    log.debug('content: %s' % changelog_content)
 
     write_new_changelog(
         app_name,
@@ -162,11 +158,9 @@ def changelog(arguments):
 
 def tag(arguments):
     dry_run=arguments['--dry-run']
-    app_name = arguments['<app_name>']
     new_version = arguments['new_version']
 
     execute(['git', 'tag', '-a', new_version, '-m', '"%s"' % new_version], dry_run=dry_run)
-    # fixme: check for call error
     execute(['git', 'push', '--tags'], dry_run=dry_run)
 
 def upload(arguments):
@@ -179,6 +173,7 @@ def upload(arguments):
         upload.append(pypi)
 
     execute(upload, dry_run=dry_run)
+
 
 cli = """
 changes.

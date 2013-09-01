@@ -143,9 +143,27 @@ def changelog(arguments):
         'git', 'log',  '--oneline', '--no-merges',
         '%s..master' % current_version(app_name)],
         dry_run=False
+    ).split('\n')
+
+    for index, line in enumerate(git_log_content):
+        # http://stackoverflow.com/a/468378/5549
+        sha1_re = re.match(r'^[0-9a-f]{5,40}\b', line)
+        if sha1_re:
+            sha1 = sha1_re.group()
+
+            new_line = line.replace(
+                sha1, 
+                '(%s)[%s/commit/%s]' % (
+                    sha1,
+                    extract_attribute(app_name, '__url__'),
+                    sha1
+                )
+            )
+            log.debug('old line: %s\nnew line: %s' % (line, new_line))
+            git_log_content[index] = new_line 
 
     if git_log_content: 
-        [changelog_content.append('* %s\n' % line) if line else line for line in git_log_content[:-1].split('\n')]
+        [changelog_content.append('* %s\n' % line) if line else line for line in git_log_content[:-1]]
 
     log.debug('content: %s' % changelog_content)
 
@@ -155,6 +173,7 @@ def changelog(arguments):
         changelog_content,
         dry_run=dry_run
     )
+    log.info('Added content to CHANGELOG.md')
 
 def tag(arguments):
     dry_run=arguments['--dry-run']
@@ -203,6 +222,7 @@ def main():
     arguments = docopt(cli, version=changes.__version__)
     debug = arguments['--debug']
     logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
+
     app_name = arguments['<app_name>']
     if arguments['--new-version']:
         new_version = arguments['--new-version']

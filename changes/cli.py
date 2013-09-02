@@ -1,6 +1,7 @@
 import ast
+import re
+import subprocess
 import tempfile
-from subprocess import call
 
 from docopt import docopt
 import path
@@ -13,11 +14,29 @@ import changes
 log = logging.getLogger(__name__)
 
 
-def extract(d, keys):
-    return dict((k, d[k]) for k in keys if k in d)
+def extract(dictionary, keys):
+    """
+    Extract only the specified keys from a dict
+
+    :param dictionary: 
+    :param keys: 
+    :return dict:
+    """
+    return dict(
+        (k, dictionary[k]) for k in keys if k in dictionary
+    )
 
 
 def increment(version, major=False, minor=False, patch=True):
+    """
+    Increment a semantic version
+
+    :param version: str of the version to increment
+    :param major: bool specifying major level version increment
+    :param minor: bool specifying minor level version increment
+    :param patch: bool specifying patch level version increment
+    :return: str of the incremented version
+    """
     version = semantic_version.Version(version)
     if major:
         version.major += 1
@@ -32,9 +51,9 @@ def increment(version, major=False, minor=False, patch=True):
     return str(version)
 
 
-def write_new_changelog(app_name, filename, content, dry_run=True):
+def write_new_changelog(app_name, filename, content_lines, dry_run=True):
     heading_and_newline = (
-        '# (Changelog)[%s/releases]\n\n' % 
+        '# (Changelog)[%s/releases]\n' % 
         extract_attribute(app_name, '__url__')
     )
 
@@ -42,14 +61,20 @@ def write_new_changelog(app_name, filename, content, dry_run=True):
         existing = f.readlines()
 
     output = existing[2:]
-    output.insert(0, content + '\n\n')
+    output.insert(0, '\n')
+
+    for index, line in enumerate(content_lines):
+        output.insert(0, content_lines[ len(content_lines) - index - 1])
+
     output.insert(0, heading_and_newline)
+
+    output = ''.join(output)
 
     if not dry_run:
         with open(filename, 'w+') as f: 
-            f.writelines(output)
+            f.write(output)
     else:
-        log.info('New changelog:\n%s' % '\n'.join(output))
+        log.info('New changelog:\n%s' % output) 
 
 
 def get_new_version(app_name, current_version,
@@ -104,7 +129,7 @@ def current_version(app_name):
 
 def execute(commands, dry_run=True):
     if not dry_run:
-        return call(commands)
+        return subprocess.check_output(commands)
     else:
         log.debug('execute: %s' % commands)
 
@@ -116,9 +141,7 @@ def version(arguments):
     replace_attribute(app_name, '__version__', new_version, dry_run=dry_run)
 
     execute(
-        ['git', 'ci', '-m',
-         '"%s"' % new_version,
-         '%s/__init__.py' % app_name],
+        ['git', 'ci', '-m', '"%s"' % new_version, '%s/__init__.py' % app_name],
         dry_run=dry_run
     )
 
@@ -129,26 +152,53 @@ def changelog(arguments):
     app_name = arguments['<app_name>']
     new_version = arguments['new_version']
 
+    changelog_content = [
+        '\n## [%s](https://github.com/yola/demands/compare/%s...%s)\n\n' % (
+            new_version, current_version(app_name), new_version
+        )
+    ]
+
+    git_log_content = execute([
+        'git', 'log',  '--oneline', '--no-merges',
+        '%s..master' % current_version(app_name)],
+        dry_run=False
+    ).split('\n')
+
+    for index, line in enumerate(git_log_content):
+        # http://stackoverflow.com/a/468378/5549
+        sha1_re = re.match(r'^[0-9a-f]{5,40}\b', line)
+        if sha1_re:
+            sha1 = sha1_re.group()
+
+            new_line = line.replace(
+                sha1, 
+                '(%s)[%s/commit/%s]' % (
+                    sha1,
+                    extract_attribute(app_name, '__url__'),
+                    sha1
+                )
+            )
+            log.debug('old line: %s\nnew line: %s' % (line, new_line))
+            git_log_content[index] = new_line 
+
+    if git_log_content: 
+        [changelog_content.append('* %s\n' % line) if line else line for line in git_log_content[:-1]]
+
+    log.debug('content: %s' % changelog_content)
+
     write_new_changelog(
         app_name,
-        'CHANGELOG.md', '\n'.join([
-            '## [%s](https://github.com/yola/demands/compare/%s...%s)\n',
-            '* Fill this in.'
-        ]) % (
-            new_version,
-            current_version(app_name),
-            new_version
-        ),
+        'CHANGELOG.md',
+        changelog_content,
         dry_run=dry_run
     )
+    log.info('Added content to CHANGELOG.md')
 
 def tag(arguments):
     dry_run=arguments['--dry-run']
-    app_name = arguments['<app_name>']
     new_version = arguments['new_version']
 
     execute(['git', 'tag', '-a', new_version, '-m', '"%s"' % new_version], dry_run=dry_run)
-    # fixme: check for call error
     execute(['git', 'push', '--tags'], dry_run=dry_run)
 
 def upload(arguments):
@@ -161,6 +211,7 @@ def upload(arguments):
         upload.append(pypi)
 
     execute(upload, dry_run=dry_run)
+
 
 cli = """
 changes.
@@ -190,6 +241,7 @@ def main():
     arguments = docopt(cli, version=changes.__version__)
     debug = arguments['--debug']
     logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
+
     app_name = arguments['<app_name>']
     if arguments['--new-version']:
         new_version = arguments['--new-version']

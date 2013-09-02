@@ -25,7 +25,7 @@ An application wanting to use `changes` must meet these requirements:
 
 * `setup.py`
 * `CHANGELOG.md`
-* `app_name/__init__.py` with `__version__`
+* `app_name/__init__.py` with `__version__` and `__url__`
 
 Install `changes`:
 

@@ -8,6 +8,11 @@ import shutil
 
 class ChangesTestCase(TestCase):
 
+    def setUp(self):
+        self.tmp_file = 'test_app/__init__.py'
+        if not os.path.exists('test_app'):
+            os.mkdir('test_app')
+
     def test_increment(self):
         self.assertEquals(
             '1.0.0',
@@ -25,47 +30,45 @@ class ChangesTestCase(TestCase):
         )
 
     def test_prepend_file(self):
-        os.mkdir('test_app')
-        tmp_file = 'test_app/__init__.py'
-
         content = [
             'This is the heading\n\n',
             'This is the first line\n',
         ]
 
-        with open(tmp_file, 'w') as existing_file:
+        with open(self.tmp_file, 'w') as existing_file:
             existing_file.writelines(content)
 
-        write_new_changelog('test_app', tmp_file, 'Now this is')
+        write_new_changelog('test_app', self.tmp_file, 'Now this is')
 
         self.assertEquals(
             ''.join(content),
             ''.join(
-                open(tmp_file).readlines()
+                open(self.tmp_file).readlines()
             )            
         )
 
-        with open(tmp_file, 'w') as existing_file:
+        with open(self.tmp_file, 'w') as existing_file:
             existing_file.writelines(content)
 
         write_new_changelog(
             'test_app',
-            tmp_file,
+            self.tmp_file,
             'Now this is',
             dry_run=False
         )
         expected_content = [
-            '# (Changelog)[None/releases]\n\n',
-            'Now this is\n\n',
+            '# (Changelog)[None/releases]\n',
+            'Now this is\n',
             'This is the first line\n'
         ]
         self.assertEquals(
             ''.join(expected_content),
             ''.join(
-                open(tmp_file).readlines()
+                open(self.tmp_file).readlines()
             )
         )
 
-        os.remove(tmp_file)
-        os.rmdir('test_app')
-
+    def tearDown(self):
+        if os.path.exists(self.tmp_file):
+            os.remove(self.tmp_file)
+            os.rmdir('test_app')

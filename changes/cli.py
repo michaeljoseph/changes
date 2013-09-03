@@ -18,9 +18,9 @@ def extract(dictionary, keys):
     """
     Extract only the specified keys from a dict
 
-    :param dictionary: 
-    :param keys: 
-    :return dict:
+    :param dictionary: source dictionary
+    :param keys: list of keys to extract
+    :return dict: extracted dictionary
     """
     return dict(
         (k, dictionary[k]) for k in keys if k in dictionary
@@ -53,7 +53,7 @@ def increment(version, major=False, minor=False, patch=True):
 
 def write_new_changelog(app_name, filename, content_lines, dry_run=True):
     heading_and_newline = (
-        '# (Changelog)[%s/releases]\n' % 
+        '# (Changelog)[%s/releases]\n' %
         extract_attribute(app_name, '__url__')
     )
 
@@ -64,17 +64,17 @@ def write_new_changelog(app_name, filename, content_lines, dry_run=True):
     output.insert(0, '\n')
 
     for index, line in enumerate(content_lines):
-        output.insert(0, content_lines[ len(content_lines) - index - 1])
+        output.insert(0, content_lines[len(content_lines) - index - 1])
 
     output.insert(0, heading_and_newline)
 
     output = ''.join(output)
 
     if not dry_run:
-        with open(filename, 'w+') as f: 
+        with open(filename, 'w+') as f:
             f.write(output)
     else:
-        log.info('New changelog:\n%s' % output) 
+        log.info('New changelog:\n%s' % output)
 
 
 def get_new_version(app_name, current_version,
@@ -127,6 +127,7 @@ def replace_attribute(app_name, attribute_name, new_value, dry_run=True):
 def current_version(app_name):
     return extract_attribute(app_name, '__version__')
 
+
 def execute(commands, dry_run=True):
     if not dry_run:
         try:
@@ -136,8 +137,9 @@ def execute(commands, dry_run=True):
     else:
         log.debug('execute: %s' % commands)
 
+
 def version(arguments):
-    dry_run=arguments['--dry-run']
+    dry_run = arguments['--dry-run']
     app_name = arguments['<app_name>']
     new_version = arguments['new_version']
 
@@ -150,8 +152,9 @@ def version(arguments):
 
     execute(['git', 'push'], dry_run=dry_run)
 
+
 def changelog(arguments):
-    dry_run=arguments['--dry-run']
+    dry_run = arguments['--dry-run']
     app_name = arguments['<app_name>']
     new_version = arguments['new_version']
 
@@ -174,7 +177,7 @@ def changelog(arguments):
             sha1 = sha1_re.group()
 
             new_line = line.replace(
-                sha1, 
+                sha1,
                 '(%s)[%s/commit/%s]' % (
                     sha1,
                     extract_attribute(app_name, '__url__'),
@@ -182,9 +185,9 @@ def changelog(arguments):
                 )
             )
             log.debug('old line: %s\nnew line: %s' % (line, new_line))
-            git_log_content[index] = new_line 
+            git_log_content[index] = new_line
 
-    if git_log_content: 
+    if git_log_content:
         [changelog_content.append('* %s\n' % line) if line else line for line in git_log_content[:-1]]
 
     log.debug('content: %s' % changelog_content)
@@ -206,15 +209,17 @@ def changelog(arguments):
         execute(['git', 'push'], dry_run=dry_run)
         log.info('Committed changelog update')
 
+
 def tag(arguments):
-    dry_run=arguments['--dry-run']
+    dry_run = arguments['--dry-run']
     new_version = arguments['new_version']
 
     execute(['git', 'tag', '-a', new_version, '-m', '"%s"' % new_version], dry_run=dry_run)
     execute(['git', 'push', '--tags'], dry_run=dry_run)
 
+
 def upload(arguments):
-    dry_run=arguments['--dry-run']
+    dry_run = arguments['--dry-run']
     pypi = arguments['--pypi']
 
     upload = ['python', 'setup.py', 'clean', 'sdist', 'upload']
@@ -236,11 +241,12 @@ cli = """
 changes.
 
 Usage:
+  changes [options] <app_name> changelog
   changes [options] <app_name> release
   changes [options] <app_name> version
-  changes [options] <app_name> changelog
   changes [options] <app_name> tag
   changes [options] <app_name> upload
+
   changes -h | --help
 
 Options:
@@ -281,4 +287,3 @@ def main():
     for command in ['release', 'version', 'changelog', 'tag', 'upload']:
         if arguments[command]:
             globals()[command](arguments)
-

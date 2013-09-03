@@ -194,6 +194,14 @@ def changelog(arguments):
     )
     log.info('Added content to CHANGELOG.md')
 
+    execute(
+        ['git', 'ci', '-m', '"%s"' % new_version, '%s/__init__.py' % app_name],
+        dry_run=dry_run
+    )
+
+    execute(['git', 'push'], dry_run=dry_run)
+    log.info('Committed changelog update')
+
 def tag(arguments):
     dry_run=arguments['--dry-run']
     new_version = arguments['new_version']

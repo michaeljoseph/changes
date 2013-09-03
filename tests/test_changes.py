@@ -1,9 +1,6 @@
-import tempfile
-
 from unittest2 import TestCase
 from changes.cli import increment, write_new_changelog
 import os
-import shutil
 
 
 class ChangesTestCase(TestCase):

@@ -14,7 +14,7 @@
 
 Manages the release of a python library.
 
-* cli that uses [semver][0] principles to increment the current version
+* cli that follows [semantic versioning][0] principles to increment the current version
 * auto generates a changelog entry (using github's compare view)
 * tags the github repo
 * uploads to pypi
@@ -37,6 +37,7 @@ Run the cli:
 changes.
 
 Usage:
+  changes [options] <app_name> release
   changes [options] <app_name> version
   changes [options] <app_name> changelog
   changes [options] <app_name> tag

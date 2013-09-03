@@ -160,8 +160,9 @@ def changelog(arguments):
     new_version = arguments['new_version']
 
     changelog_content = [
-        '\n## [%s](https://github.com/yola/demands/compare/%s...%s)\n\n' % (
-            new_version, current_version(app_name), new_version
+        '\n## [%s](%scompare/%s...%s)\n\n' % (
+            new_version, extract_attribute(app_name, '__url__')
+            current_version(app_name), new_version
         )
     ]
 

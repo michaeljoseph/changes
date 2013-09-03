@@ -129,7 +129,10 @@ def current_version(app_name):
 
 def execute(commands, dry_run=True):
     if not dry_run:
-        return subprocess.check_output(commands)
+        try:
+            return subprocess.check_output(commands)
+        except subprocess.CalledProcessError, e:
+            return '\n%s' % e.output
     else:
         log.debug('execute: %s' % commands)
 

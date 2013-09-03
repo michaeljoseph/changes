@@ -67,7 +67,7 @@ want to edit that a bit, so `changes` won't commit it, unless you
 The remaining tasks can be automated with the `release` command.
 
 ```python
-(changes)➜  changes git:(master) changes -p changes changelog --commit-changelog
+(changes)➜  changes git:(master) changes -p changes changelog
 What is the release version for "changes" [Default: 0.1.1]:
 INFO:changes.cli:Added content to CHANGELOG.md
 Everything up-to-date

@@ -129,7 +129,10 @@ def current_version(app_name):
 
 def execute(commands, dry_run=True):
     if not dry_run:
-        return subprocess.check_output(commands)
+        try:
+            return subprocess.check_output(commands)
+        except subprocess.CalledProcessError, e:
+            return '\n%s' % e.output
     else:
         log.debug('execute: %s' % commands)
 
@@ -193,6 +196,14 @@ def changelog(arguments):
         dry_run=dry_run
     )
     log.info('Added content to CHANGELOG.md')
+
+    execute(
+        ['git', 'ci', '-m', '"%s"' % new_version, '%s/__init__.py' % app_name],
+        dry_run=dry_run
+    )
+
+    execute(['git', 'push'], dry_run=dry_run)
+    log.info('Committed changelog update')
 
 def tag(arguments):
     dry_run=arguments['--dry-run']

@@ -192,8 +192,6 @@ def changelog(arguments):
     if git_log_content:
         [changelog_content.append('* %s\n' % line) if line else line for line in git_log_content[:-1]]
 
-    log.debug('content: %s' % changelog_content)
-
     write_new_changelog(
         app_name,
         'CHANGELOG.md',
@@ -204,7 +202,7 @@ def changelog(arguments):
 
     if arguments['--commit-changelog']:
         execute(
-            ['git', 'ci', '-m', '"%s"' % new_version, '%s/__init__.py' % app_name],
+            ['git', 'ci', '-m', new_version, 'CHANGLOG.md'],
             dry_run=dry_run
         )
 

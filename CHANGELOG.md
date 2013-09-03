@@ -1,4 +1,8 @@
-# (Changelog)[https://github.com/michaeljoseph/changes/releases]
+# [Changelog](https://github.com/michaeljoseph/changes/releases)
+
+## [0.1.3](https://github.com/michaeljoseph/changes/compare/0.1.2...0.1.3)
+
+* [b96ff3d](https://github.com/michaeljoseph/changes/commit/b96ff3d) Learn markdown
 
 ## [0.1.2](https://github.com/michaeljoseph/changes/compare/0.1.1...0.1.2)
 

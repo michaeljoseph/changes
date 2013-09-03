@@ -53,7 +53,7 @@ def increment(version, major=False, minor=False, patch=True):
 
 def write_new_changelog(app_name, filename, content_lines, dry_run=True):
     heading_and_newline = (
-        '# (Changelog)[%s/releases]\n' %
+        '# [Changelog](%s/releases)\n' %
         extract_attribute(app_name, '__url__')
     )
 
@@ -180,7 +180,7 @@ def changelog(arguments):
 
             new_line = line.replace(
                 sha1,
-                '(%s)[%s/commit/%s]' % (
+                '[%s](%s/commit/%s)' % (
                     sha1,
                     extract_attribute(app_name, '__url__'),
                     sha1

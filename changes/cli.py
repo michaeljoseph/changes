@@ -232,7 +232,6 @@ def upload(arguments):
 
 def release(arguments):
     version(arguments)
-    changelog(arguments)
     tag(arguments)
     upload(arguments)
 

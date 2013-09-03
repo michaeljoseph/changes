@@ -161,8 +161,8 @@ def changelog(arguments):
 
     changelog_content = [
         '\n## [%s](%scompare/%s...%s)\n\n' % (
-            new_version, extract_attribute(app_name, '__url__')
-            current_version(app_name), new_version
+            new_version, extract_attribute(app_name, '__url__'),
+            current_version(app_name), new_version,
         )
     ]
 

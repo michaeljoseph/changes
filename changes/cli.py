@@ -240,9 +240,9 @@ cli = """
 changes.
 
 Usage:
+  changes [options] <app_name> changelog
   changes [options] <app_name> release
   changes [options] <app_name> version
-  changes [options] <app_name> changelog
   changes [options] <app_name> tag
   changes [options] <app_name> upload
 
@@ -284,4 +284,3 @@ def main():
     for command in ['release', 'version', 'changelog', 'tag', 'upload']:
         if arguments[command]:
             globals()[command](arguments)
-

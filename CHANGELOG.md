@@ -1,10 +1,10 @@
 # (Changelog)[https://github.com/michaeljoseph/changes/releases]
 
-## [0.1.1](https://github.com/yola/demands/compare/0.1.0...0.1.1)
+## [0.1.1](https://github.com/yola/changes/compare/0.1.0...0.1.1)
 
 * (9df1964)[https://github.com/michaeljoseph/changes/commit/9df1964] Don't overquote
 
-## [0.1.0](https://github.com/yola/demands/compare/0.0.1...0.1.0)
+## [0.1.0](https://github.com/yola/changes/compare/0.0.1...0.1.0)
 
 * (95e1f5d)[https://github.com/michaeljoseph/changes/commit/95e1f5d] Document and implement the default workflow
 * (f410abf)[https://github.com/michaeljoseph/changes/commit/f410abf] rtfd

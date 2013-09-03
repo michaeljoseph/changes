@@ -4,7 +4,7 @@ import subprocess
 import tempfile
 
 from docopt import docopt
-import path
+from path import path
 import semantic_version
 import logging
 

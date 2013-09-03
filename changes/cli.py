@@ -145,10 +145,11 @@ def version(arguments):
 
     replace_attribute(app_name, '__version__', new_version, dry_run=dry_run)
 
-    execute(
-        ['git', 'ci', '-m', new_version, '%s/__init__.py' % app_name],
-        dry_run=dry_run
-    )
+    commands = ['git', 'ci', '-m', new_version, '%s/__init__.py' % app_name]
+    if arguments['--commit-changelog']:
+        commands.append('CHANGELOG.md')
+
+    execute(commands, dry_run=dry_run)
 
     execute(['git', 'push'], dry_run=dry_run)
 

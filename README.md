@@ -54,8 +54,17 @@ Options:
 
   --pypi=<pypi>         Specify alternative pypi
   --dry-run             Prints the commands that would have been executed.
+  --commit-changelog    Should the automatically generated changelog be 
+                        committed?
   --debug               Debug output.
 ```
+
+The default workflow is to run the `changelog` command to autogenerate
+a changelog entry based on your commit messages.  You're probably going to 
+want to edit that a bit, so `changes` won't commit it, unless you
+`--commit-changelog`.
+
+The remaining tasks can be automated with the `release` command.
 
 ## Documentation
 

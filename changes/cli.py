@@ -119,7 +119,7 @@ def replace_attribute(app_name, attribute_name, new_value, dry_run=True):
                 output_file.write(line)
 
     if not dry_run:
-        path(tmp_file).move(tmp_file, init_file)
+        path(tmp_file).move(init_file)
     else:
         log.debug(execute(['diff', tmp_file, init_file], dry_run=False))
 

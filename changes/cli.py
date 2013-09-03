@@ -13,6 +13,7 @@ import changes
 
 log = logging.getLogger(__name__)
 
+CHANGELOG = 'CHANGELOG.md'
 
 def extract(dictionary, keys):
     """
@@ -145,9 +146,10 @@ def version(arguments):
 
     replace_attribute(app_name, '__version__', new_version, dry_run=dry_run)
 
-    commands = ['git', 'ci', '-m', new_version, '%s/__init__.py' % app_name]
-    if arguments['--commit-changelog']:
-        commands.append('CHANGELOG.md')
+    commands = [
+        'git', 'ci', '-m', new_version,
+        '%s/__init__.py' % app_name, CHANGELOG
+    ]
 
     execute(commands, dry_run=dry_run)
 
@@ -194,7 +196,7 @@ def changelog(arguments):
 
     write_new_changelog(
         app_name,
-        'CHANGELOG.md',
+        CHANGELOG,
         changelog_content,
         dry_run=dry_run
     )

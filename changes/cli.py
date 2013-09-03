@@ -200,15 +200,6 @@ def changelog(arguments):
     )
     log.info('Added content to CHANGELOG.md')
 
-    if arguments['--commit-changelog']:
-        execute(
-            ['git', 'ci', '-m', new_version, 'CHANGLOG.md'],
-            dry_run=dry_run
-        )
-
-        execute(['git', 'push'], dry_run=dry_run)
-        log.info('Committed changelog update')
-
 
 def tag(arguments):
     dry_run = arguments['--dry-run']
@@ -231,6 +222,8 @@ def upload(arguments):
 
 
 def release(arguments):
+    if not arguments['--skip-changelog']:
+        changelog(arguments)
     version(arguments)
     tag(arguments)
     upload(arguments)
@@ -258,8 +251,8 @@ Options:
 
   --pypi=<pypi>         Specify alternative pypi
   --dry-run             Prints the commands that would have been executed.
-  --commit-changelog    Should the automatically generated changelog be 
-                        committed?
+  --skip-changelog      For the release task: should the changelog be generated
+                        and committed?
   --debug               Debug output.
 """
 

@@ -54,17 +54,19 @@ Options:
 
   --pypi=<pypi>         Specify alternative pypi
   --dry-run             Prints the commands that would have been executed.
-  --commit-changelog    Should the automatically generated changelog be 
-                        committed?
+  --skip-changelog      For the release task: should the changelog be generated
+                        and committed?
   --debug               Debug output.
 ```
 
 The default workflow is to run the `changelog` command to autogenerate
-a changelog entry based on your commit messages.  You're probably going to 
-want to edit that a bit, so `changes` won't commit it, unless you
-`--commit-changelog`.
+a changelog entry based on your commit messages.
 
-The remaining tasks can be automated with the `release` command.
+You're probably going to want to edit that a bit, so `changes` won't commit it,
+ unless you're running the `release` command.
+
+The remaining tasks can be automated with the `release` command (the 
+`--skip-changelog` option prevents `release` from regenerating the automatic changelog)
 
 ```python
 (changes)➜  changes git:(master) changes -p changes changelog
@@ -75,7 +77,7 @@ INFO:changes.cli:Committed changelog update
 
 << changelog pruning >>
 
-(changes)➜  changes git:(master) ✗ changes -p changes release --commit-changelog
+(changes)➜  changes git:(master) ✗ changes -p changes release --skip-changelog
 What is the release version for "changes" [Default: 0.1.1]:
 Counting objects: 7, done.
 Delta compression using up to 8 threads.
@@ -90,6 +92,11 @@ Total 1 (delta 0), reused 0 (delta 0)
 To git@github.com:michaeljoseph/changes.git
  * [new tag]         0.1.1 -> 0.1.1
 warning: sdist: standard file not found: should have one of README, README.rst, README.txt
+```
+
+Or you can do it all in one step, if your commit messages are good enough:
+```python
+changes -p changes release
 ```
 
 ## Documentation

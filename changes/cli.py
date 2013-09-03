@@ -146,7 +146,7 @@ def version(arguments):
     replace_attribute(app_name, '__version__', new_version, dry_run=dry_run)
 
     execute(
-        ['git', 'ci', '-m', '"%s"' % new_version, '%s/__init__.py' % app_name],
+        ['git', 'ci', '-m', new_version, '%s/__init__.py' % app_name],
         dry_run=dry_run
     )
 

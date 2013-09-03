@@ -66,6 +66,29 @@ want to edit that a bit, so `changes` won't commit it, unless you
 
 The remaining tasks can be automated with the `release` command.
 
+```python
+(changes)➜  changes git:(master) changes -p changes changelog --commit-changelog
+What is the release version for "changes" [Default: 0.1.1]:
+INFO:changes.cli:Added content to CHANGELOG.md
+Everything up-to-date
+INFO:changes.cli:Committed changelog update
+(changes)➜  changes git:(master) ✗ changes -p changes release
+What is the release version for "changes" [Default: 0.1.1]:
+Counting objects: 7, done.
+Delta compression using up to 8 threads.
+Compressing objects: 100% (4/4), done.
+Writing objects: 100% (4/4), 400 bytes, done.
+Total 4 (delta 2), reused 0 (delta 0)
+To git@github.com:michaeljoseph/changes.git
+   5c6760d..bafce16  master -> master
+Counting objects: 1, done.
+Writing objects: 100% (1/1), 168 bytes, done.
+Total 1 (delta 0), reused 0 (delta 0)
+To git@github.com:michaeljoseph/changes.git
+ * [new tag]         0.1.1 -> 0.1.1
+warning: sdist: standard file not found: should have one of README, README.rst, README.txt
+```
+
 ## Documentation
 
 [API Documentation][1]

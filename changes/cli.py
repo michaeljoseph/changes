@@ -213,10 +213,18 @@ def upload(arguments):
     execute(upload, dry_run=dry_run)
 
 
+def release(arguments):
+    version(arguments)
+    changelog(arguments)
+    tag(arguments)
+    upload(arguments)
+
+
 cli = """
 changes.
 
 Usage:
+  changes [options] <app_name> release
   changes [options] <app_name> version
   changes [options] <app_name> changelog
   changes [options] <app_name> tag
@@ -256,7 +264,7 @@ def main():
 
     arguments['new_version'] = new_version
     log.debug('arguments: %s', arguments)
-    for command in ['version', 'changelog', 'tag', 'upload']:
+    for command in ['release', 'version', 'changelog', 'tag', 'upload']:
         if arguments[command]:
             globals()[command](arguments)
 

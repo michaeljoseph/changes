@@ -72,7 +72,10 @@ What is the release version for "changes" [Default: 0.1.1]:
 INFO:changes.cli:Added content to CHANGELOG.md
 Everything up-to-date
 INFO:changes.cli:Committed changelog update
-(changes)➜  changes git:(master) ✗ changes -p changes release
+
+<< changelog pruning >>
+
+(changes)➜  changes git:(master) ✗ changes -p changes release --commit-changelog
 What is the release version for "changes" [Default: 0.1.1]:
 Counting objects: 7, done.
 Delta compression using up to 8 threads.

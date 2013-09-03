@@ -1,5 +1,16 @@
 # (Changelog)[https://github.com/michaeljoseph/changes/releases]
 
+## [0.1.2](https://github.com/michaeljoseph/changes/compare/0.1.1...0.1.2)
+
+* (3c1e8c8)[https://github.com/michaeljoseph/changes/commit/3c1e8c8] Actually commit the changelog
+* (9afc15f)[https://github.com/michaeljoseph/changes/commit/9afc15f] Fix compare urls
+* (90f6ee1)[https://github.com/michaeljoseph/changes/commit/90f6ee1] Missing slash
+* (378cb51)[https://github.com/michaeljoseph/changes/commit/378cb51] Syntax
+* (7b8e35c)[https://github.com/michaeljoseph/changes/commit/7b8e35c] This is not demands
+* (1ce4074)[https://github.com/michaeljoseph/changes/commit/1ce4074] Passing `--commit-changelog` to `release` now commits your curated changelog
+* (46d56a9)[https://github.com/michaeljoseph/changes/commit/46d56a9] Changelog update for 0.1.1
+* (b9cbce8)[https://github.com/michaeljoseph/changes/commit/b9cbce8] Add example output to readme
+
 ## [0.1.1](https://github.com/yola/changes/compare/0.1.0...0.1.1)
 
 * (9df1964)[https://github.com/michaeljoseph/changes/commit/9df1964] Don't overquote

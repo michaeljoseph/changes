@@ -13,6 +13,7 @@ import changes
 
 log = logging.getLogger(__name__)
 
+CHANGELOG = 'CHANGELOG.md'
 
 def extract(dictionary, keys):
     """
@@ -145,9 +146,10 @@ def version(arguments):
 
     replace_attribute(app_name, '__version__', new_version, dry_run=dry_run)
 
-    commands = ['git', 'ci', '-m', new_version, '%s/__init__.py' % app_name]
-    if arguments['--commit-changelog']:
-        commands.append('CHANGELOG.md')
+    commands = [
+        'git', 'ci', '-m', new_version,
+        '%s/__init__.py' % app_name, CHANGELOG
+    ]
 
     execute(commands, dry_run=dry_run)
 
@@ -194,20 +196,11 @@ def changelog(arguments):
 
     write_new_changelog(
         app_name,
-        'CHANGELOG.md',
+        CHANGELOG,
         changelog_content,
         dry_run=dry_run
     )
     log.info('Added content to CHANGELOG.md')
-
-    if arguments['--commit-changelog']:
-        execute(
-            ['git', 'ci', '-m', new_version, 'CHANGLOG.md'],
-            dry_run=dry_run
-        )
-
-        execute(['git', 'push'], dry_run=dry_run)
-        log.info('Committed changelog update')
 
 
 def tag(arguments):
@@ -231,6 +224,8 @@ def upload(arguments):
 
 
 def release(arguments):
+    if not arguments['--skip-changelog']:
+        changelog(arguments)
     version(arguments)
     tag(arguments)
     upload(arguments)
@@ -258,8 +253,8 @@ Options:
 
   --pypi=<pypi>         Specify alternative pypi
   --dry-run             Prints the commands that would have been executed.
-  --commit-changelog    Should the automatically generated changelog be 
-                        committed?
+  --skip-changelog      For the release task: should the changelog be generated
+                        and committed?
   --debug               Debug output.
 """
 

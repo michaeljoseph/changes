@@ -96,7 +96,22 @@ warning: sdist: standard file not found: should have one of README, README.rst, 
 
 Or you can do it all in one step, if your commit messages are good enough:
 ```python
-changes -p changes release
+(changes)➜  changes git:(master) changes -p changes release
+What is the release version for "changes" [Default: 0.1.4]:
+INFO:changes.cli:Added content to CHANGELOG.md
+Counting objects: 9, done.
+Delta compression using up to 8 threads.
+Compressing objects: 100% (5/5), done.
+Writing objects: 100% (5/5), 663 bytes, done.
+Total 5 (delta 3), reused 0 (delta 0)
+To git@github.com:michaeljoseph/changes.git
+   5d5af75..efc272c  master -> master
+Counting objects: 1, done.
+Writing objects: 100% (1/1), 168 bytes, done.
+Total 1 (delta 0), reused 0 (delta 0)
+To git@github.com:michaeljoseph/changes.git
+ * [new tag]         0.1.4 -> 0.1.4
+warning: sdist: standard file not found: should have one of README, README.rst, README.txt
 ```
 
 ## Documentation

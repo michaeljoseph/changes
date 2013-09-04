@@ -1,5 +1,11 @@
 # [Changelog](https://github.com/michaeljoseph/changes/releases)
 
+## [0.1.4](https://github.com/michaeljoseph/changes/compare/0.1.3...0.1.4)
+
+* [5ff1376](https://github.com/michaeljoseph/changes/commit/5ff1376) Fix changelog formatting test expectation
+* [c8cabfd](https://github.com/michaeljoseph/changes/commit/c8cabfd) Refactor changelog filename setting
+* [0aba00c](https://github.com/michaeljoseph/changes/commit/0aba00c) Replace `--commit-changelog` with `--skip-changelog` for a single automated release
+
 ## [0.1.3](https://github.com/michaeljoseph/changes/compare/0.1.2...0.1.3)
 
 * [b96ff3d](https://github.com/michaeljoseph/changes/commit/b96ff3d) Learn markdown

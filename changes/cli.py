@@ -285,21 +285,26 @@ def main():
     debug = arguments['--debug']
     logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
 
-    app_name = arguments['<app_name>']
-    if arguments['--new-version']:
-        new_version = arguments['--new-version']
-    else:
-        new_version = get_new_version(
-            app_name,
-            current_version(app_name),
-            **dict([
-                (key[2:], value) for key, value in extract(arguments, ['--major', '--minor', '--patch']).items()
-            ])
-        )
+    suppress_version_prompt_for = ['test', 'upload']
 
-    arguments['new_version'] = new_version
+    app_name = arguments['<app_name>']
+
+    if arguments['--new-version']:
+        arguments['new_version'] = arguments['--new-version']
+
     log.debug('arguments: %s', arguments)
-    for command in ['release', 'version', 'changelog', 'tag', 'upload']:
+
     for command in commands:
         if arguments[command]:
+            if command not in suppress_version_prompt_for:
+                arguments['new_version'] = get_new_version(
+                    app_name,
+                    current_version(app_name),
+                    **dict([
+                        (key[2:], value)
+                        for key, value in
+                        extract(arguments, ['--major', '--minor', '--patch'])
+                        .items()
+                    ])
+                )
             globals()[command](arguments)

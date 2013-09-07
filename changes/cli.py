@@ -156,6 +156,15 @@ def version(arguments):
     execute(['git', 'push'], dry_run=dry_run)
 
 
+def test(arguments):
+    dry_run = arguments['--dry-run']
+    command = 'nosetests'
+    if arguments['--tox']:
+        command = 'tox'
+
+    return execute([command], dry_run=dry_run)
+
+
 def changelog(arguments):
     dry_run = arguments['--dry-run']
     app_name = arguments['<app_name>']
@@ -238,6 +247,7 @@ Usage:
   changes [options] <app_name> changelog
   changes [options] <app_name> release
   changes [options] <app_name> version
+  changes [options] <app_name> test
   changes [options] <app_name> tag
   changes [options] <app_name> upload
 
@@ -255,11 +265,13 @@ Options:
   --dry-run             Prints the commands that would have been executed.
   --skip-changelog      For the release task: should the changelog be generated
                         and committed?
+  --tox                 Use tox instead of nosetests
   --debug               Debug output.
 """
 
 
 def main():
+    commands = ['release', 'changelog', 'test', 'version', 'tag', 'upload']
     arguments = docopt(cli, version=changes.__version__)
     debug = arguments['--debug']
     logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
@@ -279,5 +291,6 @@ def main():
     arguments['new_version'] = new_version
     log.debug('arguments: %s', arguments)
     for command in ['release', 'version', 'changelog', 'tag', 'upload']:
+    for command in commands:
         if arguments[command]:
             globals()[command](arguments)

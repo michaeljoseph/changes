@@ -154,6 +154,8 @@ def execute(commands, dry_run=True):
         except subprocess.CalledProcessError, e:
             log.debug('return code: %s, output: %s', e.returncode, e.output)
             return False
+    else:
+        return True
 
 
 def write_new_changelog(app_name, filename, content_lines, dry_run=True):
@@ -238,7 +240,17 @@ def version(arguments):
     app_name = arguments['<app_name>']
     new_version = arguments['new_version']
 
-    replace_attribute(app_name, '__version__', new_version, dry_run=dry_run)
+    replace_attribute(
+        app_name,
+        '__version__',
+        new_version,
+        dry_run=dry_run)
+
+
+def commit_version_change(arguments):
+    dry_run = arguments['--dry-run']
+    app_name = arguments['<app_name>']
+    new_version = arguments['new_version']
 
     commands = [
         'git', 'ci', '-m', new_version,
@@ -352,12 +364,18 @@ def tag(arguments):
 
 
 def release(arguments):
-    if not arguments['--skip-changelog']:
-        changelog(arguments)
-    version(arguments)
-    test(arguments)
-    upload(arguments)
-    tag(arguments)
+    try:
+        if not arguments['--skip-changelog']:
+            changelog(arguments)
+        version(arguments)
+        test(arguments)
+        commit_version_change(arguments)
+        install(arguments)
+        upload(arguments)
+        pypi(arguments)
+        tag(arguments)
+    except:
+        log.error('Error releasing')
 
 
 def main():

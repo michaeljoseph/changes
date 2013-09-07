@@ -1,3 +1,40 @@
+"""
+changes.
+
+Usage:
+  changes [options] <app_name> changelog
+  changes [options] <app_name> release
+  changes [options] <app_name> version
+  changes [options] <app_name> test
+  changes [options] <app_name> tag
+  changes [options] <app_name> upload
+
+  changes -h | --help
+
+Options:
+  --new-version=<ver>   Specify version.
+  -p --patch            Patch-level version increment.
+  -m --minor            Minor-level version increment.
+  -M --major            Minor-level version increment.
+
+  -h --help             Show this screen.
+
+  --pypi=<pypi>         Specify alternative pypi
+  --dry-run             Prints the commands that would have been executed.
+  --skip-changelog      For the release task: should the changelog be generated
+                        and committed?
+  --tox                 Use tox instead of nosetests
+  --debug               Debug output.
+
+The commands do the following:
+   changelog   Generates an automatic changelog from your commit messages
+   version     Increments the __version__ attribute of your module's __init__
+   test        Runs your tests with nosetests
+   tag         Tags your git repo with the new version number
+   upload      Uploads your project with setup.py clean sdist upload
+   release     Runs all the previous commands
+"""
+
 import ast
 import re
 import subprocess
@@ -240,39 +277,11 @@ def release(arguments):
     upload(arguments)
 
 
-cli = """
-changes.
-
-Usage:
-  changes [options] <app_name> changelog
-  changes [options] <app_name> release
-  changes [options] <app_name> version
-  changes [options] <app_name> test
-  changes [options] <app_name> tag
-  changes [options] <app_name> upload
-
-  changes -h | --help
-
-Options:
-  --new-version=<ver>   Specify version.
-  -p --patch            Patch-level version increment.
-  -m --minor            Minor-level version increment.
-  -M --major            Minor-level version increment.
-
-  -h --help             Show this screen.
-
-  --pypi=<pypi>         Specify alternative pypi
-  --dry-run             Prints the commands that would have been executed.
-  --skip-changelog      For the release task: should the changelog be generated
-                        and committed?
-  --tox                 Use tox instead of nosetests
-  --debug               Debug output.
-"""
 
 
 def main():
     commands = ['release', 'changelog', 'test', 'version', 'tag', 'upload']
-    arguments = docopt(cli, version=changes.__version__)
+    arguments = docopt(__doc__, version=changes.__version__)
     debug = arguments['--debug']
     logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
 

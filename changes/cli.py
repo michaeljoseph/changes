@@ -240,6 +240,11 @@ def version(arguments):
 
     replace_attribute(app_name, '__version__', new_version, dry_run=dry_run)
 
+
+def commit_version_change(arguments):
+    app_name = arguments['<app_name>']
+    new_version = arguments['new_version']
+
     commands = [
         'git', 'ci', '-m', new_version,
         '%s/__init__.py' % app_name, CHANGELOG

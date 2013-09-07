@@ -25,6 +25,7 @@ Options:
   --skip-changelog      For the release task: should the changelog be generated
                         and committed?
   --tox                 Use tox instead of nosetests
+  --test-command=<cmd>  Command to use to test the newly installed package
   --debug               Debug output.
 
 The commands do the following:
@@ -277,6 +278,9 @@ def install(arguments):
                 '%s/bin/python' % tmp_dir
             )
             log.info('Successfully installed %s sdist', app_name)
+            if arguments['--test-command']:
+                result = execute(arguments['--test-command'].split(' '), dry_run=dry_run)
+                log.info('test result: %s', result)
         except:
             log.info('Error installing %s sdist', app_name)
 

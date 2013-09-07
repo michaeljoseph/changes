@@ -36,7 +36,7 @@ The commands do the following:
    install     Attempts to install the sdist
    tag         Tags your git repo with the new version number
    upload      Uploads your project with setup.py clean sdist upload
-   pypi        Attempts to install your package from pypi 
+   pypi        Attempts to install your package from pypi
    release     Runs all the previous commands
 """
 
@@ -258,19 +258,20 @@ def test(arguments):
 
     return execute([command], dry_run=dry_run)
 
+
 def make_virtualenv():
     tmp_dir = tempfile.mkdtemp()
     log.debug('tmp ve dir: %s' % tmp_dir)
-    result = virtualenv.create_environment(
-        tmp_dir, site_packages=False
-    )
+    virtualenv.create_environment(tmp_dir, site_packages=False)
     return tmp_dir
+
 
 def run_test_command(arguments):
     if arguments['--test-command']:
         test_command = arguments['--test-command'].split(' ')
         result = execute(test_command, dry_run=arguments['--dry-run'])
-        log.info('Test command "%s" result: %s', test_command, result)    
+        log.info('Test command "%s" result: %s', test_command, result)
+
 
 def install(arguments):
     dry_run = arguments['--dry-run']
@@ -293,7 +294,6 @@ def install(arguments):
             run_test_command(arguments)
         except:
             log.info('Error installing %s sdist', app_name)
-
 
         path(tmp_dir).rmtree(path(tmp_dir))
 
@@ -327,9 +327,11 @@ def pypi(arguments):
     try:
         result = execute(install, dry_run=dry_run)
         if result:
-            log.info('Successfully installed %s from %s', app_name, package_index)
+            log.info('Successfully installed %s from %s',
+                     app_name, package_index)
         else:
-            log.error('Failed to install %s from %s', app_name, package_index)
+            log.error('Failed to install %s from %s',
+                      app_name, package_index)
         run_test_command(arguments)
     except:
         log.exception('')

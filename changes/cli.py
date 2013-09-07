@@ -49,8 +49,8 @@ import changes
 
 
 log = logging.getLogger(__name__)
-
 CHANGELOG = 'CHANGELOG.md'
+
 
 def extract(dictionary, keys):
     """
@@ -87,32 +87,6 @@ def increment(version, major=False, minor=False, patch=True):
         version.patch += 1
 
     return str(version)
-
-
-def write_new_changelog(app_name, filename, content_lines, dry_run=True):
-    heading_and_newline = (
-        '# [Changelog](%s/releases)\n' %
-        extract_attribute(app_name, '__url__')
-    )
-
-    with open(filename, 'r+') as f:
-        existing = f.readlines()
-
-    output = existing[2:]
-    output.insert(0, '\n')
-
-    for index, line in enumerate(content_lines):
-        output.insert(0, content_lines[len(content_lines) - index - 1])
-
-    output.insert(0, heading_and_newline)
-
-    output = ''.join(output)
-
-    if not dry_run:
-        with open(filename, 'w+') as f:
-            f.write(output)
-    else:
-        log.info('New changelog:\n%s' % output)
 
 
 def get_new_version(app_name, current_version,
@@ -167,39 +141,39 @@ def current_version(app_name):
 
 
 def execute(commands, dry_run=True):
+    log.debug('executing %s', commands)
     if not dry_run:
         try:
             return subprocess.check_output(commands)
         except subprocess.CalledProcessError, e:
-            return '\n%s' % e.output
+            log.debug('return code: %s, output: %s', e.returncode, e.output)
+            return False
+
+
+def write_new_changelog(app_name, filename, content_lines, dry_run=True):
+    heading_and_newline = (
+        '# [Changelog](%s/releases)\n' %
+        extract_attribute(app_name, '__url__')
+    )
+
+    with open(filename, 'r+') as f:
+        existing = f.readlines()
+
+    output = existing[2:]
+    output.insert(0, '\n')
+
+    for index, line in enumerate(content_lines):
+        output.insert(0, content_lines[len(content_lines) - index - 1])
+
+    output.insert(0, heading_and_newline)
+
+    output = ''.join(output)
+
+    if not dry_run:
+        with open(filename, 'w+') as f:
+            f.write(output)
     else:
-        log.debug('execute: %s' % commands)
-
-
-def version(arguments):
-    dry_run = arguments['--dry-run']
-    app_name = arguments['<app_name>']
-    new_version = arguments['new_version']
-
-    replace_attribute(app_name, '__version__', new_version, dry_run=dry_run)
-
-    commands = [
-        'git', 'ci', '-m', new_version,
-        '%s/__init__.py' % app_name, CHANGELOG
-    ]
-
-    execute(commands, dry_run=dry_run)
-
-    execute(['git', 'push'], dry_run=dry_run)
-
-
-def test(arguments):
-    dry_run = arguments['--dry-run']
-    command = 'nosetests'
-    if arguments['--tox']:
-        command = 'tox'
-
-    return execute([command], dry_run=dry_run)
+        log.info('New changelog:\n%s' % output)
 
 
 def changelog(arguments):
@@ -238,7 +212,11 @@ def changelog(arguments):
             git_log_content[index] = new_line
 
     if git_log_content:
-        [changelog_content.append('* %s\n' % line) if line else line for line in git_log_content[:-1]]
+        [
+            changelog_content.append('* %s\n' % line)
+            if line else line
+            for line in git_log_content[:-1]
+        ]
 
     write_new_changelog(
         app_name,
@@ -249,11 +227,40 @@ def changelog(arguments):
     log.info('Added content to CHANGELOG.md')
 
 
+def version(arguments):
+    dry_run = arguments['--dry-run']
+    app_name = arguments['<app_name>']
+    new_version = arguments['new_version']
+
+    replace_attribute(app_name, '__version__', new_version, dry_run=dry_run)
+
+    commands = [
+        'git', 'ci', '-m', new_version,
+        '%s/__init__.py' % app_name, CHANGELOG
+    ]
+
+    execute(commands, dry_run=dry_run)
+
+    execute(['git', 'push'], dry_run=dry_run)
+
+
+def test(arguments):
+    dry_run = arguments['--dry-run']
+    command = 'nosetests'
+    if arguments['--tox']:
+        command = 'tox'
+
+    return execute([command], dry_run=dry_run)
+
+
 def tag(arguments):
     dry_run = arguments['--dry-run']
     new_version = arguments['new_version']
 
-    execute(['git', 'tag', '-a', new_version, '-m', '"%s"' % new_version], dry_run=dry_run)
+    execute(
+        ['git', 'tag', '-a', new_version, '-m', '"%s"' % new_version],
+        dry_run=dry_run
+    )
     execute(['git', 'push', '--tags'], dry_run=dry_run)
 
 
@@ -262,7 +269,7 @@ def upload(arguments):
     pypi = arguments['--pypi']
 
     upload = ['python', 'setup.py', 'clean', 'sdist', 'upload']
-    if pypi: 
+    if pypi:
         upload.append('-r')
         upload.append(pypi)
 
@@ -273,10 +280,11 @@ def release(arguments):
     if not arguments['--skip-changelog']:
         changelog(arguments)
     version(arguments)
-    tag(arguments)
+    test(arguments)
+
     upload(arguments)
 
-
+    tag(arguments)
 
 
 def main():

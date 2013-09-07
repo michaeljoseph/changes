@@ -6,7 +6,7 @@
 [![# of downloads](https://pypip.in/d/changes/badge.png)](https://crate.io/packages/changes?version=latest)
 [![code coverage](https://coveralls.io/repos/michaeljoseph/changes/badge.png?branch=master)](https://coveralls.io/r/michaeljoseph/changes?branch=master)
 
-:musical_note: [Ch-ch-ch-ch-changes](http://www.youtube.com/watch?v=pl3vxEudif8) :musical_note: 
+:musical_note: [Ch-ch-changes](http://www.youtube.com/watch?v=pl3vxEudif8) :musical_note: 
 
 ![changes](https://github.com/michaeljoseph/changes/raw/master/resources/changes.png)
 
@@ -14,8 +14,9 @@
 
 Manages the release of a python library.
 
+* auto generates a changelog entry (using github's compare view) and commit urls
 * cli that follows [semantic versioning][0] principles to increment the current version
-* auto generates a changelog entry (using github's compare view)
+* runs the library tests
 * tags the github repo
 * uploads to pypi
 
@@ -25,7 +26,8 @@ An application wanting to use `changes` must meet these requirements:
 
 * `setup.py`
 * `CHANGELOG.md`
-* `app_name/__init__.py` with `__version__` and `__url__`
+* `<app_name>/__init__.py` with `__version__` and `__url__`
+* supports executing tests with [`nosetests`][2] or [`tox`][3]
 
 Install `changes`:
 
@@ -37,11 +39,13 @@ Run the cli:
 changes.
 
 Usage:
+  changes [options] <app_name> changelog
   changes [options] <app_name> release
   changes [options] <app_name> version
-  changes [options] <app_name> changelog
+  changes [options] <app_name> test
   changes [options] <app_name> tag
   changes [options] <app_name> upload
+
   changes -h | --help
 
 Options:
@@ -56,7 +60,16 @@ Options:
   --dry-run             Prints the commands that would have been executed.
   --skip-changelog      For the release task: should the changelog be generated
                         and committed?
+  --tox                 Use tox instead of nosetests
   --debug               Debug output.
+
+The commands do the following:
+   changelog   Generates an automatic changelog from your commit messages
+   version     Increments the __version__ attribute of your module's __init__
+   test        Runs your tests with nosetests
+   tag         Tags your git repo with the new version number
+   upload      Uploads your project with setup.py clean sdist upload
+   release     Runs all the previous commands
 ```
 
 The default workflow is to run the `changelog` command to autogenerate
@@ -114,6 +127,7 @@ To git@github.com:michaeljoseph/changes.git
 warning: sdist: standard file not found: should have one of README, README.rst, README.txt
 ```
 
+
 ## Documentation
 
 [API Documentation][1]
@@ -146,3 +160,5 @@ automatically, execute the following from the root project directory:
 
 [0]:http://semver.org
 [1]:http://changes.rtfd.org
+[2]:http://tox.rtfd.org
+[3]:http://nose.rtfd.org

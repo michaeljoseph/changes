@@ -1,6 +1,5 @@
 from unittest2 import TestCase
-from changes.cli import (extract_attribute, increment, replace_attribute,
-                         write_new_changelog)
+from changes import cli as changes
 import os
 
 
@@ -21,14 +20,28 @@ class ChangesTestCase(TestCase):
         with open(self.tmp_file, 'w') as init_file:
             init_file.write('\n'.join(self.initial_init_content))
 
+    def test_extract(self):
+        self.assertEquals(
+            {'a': 1, 'b': 2},
+            changes.extract(
+                {'a': 1, 'b': 2, 'c': 3},
+                ['a', 'b']
+            )
+        )
+
     def test_extract_attribute(self):
         self.assertEquals(
             '0.0.1',
-            extract_attribute('test_app', '__version__')
+            changes.extract_attribute('test_app', '__version__')
         )
 
     def test_replace_attribute(self):
-        replace_attribute('test_app', '__version__', '1.0.0', dry_run=False)
+        changes.replace_attribute(
+            'test_app',
+            '__version__',
+            '1.0.0',
+            dry_run=False
+        )
 
         expected_content = list(self.initial_init_content)
         expected_content[2] = "__version__ = '1.0.0'"
@@ -42,17 +55,17 @@ class ChangesTestCase(TestCase):
     def test_increment(self):
         self.assertEquals(
             '1.0.0',
-            increment('0.0.1', major=True)
+            changes.increment('0.0.1', major=True)
         )
 
         self.assertEquals(
             '0.1.0',
-            increment('0.0.1', minor=True)
+            changes.increment('0.0.1', minor=True)
         )
 
         self.assertEquals(
             '1.0.1',
-            increment('1.0.0', patch=True)
+            changes.increment('1.0.0', patch=True)
         )
 
     def test_write_new_changelog(self):
@@ -64,7 +77,7 @@ class ChangesTestCase(TestCase):
         with open(self.tmp_file, 'w') as existing_file:
             existing_file.writelines(content)
 
-        write_new_changelog('test_app', self.tmp_file, 'Now this is')
+        changes.write_new_changelog('test_app', self.tmp_file, 'Now this is')
 
         self.assertEquals(
             ''.join(content),
@@ -76,7 +89,7 @@ class ChangesTestCase(TestCase):
         with open(self.tmp_file, 'w') as existing_file:
             existing_file.writelines(content)
 
-        write_new_changelog(
+        changes.write_new_changelog(
             'test_app',
             self.tmp_file,
             'Now this is',

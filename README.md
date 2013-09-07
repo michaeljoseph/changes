@@ -43,8 +43,10 @@ Usage:
   changes [options] <app_name> release
   changes [options] <app_name> version
   changes [options] <app_name> test
-  changes [options] <app_name> tag
+  changes [options] <app_name> install
   changes [options] <app_name> upload
+  changes [options] <app_name> pypi
+  changes [options] <app_name> tag
 
   changes -h | --help
 
@@ -56,19 +58,22 @@ Options:
 
   -h --help             Show this screen.
 
-  --pypi=<pypi>         Specify alternative pypi
+  --pypi=<pypi>         Use alternative package index
   --dry-run             Prints the commands that would have been executed.
   --skip-changelog      For the release task: should the changelog be generated
                         and committed?
   --tox                 Use tox instead of nosetests
+  --test-command=<cmd>  Command to use to test the newly installed package
   --debug               Debug output.
 
 The commands do the following:
    changelog   Generates an automatic changelog from your commit messages
    version     Increments the __version__ attribute of your module's __init__
    test        Runs your tests with nosetests
+   install     Attempts to install the sdist
    tag         Tags your git repo with the new version number
    upload      Uploads your project with setup.py clean sdist upload
+   pypi        Attempts to install your package from pypi 
    release     Runs all the previous commands
 ```
 

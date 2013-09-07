@@ -8,6 +8,7 @@ Usage:
   changes [options] <app_name> test
   changes [options] <app_name> install
   changes [options] <app_name> upload
+  changes [options] <app_name> pypi
   changes [options] <app_name> tag
 
   changes -h | --help
@@ -20,7 +21,7 @@ Options:
 
   -h --help             Show this screen.
 
-  --pypi=<pypi>         Specify alternative pypi
+  --pypi=<pypi>         Use alternative package index
   --dry-run             Prints the commands that would have been executed.
   --skip-changelog      For the release task: should the changelog be generated
                         and committed?
@@ -32,8 +33,10 @@ The commands do the following:
    changelog   Generates an automatic changelog from your commit messages
    version     Increments the __version__ attribute of your module's __init__
    test        Runs your tests with nosetests
+   install     Attempts to install the sdist
    tag         Tags your git repo with the new version number
    upload      Uploads your project with setup.py clean sdist upload
+   pypi        Attempts to install your package from pypi 
    release     Runs all the previous commands
 """
 
@@ -255,6 +258,19 @@ def test(arguments):
 
     return execute([command], dry_run=dry_run)
 
+def make_virtualenv():
+    tmp_dir = tempfile.mkdtemp()
+    log.debug('tmp ve dir: %s' % tmp_dir)
+    result = virtualenv.create_environment(
+        tmp_dir, site_packages=False
+    )
+    return tmp_dir
+
+def run_test_command(arguments):
+    if arguments['--test-command']:
+        test_command = arguments['--test-command'].split(' ')
+        result = execute(test_command, dry_run=arguments['--dry-run'])
+        log.info('Test command "%s" result: %s', test_command, result)    
 
 def install(arguments):
     dry_run = arguments['--dry-run']
@@ -266,11 +282,7 @@ def install(arguments):
         dry_run=dry_run
     )
     if result:
-        tmp_dir = tempfile.mkdtemp()
-        log.debug('tmp ve dir: %s' % tmp_dir)
-        result = virtualenv.create_environment(
-            tmp_dir, site_packages=False
-        )
+        tmp_dir = make_virtualenv()
         try:
             virtualenv.install_sdist(
                 arguments['<app_name>'],
@@ -278,9 +290,7 @@ def install(arguments):
                 '%s/bin/python' % tmp_dir
             )
             log.info('Successfully installed %s sdist', app_name)
-            if arguments['--test-command']:
-                result = execute(arguments['--test-command'].split(' '), dry_run=dry_run)
-                log.info('test result: %s', result)
+            run_test_command(arguments)
         except:
             log.info('Error installing %s sdist', app_name)
 
@@ -295,6 +305,34 @@ def upload(arguments):
         upload.append(pypi)
 
     execute(upload, dry_run=dry_run)
+
+
+def pypi(arguments):
+    dry_run = arguments['--dry-run']
+    app_name = arguments['<app_name>']
+    pypi = arguments['--pypi']
+    package_index = 'pypi'
+
+    tmp_dir = make_virtualenv()
+
+    install = ['%s/bin/pip' % tmp_dir, 'install', app_name]
+    if pypi:
+        install.append('-i')
+        install.append(pypi)
+        package_index = pypi
+
+    try:
+        result = execute(install, dry_run=dry_run)
+        if result:
+            log.info('Successfully installed %s from %s', app_name, package_index)
+        else:
+            log.error('Failed to install %s from %s', app_name, package_index)
+        run_test_command(arguments)
+    except:
+        log.exception('')
+        log.info('Error installing %s from %s', app_name, package_index)
+
+
 
 
 def tag(arguments):
@@ -319,7 +357,7 @@ def release(arguments):
 
 def main():
     commands = ['release', 'changelog', 'test', 'version', 'tag', 'upload',
-                'install']
+                'install', 'pypi']
 
     arguments = docopt(__doc__, version=changes.__version__)
     debug = arguments['--debug']

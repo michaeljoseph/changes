@@ -1,5 +1,25 @@
 # [Changelog](https://github.com/michaeljoseph/changes/releases)
 
+## [0.2.0](https://github.com/michaeljoseph/changes/compare/0.1.4...0.2.0)
+
+* [282afcd](https://github.com/michaeljoseph/changes/commit/282afcd) Assemble new workflow
+* [fc33494](https://github.com/michaeljoseph/changes/commit/fc33494) Factor out commit_version_change
+* [31ef222](https://github.com/michaeljoseph/changes/commit/31ef222) Fix changelog formatting bug mess
+* [4aab63e](https://github.com/michaeljoseph/changes/commit/4aab63e) Update cli in readme
+* [5344a4b](https://github.com/michaeljoseph/changes/commit/5344a4b) Linting
+* [64225a8](https://github.com/michaeljoseph/changes/commit/64225a8) Cleanup tmpdirs
+* [24123ed](https://github.com/michaeljoseph/changes/commit/24123ed) Add install from pypi command
+* [f2be719](https://github.com/michaeljoseph/changes/commit/f2be719) Add `--test-command` option to test installation
+* [09d534d](https://github.com/michaeljoseph/changes/commit/09d534d) Add install command and dependencies
+* [287da2f](https://github.com/michaeljoseph/changes/commit/287da2f) Test extract and alias `changes.cli`
+* [0debebb](https://github.com/michaeljoseph/changes/commit/0debebb) Update README to mention `nosetests` or `tox` requirement
+* [aaf07cc](https://github.com/michaeljoseph/changes/commit/aaf07cc) Adds tests for `extract_attribute` and `replace_attribute`
+* [a396425](https://github.com/michaeljoseph/changes/commit/a396425) Reorganise and lint
+* [38c9546](https://github.com/michaeljoseph/changes/commit/38c9546) Improve new_version handling and exempt test and upload from version prompting
+* [dd346c2](https://github.com/michaeljoseph/changes/commit/dd346c2) Move docopt string to docstring
+* [32307c1](https://github.com/michaeljoseph/changes/commit/32307c1) Add test command
+* [4326591](https://github.com/michaeljoseph/changes/commit/4326591) Add release command output
+
 ## [0.1.4](https://github.com/michaeljoseph/changes/compare/0.1.3...0.1.4)
 
 * [5ff1376](https://github.com/michaeljoseph/changes/commit/5ff1376) Fix changelog formatting test expectation

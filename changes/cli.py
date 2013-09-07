@@ -1,3 +1,40 @@
+"""
+changes.
+
+Usage:
+  changes [options] <app_name> changelog
+  changes [options] <app_name> release
+  changes [options] <app_name> version
+  changes [options] <app_name> test
+  changes [options] <app_name> tag
+  changes [options] <app_name> upload
+
+  changes -h | --help
+
+Options:
+  --new-version=<ver>   Specify version.
+  -p --patch            Patch-level version increment.
+  -m --minor            Minor-level version increment.
+  -M --major            Minor-level version increment.
+
+  -h --help             Show this screen.
+
+  --pypi=<pypi>         Specify alternative pypi
+  --dry-run             Prints the commands that would have been executed.
+  --skip-changelog      For the release task: should the changelog be generated
+                        and committed?
+  --tox                 Use tox instead of nosetests
+  --debug               Debug output.
+
+The commands do the following:
+   changelog   Generates an automatic changelog from your commit messages
+   version     Increments the __version__ attribute of your module's __init__
+   test        Runs your tests with nosetests
+   tag         Tags your git repo with the new version number
+   upload      Uploads your project with setup.py clean sdist upload
+   release     Runs all the previous commands
+"""
+
 import ast
 import re
 import subprocess
@@ -12,8 +49,8 @@ import changes
 
 
 log = logging.getLogger(__name__)
-
 CHANGELOG = 'CHANGELOG.md'
+
 
 def extract(dictionary, keys):
     """
@@ -50,32 +87,6 @@ def increment(version, major=False, minor=False, patch=True):
         version.patch += 1
 
     return str(version)
-
-
-def write_new_changelog(app_name, filename, content_lines, dry_run=True):
-    heading_and_newline = (
-        '# [Changelog](%s/releases)\n' %
-        extract_attribute(app_name, '__url__')
-    )
-
-    with open(filename, 'r+') as f:
-        existing = f.readlines()
-
-    output = existing[2:]
-    output.insert(0, '\n')
-
-    for index, line in enumerate(content_lines):
-        output.insert(0, content_lines[len(content_lines) - index - 1])
-
-    output.insert(0, heading_and_newline)
-
-    output = ''.join(output)
-
-    if not dry_run:
-        with open(filename, 'w+') as f:
-            f.write(output)
-    else:
-        log.info('New changelog:\n%s' % output)
 
 
 def get_new_version(app_name, current_version,
@@ -130,30 +141,39 @@ def current_version(app_name):
 
 
 def execute(commands, dry_run=True):
+    log.debug('executing %s', commands)
     if not dry_run:
         try:
             return subprocess.check_output(commands)
         except subprocess.CalledProcessError, e:
-            return '\n%s' % e.output
+            log.debug('return code: %s, output: %s', e.returncode, e.output)
+            return False
+
+
+def write_new_changelog(app_name, filename, content_lines, dry_run=True):
+    heading_and_newline = (
+        '# [Changelog](%s/releases)\n' %
+        extract_attribute(app_name, '__url__')
+    )
+
+    with open(filename, 'r+') as f:
+        existing = f.readlines()
+
+    output = existing[2:]
+    output.insert(0, '\n')
+
+    for index, line in enumerate(content_lines):
+        output.insert(0, content_lines[len(content_lines) - index - 1])
+
+    output.insert(0, heading_and_newline)
+
+    output = ''.join(output)
+
+    if not dry_run:
+        with open(filename, 'w+') as f:
+            f.write(output)
     else:
-        log.debug('execute: %s' % commands)
-
-
-def version(arguments):
-    dry_run = arguments['--dry-run']
-    app_name = arguments['<app_name>']
-    new_version = arguments['new_version']
-
-    replace_attribute(app_name, '__version__', new_version, dry_run=dry_run)
-
-    commands = [
-        'git', 'ci', '-m', new_version,
-        '%s/__init__.py' % app_name, CHANGELOG
-    ]
-
-    execute(commands, dry_run=dry_run)
-
-    execute(['git', 'push'], dry_run=dry_run)
+        log.info('New changelog:\n%s' % output)
 
 
 def changelog(arguments):
@@ -192,7 +212,11 @@ def changelog(arguments):
             git_log_content[index] = new_line
 
     if git_log_content:
-        [changelog_content.append('* %s\n' % line) if line else line for line in git_log_content[:-1]]
+        [
+            changelog_content.append('* %s\n' % line)
+            if line else line
+            for line in git_log_content[:-1]
+        ]
 
     write_new_changelog(
         app_name,
@@ -203,11 +227,40 @@ def changelog(arguments):
     log.info('Added content to CHANGELOG.md')
 
 
+def version(arguments):
+    dry_run = arguments['--dry-run']
+    app_name = arguments['<app_name>']
+    new_version = arguments['new_version']
+
+    replace_attribute(app_name, '__version__', new_version, dry_run=dry_run)
+
+    commands = [
+        'git', 'ci', '-m', new_version,
+        '%s/__init__.py' % app_name, CHANGELOG
+    ]
+
+    execute(commands, dry_run=dry_run)
+
+    execute(['git', 'push'], dry_run=dry_run)
+
+
+def test(arguments):
+    dry_run = arguments['--dry-run']
+    command = 'nosetests'
+    if arguments['--tox']:
+        command = 'tox'
+
+    return execute([command], dry_run=dry_run)
+
+
 def tag(arguments):
     dry_run = arguments['--dry-run']
     new_version = arguments['new_version']
 
-    execute(['git', 'tag', '-a', new_version, '-m', '"%s"' % new_version], dry_run=dry_run)
+    execute(
+        ['git', 'tag', '-a', new_version, '-m', '"%s"' % new_version],
+        dry_run=dry_run
+    )
     execute(['git', 'push', '--tags'], dry_run=dry_run)
 
 
@@ -216,7 +269,7 @@ def upload(arguments):
     pypi = arguments['--pypi']
 
     upload = ['python', 'setup.py', 'clean', 'sdist', 'upload']
-    if pypi: 
+    if pypi:
         upload.append('-r')
         upload.append(pypi)
 
@@ -227,57 +280,39 @@ def release(arguments):
     if not arguments['--skip-changelog']:
         changelog(arguments)
     version(arguments)
-    tag(arguments)
+    test(arguments)
+
     upload(arguments)
 
-
-cli = """
-changes.
-
-Usage:
-  changes [options] <app_name> changelog
-  changes [options] <app_name> release
-  changes [options] <app_name> version
-  changes [options] <app_name> tag
-  changes [options] <app_name> upload
-
-  changes -h | --help
-
-Options:
-  --new-version=<ver>   Specify version.
-  -p --patch            Patch-level version increment.
-  -m --minor            Minor-level version increment.
-  -M --major            Minor-level version increment.
-
-  -h --help             Show this screen.
-
-  --pypi=<pypi>         Specify alternative pypi
-  --dry-run             Prints the commands that would have been executed.
-  --skip-changelog      For the release task: should the changelog be generated
-                        and committed?
-  --debug               Debug output.
-"""
+    tag(arguments)
 
 
 def main():
-    arguments = docopt(cli, version=changes.__version__)
+    commands = ['release', 'changelog', 'test', 'version', 'tag', 'upload']
+    arguments = docopt(__doc__, version=changes.__version__)
     debug = arguments['--debug']
     logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
 
-    app_name = arguments['<app_name>']
-    if arguments['--new-version']:
-        new_version = arguments['--new-version']
-    else:
-        new_version = get_new_version(
-            app_name,
-            current_version(app_name),
-            **dict([
-                (key[2:], value) for key, value in extract(arguments, ['--major', '--minor', '--patch']).items()
-            ])
-        )
+    suppress_version_prompt_for = ['test', 'upload']
 
-    arguments['new_version'] = new_version
+    app_name = arguments['<app_name>']
+
+    if arguments['--new-version']:
+        arguments['new_version'] = arguments['--new-version']
+
     log.debug('arguments: %s', arguments)
-    for command in ['release', 'version', 'changelog', 'tag', 'upload']:
+
+    for command in commands:
         if arguments[command]:
+            if command not in suppress_version_prompt_for:
+                arguments['new_version'] = get_new_version(
+                    app_name,
+                    current_version(app_name),
+                    **dict([
+                        (key[2:], value)
+                        for key, value in
+                        extract(arguments, ['--major', '--minor', '--patch'])
+                        .items()
+                    ])
+                )
             globals()[command](arguments)

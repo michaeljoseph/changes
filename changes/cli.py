@@ -6,8 +6,9 @@ Usage:
   changes [options] <app_name> release
   changes [options] <app_name> version
   changes [options] <app_name> test
-  changes [options] <app_name> tag
+  changes [options] <app_name> install
   changes [options] <app_name> upload
+  changes [options] <app_name> tag
 
   changes -h | --help
 
@@ -24,6 +25,7 @@ Options:
   --skip-changelog      For the release task: should the changelog be generated
                         and committed?
   --tox                 Use tox instead of nosetests
+  --test-command=<cmd>  Command to use to test the newly installed package
   --debug               Debug output.
 
 The commands do the following:
@@ -44,6 +46,7 @@ from docopt import docopt
 from path import path
 import semantic_version
 import logging
+import virtualenv
 
 import changes
 
@@ -253,15 +256,33 @@ def test(arguments):
     return execute([command], dry_run=dry_run)
 
 
-def tag(arguments):
+def install(arguments):
     dry_run = arguments['--dry-run']
+    app_name = arguments['<app_name>']
     new_version = arguments['new_version']
 
-    execute(
-        ['git', 'tag', '-a', new_version, '-m', '"%s"' % new_version],
+    result = execute(
+        ['python', 'setup.py', 'clean', 'sdist'],
         dry_run=dry_run
     )
-    execute(['git', 'push', '--tags'], dry_run=dry_run)
+    if result:
+        tmp_dir = tempfile.mkdtemp()
+        log.debug('tmp ve dir: %s' % tmp_dir)
+        result = virtualenv.create_environment(
+            tmp_dir, site_packages=False
+        )
+        try:
+            virtualenv.install_sdist(
+                arguments['<app_name>'],
+                'dist/%s-%s.tar.gz' % (app_name, new_version),
+                '%s/bin/python' % tmp_dir
+            )
+            log.info('Successfully installed %s sdist', app_name)
+            if arguments['--test-command']:
+                result = execute(arguments['--test-command'].split(' '), dry_run=dry_run)
+                log.info('test result: %s', result)
+        except:
+            log.info('Error installing %s sdist', app_name)
 
 
 def upload(arguments):
@@ -276,19 +297,30 @@ def upload(arguments):
     execute(upload, dry_run=dry_run)
 
 
+def tag(arguments):
+    dry_run = arguments['--dry-run']
+    new_version = arguments['new_version']
+
+    execute(
+        ['git', 'tag', '-a', new_version, '-m', '"%s"' % new_version],
+        dry_run=dry_run
+    )
+    execute(['git', 'push', '--tags'], dry_run=dry_run)
+
+
 def release(arguments):
     if not arguments['--skip-changelog']:
         changelog(arguments)
     version(arguments)
     test(arguments)
-
     upload(arguments)
-
     tag(arguments)
 
 
 def main():
-    commands = ['release', 'changelog', 'test', 'version', 'tag', 'upload']
+    commands = ['release', 'changelog', 'test', 'version', 'tag', 'upload',
+                'install']
+
     arguments = docopt(__doc__, version=changes.__version__)
     debug = arguments['--debug']
     logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)

@@ -295,6 +295,9 @@ def install(arguments):
             log.info('Error installing %s sdist', app_name)
 
 
+        path(tmp_dir).rmtree(path(tmp_dir))
+
+
 def upload(arguments):
     dry_run = arguments['--dry-run']
     pypi = arguments['--pypi']
@@ -332,7 +335,7 @@ def pypi(arguments):
         log.exception('')
         log.info('Error installing %s from %s', app_name, package_index)
 
-
+    path(tmp_dir).rmtree(path(tmp_dir))
 
 
 def tag(arguments):

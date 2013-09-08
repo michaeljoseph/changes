@@ -14,16 +14,18 @@
 
 Manages the release of a python library.
 
-* auto generates a changelog entry (using github's compare view) and commit urls
-* cli that follows [semantic versioning][0] principles to increment the current version
+* auto generates a changelog entry (using github's compare view and commit urls)
+* cli that follows [semantic versioning][0] principles to auto-increment the library version
 * runs the library tests
-* tags the github repo
+* test package installation from a tarball and pypi
 * uploads to pypi
+* tags the github repo
 
 ## Usage
 
 An application wanting to use `changes` must meet these requirements: 
 
+* on [github](https://github.com)
 * `setup.py`
 * `CHANGELOG.md`
 * `<app_name>/__init__.py` with `__version__` and `__url__`
@@ -112,7 +114,7 @@ To git@github.com:michaeljoseph/changes.git
 warning: sdist: standard file not found: should have one of README, README.rst, README.txt
 ```
 
-Or you can do it all in one step, if your commit messages are good enough:
+Or you can do it all in one step (if your commit messages are good enough):
 ```python
 (changes)➜  changes git:(master) changes -m changes release
 What is the release version for "changes" [Default: 0.2.0]:
@@ -160,21 +162,21 @@ Install development requirements:
 
     pip install -r requirements.txt
 
-Tests can then be run by doing:
+Tests can then be run with:
 
     nosetests
 
-Run the linting (pep8, pyflakes) with:
+Lint the project with:
 
     flake8 changes tests
 
 ## API documentation
 
-To generate the documentation:
+Generate the documentation with:
 
     cd docs && PYTHONPATH=.. make singlehtml
 
-To monitor changes to Python files and execute pep8, pyflakes, and nosetests
+To monitor changes to Python files and execute flake8 and nosetests
 automatically, execute the following from the root project directory:
 
     stir
@@ -182,5 +184,6 @@ automatically, execute the following from the root project directory:
 
 [0]:http://semver.org
 [1]:http://changes.rtfd.org
-[2]:http://tox.rtfd.org
-[3]:http://nose.rtfd.org
+[2]:http://nose.rtfd.org
+[3]:http://tox.rtfd.org
+

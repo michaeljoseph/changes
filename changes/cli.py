@@ -316,7 +316,7 @@ def install(arguments):
             log.info('Successfully installed %s sdist', app_name)
             run_test_command(arguments)
         except:
-            log.info('Error installing %s sdist', app_name)
+            raise Exception('Error installing %s sdist', app_name)
 
         path(tmp_dir).rmtree(path(tmp_dir))
 
@@ -330,7 +330,8 @@ def upload(arguments):
         upload.append('-r')
         upload.append(pypi)
 
-    execute(upload, dry_run=dry_run)
+    if not execute(upload, dry_run=dry_run):
+        raise Exception('Error uploading')
 
 
 def pypi(arguments):
@@ -358,7 +359,7 @@ def pypi(arguments):
 
         run_test_command(arguments)
     except:
-        log.info('Error installing %s from %s', app_name, package_index)
+        raise Exception('Error installing %s from %s', app_name, package_index)
 
     path(tmp_dir).rmtree(path(tmp_dir))
 

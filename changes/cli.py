@@ -264,7 +264,7 @@ def commit_version_change(arguments):
     new_version = arguments['new_version']
 
     commands = [
-        'git', 'ci', '-mx', new_version,
+        'git', 'ci', '-m', new_version,
         '%s/__init__.py' % app_name, CHANGELOG
     ]
 
@@ -285,7 +285,6 @@ def test(arguments):
 
 def make_virtualenv():
     tmp_dir = tempfile.mkdtemp()
-    log.debug('tmp ve dir: %s' % tmp_dir)
     virtualenv.create_environment(tmp_dir, site_packages=False)
     return tmp_dir
 
@@ -356,9 +355,9 @@ def pypi(arguments):
         else:
             log.error('Failed to install %s from %s',
                       app_name, package_index)
+
         run_test_command(arguments)
     except:
-        log.exception('')
         log.info('Error installing %s from %s', app_name, package_index)
 
     path(tmp_dir).rmtree(path(tmp_dir))

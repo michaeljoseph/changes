@@ -150,7 +150,7 @@ def execute(commands, dry_run=True):
     log.debug('executing %s', commands)
     if not dry_run:
         try:
-            return subprocess.check_output(commands)
+            return subprocess.check_output(commands).split('\n')
         except subprocess.CalledProcessError, e:
             log.debug('return code: %s, output: %s', e.returncode, e.output)
             return False
@@ -196,11 +196,18 @@ def changelog(arguments):
         )
     ]
 
-    git_log_content = execute([
+    git_log_commands = [
         'git', 'log',  '--oneline', '--no-merges',
-        '%s..master' % current_version(app_name)],
-        dry_run=False
-    ).split('\n')
+        '%s..master' % current_version(app_name),
+    ]
+
+    git_log_content = execute(git_log_commands, dry_run=False)
+
+    if not git_log_content:
+        git_log_commands.pop()
+        log.debug('sniffing initial release, drop tags: %s', git_log_commands)
+        git_log_content = execute(git_log_commands, dry_run=False)
+        log.debug('result: %s' % git_log_content)
 
     for index, line in enumerate(git_log_content):
         # http://stackoverflow.com/a/468378/5549

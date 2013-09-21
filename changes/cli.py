@@ -70,6 +70,11 @@ def extract(dictionary, keys):
         (k, dictionary[k]) for k in keys if k in dictionary
     )
 
+def extract_version_arguments(arguments):
+    version_arguments = extract(arguments, ['--major', '--minor', '--patch'])
+    return dict([
+        (key[2:], value) for key, value in version_arguments.items()
+    ])
 
 def increment(version, major=False, minor=False, patch=True):
     """
@@ -207,7 +212,6 @@ def changelog(arguments):
         git_log_commands.pop()
         log.debug('sniffing initial release, drop tags: %s', git_log_commands)
         git_log_content = execute(git_log_commands, dry_run=False)
-        log.debug('result: %s' % git_log_content)
 
     for index, line in enumerate(git_log_content):
         # http://stackoverflow.com/a/468378/5549
@@ -264,9 +268,9 @@ def commit_version_change(arguments):
         '%s/__init__.py' % app_name, CHANGELOG
     ]
 
-    execute(commands, dry_run=dry_run)
-
-    execute(['git', 'push'], dry_run=dry_run)
+    if not (execute(commands, dry_run=dry_run) and
+            execute(['git', 'push'], dry_run=dry_run)):
+        raise Exception('Version change commit failed')
 
 
 def test(arguments):
@@ -275,12 +279,12 @@ def test(arguments):
     if arguments['--tox']:
         command = 'tox'
 
-    return execute([command], dry_run=dry_run)
+    if not execute([command], dry_run=False):
+        raise Exception('Test command failed')
 
 
 def make_virtualenv():
     tmp_dir = tempfile.mkdtemp()
-    log.debug('tmp ve dir: %s' % tmp_dir)
     virtualenv.create_environment(tmp_dir, site_packages=False)
     return tmp_dir
 
@@ -312,7 +316,7 @@ def install(arguments):
             log.info('Successfully installed %s sdist', app_name)
             run_test_command(arguments)
         except:
-            log.info('Error installing %s sdist', app_name)
+            raise Exception('Error installing %s sdist', app_name)
 
         path(tmp_dir).rmtree(path(tmp_dir))
 
@@ -326,7 +330,8 @@ def upload(arguments):
         upload.append('-r')
         upload.append(pypi)
 
-    execute(upload, dry_run=dry_run)
+    if not execute(upload, dry_run=dry_run):
+        raise Exception('Error uploading')
 
 
 def pypi(arguments):
@@ -351,10 +356,10 @@ def pypi(arguments):
         else:
             log.error('Failed to install %s from %s',
                       app_name, package_index)
+
         run_test_command(arguments)
     except:
-        log.exception('')
-        log.info('Error installing %s from %s', app_name, package_index)
+        raise Exception('Error installing %s from %s', app_name, package_index)
 
     path(tmp_dir).rmtree(path(tmp_dir))
 
@@ -382,7 +387,7 @@ def release(arguments):
         pypi(arguments)
         tag(arguments)
     except:
-        log.error('Error releasing')
+        log.exception('Error releasing')
 
 
 def main():
@@ -408,11 +413,6 @@ def main():
                 arguments['new_version'] = get_new_version(
                     app_name,
                     current_version(app_name),
-                    **dict([
-                        (key[2:], value)
-                        for key, value in
-                        extract(arguments, ['--major', '--minor', '--patch'])
-                        .items()
-                    ])
+                    **extract_version_arguments(arguments)
                 )
             globals()[command](arguments)

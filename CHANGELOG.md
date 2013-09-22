@@ -1,5 +1,15 @@
 # [Changelog](https://github.com/michaeljoseph/changes/releases)
 
+## [0.3.0](https://github.com/michaeljoseph/changes/compare/0.2.0...0.3.0)
+
+* [2d35668](https://github.com/michaeljoseph/changes/commit/2d35668) Fail on install, upload and pypi
+* [eaec843](https://github.com/michaeljoseph/changes/commit/eaec843) Cleanup
+* [3ba87ee](https://github.com/michaeljoseph/changes/commit/3ba87ee) Refactor `extract_version_arguments`
+* [ca909f4](https://github.com/michaeljoseph/changes/commit/ca909f4) Drop tag comparison on error and move newline split to `execute`
+* [6e7eee5](https://github.com/michaeljoseph/changes/commit/6e7eee5) Ignore idea
+* [31d4a14](https://github.com/michaeljoseph/changes/commit/31d4a14) readme improvements
+* [090f4c7](https://github.com/michaeljoseph/changes/commit/090f4c7) Update README with current workflow example
+
 ## [0.2.0](https://github.com/michaeljoseph/changes/compare/0.1.4...0.2.0)
 
 * [282afcd](https://github.com/michaeljoseph/changes/commit/282afcd) Assemble new workflow

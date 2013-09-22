@@ -41,6 +41,7 @@ The commands do the following:
 """
 
 import ast
+from os.path import exists
 import re
 import subprocess
 import tempfile
@@ -128,6 +129,19 @@ def replace_attribute(app_name, attribute_name, new_value, dry_run=True):
         path(tmp_file).move(init_file)
     else:
         log.debug(execute(['diff', tmp_file, init_file], dry_run=False))
+
+
+def has_attribute(app_name, attribute_name):
+    init_file = '%s/__init__.py' % app_name 
+    return any(
+        [attribute_name in init_line for init_line in open(init_file).readlines()]
+    )
+
+
+def has_requirement(dependency, requirements_contents):
+    return any(
+        [dependency in requirement for requirement in requirements_contents]
+    )
 
 
 def current_version(app_name):
@@ -369,6 +383,48 @@ def release():
         log.exception('Error releasing')
 
 
+def probe_project():
+    """
+    Check if the project meets `changes` requirements
+    """
+    app_name = arguments['<app_name>']
+
+    log.info('Checking project for changes requirements..self.')
+    # on [github](https://github.com)
+    git_remotes = execute(['git', 'remote', '-v'], dry_run=False)
+    on_github = any(['github.com' in remote for remote in git_remotes])
+    log.info('On Github? %s', on_github)
+
+    # `setup.py`
+    setup = exists('setup.py')
+    log.info('setup.py? %s', setup)
+
+    # * `requirements.txt`
+    has_requirements = exists('requirements.txt')
+    log.info('requirements.txt? %s', setup)
+    requirements_contents = open('requirements.txt').readlines()
+
+    # * `CHANGELOG.md`
+    has_changelog = exists('CHANGELOG.md')
+    log.info('CHANGELOG.md? %s', has_changelog)
+
+    # * `<app_name>/__init__.py` with `__version__` and `__url__`
+    init_path = '%s/__init__.py' % app_name
+    init_contents = open(init_path).readlines()
+    has_metadata = (exists(init_path) and has_attribute(app_name, '__version__')
+                    and has_attribute(app_name, '__url__'))
+    log.info('Has module metadata? %s', has_metadata)
+
+    # * supports executing tests with [`nosetests`][2] or [`tox`][3]
+    log.debug(requirements_contents)
+    runs_tests = (has_requirement('nose', requirements_contents) or
+                 has_requirement('tox', requirements_contents))
+    log.info('Runs tests? %s' % runs_tests)
+
+    return (on_github and setup and has_changelog and has_metadata and
+            has_requirements and runs_tests)
+
+
 def initialise():
     global arguments
     arguments = docopt(__doc__, version=changes.__version__)
@@ -379,17 +435,19 @@ def initialise():
 
 def main():
     initialise()
+
     commands = ['release', 'changelog', 'test', 'version', 'tag', 'upload',
                 'install', 'pypi']
-
     suppress_version_prompt_for = ['test', 'upload']
-
-    app_name = arguments['<app_name>']
 
     if arguments['--new-version']:
         arguments['new_version'] = arguments['--new-version']
 
-    log.debug('arguments: %s', arguments)
+    app_name = arguments['<app_name>']
+
+    if not probe_project():
+        raise Exception('Project does not meet `changes` requirements')
+
 
     for command in commands:
         if arguments[command]:

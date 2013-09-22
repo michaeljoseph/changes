@@ -27,6 +27,7 @@ An application wanting to use `changes` must meet these requirements:
 
 * on [github](https://github.com)
 * `setup.py`
+* `requirements.txt`
 * `CHANGELOG.md`
 * `<app_name>/__init__.py` with `__version__` and `__url__`
 * supports executing tests with [`nosetests`][2] or [`tox`][3]

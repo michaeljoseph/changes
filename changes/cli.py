@@ -47,57 +47,40 @@ import tempfile
 
 from docopt import docopt
 from path import path
-import semantic_version
 import logging
 import virtualenv
 
 import changes
+from changes.util import extract, increment
 
 
 log = logging.getLogger(__name__)
 CHANGELOG = 'CHANGELOG.md'
+arguments = None
 
 
-def extract(dictionary, keys):
-    """
-    Extract only the specified keys from a dict
-
-    :param dictionary: source dictionary
-    :param keys: list of keys to extract
-    :return dict: extracted dictionary
-    """
-    return dict(
-        (k, dictionary[k]) for k in keys if k in dictionary
-    )
-
-def extract_version_arguments(arguments):
-    version_arguments = extract(arguments, ['--major', '--minor', '--patch'])
+def strip_long_arguments(argument_names):
+    long_arguments = extract(arguments, argument_names)
     return dict([
-        (key[2:], value) for key, value in version_arguments.items()
+        (key[2:], value) for key, value in long_arguments.items()
     ])
 
-def increment(version, major=False, minor=False, patch=True):
-    """
-    Increment a semantic version
 
-    :param version: str of the version to increment
-    :param major: bool specifying major level version increment
-    :param minor: bool specifying minor level version increment
-    :param patch: bool specifying patch level version increment
-    :return: str of the incremented version
-    """
-    version = semantic_version.Version(version)
-    if major:
-        version.major += 1
-        version.minor = 0
-        version.patch = 0
-    elif minor:
-        version.minor += 1
-        version.patch = 0
-    elif patch:
-        version.patch += 1
+def extract_version_arguments():
+    return strip_long_arguments(['--major', '--minor', '--patch'])
 
-    return str(version)
+
+def common_arguments():
+    """
+    Return common arguments
+
+    :return: tuple of <app_name>, --dry-run, new_version
+    """
+    return (
+        arguments['<app_name>'],
+        arguments['--dry-run'],
+        arguments['new_version'],
+    )
 
 
 def get_new_version(app_name, current_version,
@@ -186,13 +169,11 @@ def write_new_changelog(app_name, filename, content_lines, dry_run=True):
         with open(filename, 'w+') as f:
             f.write(output)
     else:
-        log.info('New changelog:\n%s' % output)
+        log.info('New changelog:\n%s', output)
 
 
-def changelog(arguments):
-    dry_run = arguments['--dry-run']
-    app_name = arguments['<app_name>']
-    new_version = arguments['new_version']
+def changelog():
+    app_name, dry_run, new_version = common_arguments()
 
     changelog_content = [
         '\n## [%s](%s/compare/%s...%s)\n\n' % (
@@ -227,7 +208,7 @@ def changelog(arguments):
                     sha1
                 )
             )
-            log.debug('old line: %s\nnew line: %s' % (line, new_line))
+            log.debug('old line: %s\nnew line: %s', line, new_line)
             git_log_content[index] = new_line
 
     if git_log_content:
@@ -246,10 +227,8 @@ def changelog(arguments):
     log.info('Added content to CHANGELOG.md')
 
 
-def version(arguments):
-    dry_run = arguments['--dry-run']
-    app_name = arguments['<app_name>']
-    new_version = arguments['new_version']
+def version():
+    app_name, dry_run, new_version = common_arguments()
 
     replace_attribute(
         app_name,
@@ -258,10 +237,8 @@ def version(arguments):
         dry_run=dry_run)
 
 
-def commit_version_change(arguments):
-    dry_run = arguments['--dry-run']
-    app_name = arguments['<app_name>']
-    new_version = arguments['new_version']
+def commit_version_change():
+    app_name, dry_run, new_version = common_arguments()
 
     commands = [
         'git', 'ci', '-m', new_version,
@@ -273,8 +250,7 @@ def commit_version_change(arguments):
         raise Exception('Version change commit failed')
 
 
-def test(arguments):
-    dry_run = arguments['--dry-run']
+def test():
     command = 'nosetests'
     if arguments['--tox']:
         command = 'tox'
@@ -289,17 +265,17 @@ def make_virtualenv():
     return tmp_dir
 
 
-def run_test_command(arguments):
+def run_test_command():
     if arguments['--test-command']:
         test_command = arguments['--test-command'].split(' ')
         result = execute(test_command, dry_run=arguments['--dry-run'])
-        log.info('Test command "%s" result: %s', test_command, result)
+        log.info('Test command "%s", returned %s', test_command, result)
+    else:
+        log.warning('Test command "%s" failed', test_command)
 
 
-def install(arguments):
-    dry_run = arguments['--dry-run']
-    app_name = arguments['<app_name>']
-    new_version = arguments['new_version']
+def install():
+    app_name, dry_run, new_version = common_arguments()
 
     result = execute(
         ['python', 'setup.py', 'clean', 'sdist'],
@@ -314,15 +290,17 @@ def install(arguments):
                 '%s/bin/python' % tmp_dir
             )
             log.info('Successfully installed %s sdist', app_name)
-            run_test_command(arguments)
+            if run_test_command():
+                log.info('Successfully ran test command: %s',
+                         arguments['--test-command'])
         except:
             raise Exception('Error installing %s sdist', app_name)
 
         path(tmp_dir).rmtree(path(tmp_dir))
 
 
-def upload(arguments):
-    dry_run = arguments['--dry-run']
+def upload():
+    app_name, dry_run, new_version = common_arguments()
     pypi = arguments['--pypi']
 
     upload = ['python', 'setup.py', 'clean', 'sdist', 'upload']
@@ -332,17 +310,19 @@ def upload(arguments):
 
     if not execute(upload, dry_run=dry_run):
         raise Exception('Error uploading')
+    else:
+        log.info('Succesfully uploaded %s %s', app_name, new_version)
 
 
-def pypi(arguments):
-    dry_run = arguments['--dry-run']
-    app_name = arguments['<app_name>']
+def pypi():
+    app_name, dry_run, _ = common_arguments()
     pypi = arguments['--pypi']
+
     package_index = 'pypi'
 
     tmp_dir = make_virtualenv()
-
     install = ['%s/bin/pip' % tmp_dir, 'install', app_name]
+
     if pypi:
         install.append('-i')
         install.append(pypi)
@@ -357,16 +337,15 @@ def pypi(arguments):
             log.error('Failed to install %s from %s',
                       app_name, package_index)
 
-        run_test_command(arguments)
+        run_test_command()
     except:
         raise Exception('Error installing %s from %s', app_name, package_index)
 
     path(tmp_dir).rmtree(path(tmp_dir))
 
 
-def tag(arguments):
-    dry_run = arguments['--dry-run']
-    new_version = arguments['new_version']
+def tag():
+    _, dry_run, new_version = common_arguments()
 
     execute(
         ['git', 'tag', '-a', new_version, '-m', '"%s"' % new_version],
@@ -375,28 +354,33 @@ def tag(arguments):
     execute(['git', 'push', '--tags'], dry_run=dry_run)
 
 
-def release(arguments):
+def release():
     try:
         if not arguments['--skip-changelog']:
-            changelog(arguments)
-        version(arguments)
-        test(arguments)
-        commit_version_change(arguments)
-        install(arguments)
-        upload(arguments)
-        pypi(arguments)
-        tag(arguments)
+            changelog()
+        version()
+        test()
+        commit_version_change()
+        install()
+        upload()
+        pypi()
+        tag()
     except:
         log.exception('Error releasing')
 
 
-def main():
-    commands = ['release', 'changelog', 'test', 'version', 'tag', 'upload',
-                'install', 'pypi']
-
+def initialise():
+    global arguments
     arguments = docopt(__doc__, version=changes.__version__)
     debug = arguments['--debug']
     logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
+    log.debug('arguments: %s', arguments)
+
+
+def main():
+    initialise()
+    commands = ['release', 'changelog', 'test', 'version', 'tag', 'upload',
+                'install', 'pypi']
 
     suppress_version_prompt_for = ['test', 'upload']
 
@@ -413,6 +397,6 @@ def main():
                 arguments['new_version'] = get_new_version(
                     app_name,
                     current_version(app_name),
-                    **extract_version_arguments(arguments)
+                    **extract_version_arguments()
                 )
-            globals()[command](arguments)
+            globals()[command]()

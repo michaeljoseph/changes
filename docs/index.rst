@@ -6,3 +6,7 @@ changes documentation
     :undoc-members:
     :show-inheritance:
 
+.. automodule:: changes.util
+    :members:
+    :undoc-members:
+    :show-inheritance:

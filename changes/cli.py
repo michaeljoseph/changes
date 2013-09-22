@@ -70,8 +70,17 @@ def extract_version_arguments():
     return strip_long_arguments(['--major', '--minor', '--patch'])
 
 
+def common_arguments():
     """
+    Return common arguments
 
+    :return: tuple of <app_name>, --dry-run, new_version
+    """
+    return (
+        arguments['<app_name>'],
+        arguments['--dry-run'],
+        arguments['new_version'],
+    )
 
 
 def get_new_version(app_name, current_version,
@@ -160,13 +169,11 @@ def write_new_changelog(app_name, filename, content_lines, dry_run=True):
         with open(filename, 'w+') as f:
             f.write(output)
     else:
-        log.info('New changelog:\n%s' % output)
+        log.info('New changelog:\n%s', output)
 
 
 def changelog():
-    dry_run = arguments['--dry-run']
-    app_name = arguments['<app_name>']
-    new_version = arguments['new_version']
+    app_name, dry_run, new_version = common_arguments()
 
     changelog_content = [
         '\n## [%s](%s/compare/%s...%s)\n\n' % (
@@ -201,7 +208,7 @@ def changelog():
                     sha1
                 )
             )
-            log.debug('old line: %s\nnew line: %s' % (line, new_line))
+            log.debug('old line: %s\nnew line: %s', line, new_line)
             git_log_content[index] = new_line
 
     if git_log_content:
@@ -221,9 +228,7 @@ def changelog():
 
 
 def version():
-    dry_run = arguments['--dry-run']
-    app_name = arguments['<app_name>']
-    new_version = arguments['new_version']
+    app_name, dry_run, new_version = common_arguments()
 
     replace_attribute(
         app_name,
@@ -233,9 +238,7 @@ def version():
 
 
 def commit_version_change():
-    dry_run = arguments['--dry-run']
-    app_name = arguments['<app_name>']
-    new_version = arguments['new_version']
+    app_name, dry_run, new_version = common_arguments()
 
     commands = [
         'git', 'ci', '-m', new_version,
@@ -266,13 +269,13 @@ def run_test_command():
     if arguments['--test-command']:
         test_command = arguments['--test-command'].split(' ')
         result = execute(test_command, dry_run=arguments['--dry-run'])
-        log.info('Test command "%s" result: %s', test_command, result)
+        log.info('Test command "%s", returned %s', test_command, result)
+    else:
+        log.warning('Test command "%s" failed', test_command)
 
 
 def install():
-    dry_run = arguments['--dry-run']
-    app_name = arguments['<app_name>']
-    new_version = arguments['new_version']
+    app_name, dry_run, new_version = common_arguments()
 
     result = execute(
         ['python', 'setup.py', 'clean', 'sdist'],
@@ -287,7 +290,9 @@ def install():
                 '%s/bin/python' % tmp_dir
             )
             log.info('Successfully installed %s sdist', app_name)
-            run_test_command()
+            if run_test_command():
+                log.info('Successfully ran test command: %s',
+                         arguments['--test-command'])
         except:
             raise Exception('Error installing %s sdist', app_name)
 
@@ -295,7 +300,7 @@ def install():
 
 
 def upload():
-    dry_run = arguments['--dry-run']
+    app_name, dry_run, new_version = common_arguments()
     pypi = arguments['--pypi']
 
     upload = ['python', 'setup.py', 'clean', 'sdist', 'upload']
@@ -305,17 +310,19 @@ def upload():
 
     if not execute(upload, dry_run=dry_run):
         raise Exception('Error uploading')
+    else:
+        log.info('Succesfully uploaded %s %s', app_name, new_version)
 
 
 def pypi():
-    dry_run = arguments['--dry-run']
-    app_name = arguments['<app_name>']
+    app_name, dry_run, _ = common_arguments()
     pypi = arguments['--pypi']
+
     package_index = 'pypi'
 
     tmp_dir = make_virtualenv()
-
     install = ['%s/bin/pip' % tmp_dir, 'install', app_name]
+
     if pypi:
         install.append('-i')
         install.append(pypi)
@@ -338,8 +345,7 @@ def pypi():
 
 
 def tag():
-    dry_run = arguments['--dry-run']
-    new_version = arguments['new_version']
+    _, dry_run, new_version = common_arguments()
 
     execute(
         ['git', 'tag', '-a', new_version, '-m', '"%s"' % new_version],
@@ -368,7 +374,7 @@ def initialise():
     arguments = docopt(__doc__, version=changes.__version__)
     debug = arguments['--debug']
     logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
-    log.debug('arguments: %s' % arguments)
+    log.debug('arguments: %s', arguments)
 
 
 def main():

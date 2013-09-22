@@ -59,13 +59,17 @@ CHANGELOG = 'CHANGELOG.md'
 arguments = None
 
 
-    version_arguments = extract(arguments, ['--major', '--minor', '--patch'])
+def strip_long_arguments(argument_names):
+    long_arguments = extract(arguments, argument_names)
     return dict([
-        (key[2:], value) for key, value in version_arguments.items()
+        (key[2:], value) for key, value in long_arguments.items()
     ])
 
 
 def extract_version_arguments():
+    return strip_long_arguments(['--major', '--minor', '--patch'])
+
+
     """
 
 

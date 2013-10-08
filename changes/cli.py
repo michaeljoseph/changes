@@ -128,7 +128,7 @@ def replace_attribute(app_name, attribute_name, new_value, dry_run=True):
     if not dry_run:
         path(tmp_file).move(init_file)
     else:
-        log.debug(execute(['diff', tmp_file, init_file], dry_run=False))
+        log.debug(execute('diff %s %s' % (tmp_file, init_file), dry_run=False))
 
 
 def has_attribute(app_name, attribute_name):
@@ -148,11 +148,11 @@ def current_version(app_name):
     return extract_attribute(app_name, '__version__')
 
 
-def execute(commands, dry_run=True):
+def execute(command, dry_run=True):
     log.debug('executing %s', commands)
     if not dry_run:
         try:
-            return subprocess.check_output(commands).split('\n')
+            return subprocess.check_output(command.split(' ')).split('\n')
         except subprocess.CalledProcessError, e:
             log.debug('return code: %s, output: %s', e.returncode, e.output)
             return False
@@ -195,18 +195,15 @@ def changelog():
             current_version(app_name), new_version,
         )
     ]
+    git_log = 'git log --oneline --no-merges'
+    version_difference = '%s..master' % current_version(app_name)
 
-    git_log_commands = [
-        'git', 'log',  '--oneline', '--no-merges',
-        '%s..master' % current_version(app_name),
-    ]
-
-    git_log_content = execute(git_log_commands, dry_run=False)
+    git_log_content = execute('%s %s' % (git_log, version_difference),
+                              dry_run=False)
 
     if not git_log_content:
-        git_log_commands.pop()
         log.debug('sniffing initial release, drop tags: %s', git_log_commands)
-        git_log_content = execute(git_log_commands, dry_run=False)
+        git_log_content = execute(git_log, dry_run=False)
 
     for index, line in enumerate(git_log_content):
         # http://stackoverflow.com/a/468378/5549
@@ -254,13 +251,12 @@ def version():
 def commit_version_change():
     app_name, dry_run, new_version = common_arguments()
 
-    commands = [
-        'git', 'commit', '-m', new_version,
-        '%s/__init__.py' % app_name, CHANGELOG
-    ]
+    commands = 'git commit -m %s %s/__init__.py %s' % (
+        new_version, app_name, CHANGELOG 
+    )
 
-    if not (execute(commands, dry_run=dry_run) and
-            execute(['git', 'push'], dry_run=dry_run)):
+    if not (execute(command, dry_run=dry_run) and
+            execute('git push', dry_run=dry_run)):
         raise Exception('Version change commit failed')
 
 
@@ -269,7 +265,7 @@ def test():
     if arguments['--tox']:
         command = 'tox'
 
-    if not execute([command], dry_run=False):
+    if not execute(command, dry_run=False):
         raise Exception('Test command failed')
 
 
@@ -281,7 +277,7 @@ def make_virtualenv():
 
 def run_test_command():
     if arguments['--test-command']:
-        test_command = arguments['--test-command'].split(' ')
+        test_command = arguments['--test-command']
         result = execute(test_command, dry_run=arguments['--dry-run'])
         log.info('Test command "%s", returned %s', test_command, result)
     else:
@@ -291,10 +287,7 @@ def run_test_command():
 def install():
     app_name, dry_run, new_version = common_arguments()
 
-    result = execute(
-        ['python', 'setup.py', 'clean', 'sdist'],
-        dry_run=dry_run
-    )
+    result = execute('python setup.py clean sdist', dry_run=dry_run)
     if result:
         tmp_dir = make_virtualenv()
         try:
@@ -317,10 +310,9 @@ def upload():
     app_name, dry_run, new_version = common_arguments()
     pypi = arguments['--pypi']
 
-    upload = ['python', 'setup.py', 'clean', 'sdist', 'upload']
+    upload = 'python setup.py clean sdist upload'
     if pypi:
-        upload.append('-r')
-        upload.append(pypi)
+        upload = upload + '-r %s' % pypi
 
     if not execute(upload, dry_run=dry_run):
         raise Exception('Error uploading')
@@ -331,15 +323,13 @@ def upload():
 def pypi():
     app_name, dry_run, _ = common_arguments()
     pypi = arguments['--pypi']
-
     package_index = 'pypi'
 
     tmp_dir = make_virtualenv()
-    install = ['%s/bin/pip' % tmp_dir, 'install', app_name]
+    install = '%s/bin/pip install %s' % (tmp_dir, app_name)
 
     if pypi:
-        install.append('-i')
-        install.append(pypi)
+        install = install + '-i %s' % pypi
         package_index = pypi
 
     try:
@@ -361,11 +351,8 @@ def pypi():
 def tag():
     _, dry_run, new_version = common_arguments()
 
-    execute(
-        ['git', 'tag', '-a', new_version, '-m', '"%s"' % new_version],
-        dry_run=dry_run
-    )
-    execute(['git', 'push', '--tags'], dry_run=dry_run)
+    execute('git tag -a %s -m "%s"' % (new_version, new_version), dry_run=dry_run)
+    execute('git push --tags', dry_run=dry_run)
 
 
 def release():
@@ -391,7 +378,7 @@ def probe_project():
 
     log.info('Checking project for changes requirements..self.')
     # on [github](https://github.com)
-    git_remotes = execute(['git', 'remote', '-v'], dry_run=False)
+    git_remotes = execute('git remote -v', dry_run=False)
     on_github = any(['github.com' in remote for remote in git_remotes])
     log.info('On Github? %s', on_github)
 

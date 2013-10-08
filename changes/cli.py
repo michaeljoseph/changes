@@ -255,7 +255,7 @@ def commit_version_change():
     app_name, dry_run, new_version = common_arguments()
 
     commands = [
-        'git', 'ci', '-m', new_version,
+        'git', 'commit', '-m', new_version,
         '%s/__init__.py' % app_name, CHANGELOG
     ]
 

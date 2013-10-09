@@ -183,7 +183,7 @@ def write_new_changelog(app_name, filename, content_lines, dry_run=True):
         with open(filename, 'w+') as f:
             f.write(output)
     else:
-        log.info('New changelog:\n%s', output)
+        log.info('New changelog:\n%s', ''.join(content_lines))
 
 
 def changelog():

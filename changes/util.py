@@ -1,6 +1,3 @@
-import semantic_version
-
-
 def extract(dictionary, keys):
     """
     Extract only the specified keys from a dict
@@ -12,6 +9,3 @@ def extract(dictionary, keys):
     return dict(
         (k, dictionary[k]) for k in keys if k in dictionary
     )
-
-
-

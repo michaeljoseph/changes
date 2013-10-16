@@ -5,7 +5,6 @@ from . import BaseTestCase
 
 class AttributeTestCase(BaseTestCase):
 
-
     def test_extract_attribute(self):
         self.assertEquals(
             '0.0.1',
@@ -34,4 +33,5 @@ class AttributeTestCase(BaseTestCase):
             attributes.has_attribute(
                 self.module_name,
                 '__version__'
-        ))
+            )
+        )

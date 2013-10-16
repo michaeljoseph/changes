@@ -39,7 +39,8 @@ def replace_attribute(app_name, attribute_name, new_value, dry_run=True):
 
 
 def has_attribute(app_name, attribute_name):
-    init_file = '%s/__init__.py' % app_name 
+    init_file = '%s/__init__.py' % app_name
     return any(
-        [attribute_name in init_line for init_line in open(init_file).readlines()]
+        [attribute_name in init_line for
+         init_line in open(init_file).readlines()]
     )

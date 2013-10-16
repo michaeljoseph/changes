@@ -30,20 +30,18 @@ Options:
   --debug               Debug output.
 
 The commands do the following:
-   changelog   Generates an automatic changelog from your commit messages
-   version     Increments the __version__ attribute of your module's __init__
-   test        Runs your tests with nosetests
-   install     Attempts to install the sdist
-   tag         Tags your git repo with the new version number
-   upload      Uploads your project with setup.py clean sdist upload
-   pypi        Attempts to install your package from pypi
-   release     Runs all the previous commands
+   changelog     Generates an automatic changelog from your commit messages
+   bump_version  Increments the __version__ attribute of your module's __init__
+   test          Runs your tests with nosetests
+   install       Attempts to install the sdist
+   tag           Tags your git repo with the new version number
+   upload        Uploads your project with setup.py clean sdist upload
+   pypi          Attempts to install your package from pypi
+   release       Runs all the previous commands
 """
 
-import ast
-from os.path import exists
 import re
-import subprocess
+
 import tempfile
 
 from docopt import docopt
@@ -52,7 +50,7 @@ import logging
 import virtualenv
 
 import changes
-from changes import attributes, probe, shell, util, version
+from changes import attributes, probe, shell, version
 
 
 log = logging.getLogger(__name__)
@@ -166,8 +164,8 @@ def bump_version():
 def commit_version_change():
     app_name, dry_run, new_version = common_arguments()
 
-    commands = 'git commit -m %s %s/__init__.py %s' % (
-        new_version, app_name, CHANGELOG 
+    command = 'git commit -m %s %s/__init__.py %s' % (
+        new_version, app_name, CHANGELOG
     )
 
     if not (shell.execute(command, dry_run=dry_run) and

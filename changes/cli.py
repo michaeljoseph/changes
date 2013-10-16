@@ -60,17 +60,6 @@ CHANGELOG = 'CHANGELOG.md'
 arguments = None
 
 
-def strip_long_arguments(argument_names):
-    long_arguments = extract(arguments, argument_names)
-    return dict([
-        (key[2:], value) for key, value in long_arguments.items()
-    ])
-
-
-def extract_version_arguments():
-    return strip_long_arguments(['--major', '--minor', '--patch'])
-
-
 def common_arguments():
     """
     Return common arguments
@@ -82,8 +71,6 @@ def common_arguments():
         arguments['--dry-run'],
         arguments['new_version'],
     )
-
-
 
 
 def write_new_changelog(app_name, filename, content_lines, dry_run=True):
@@ -349,8 +336,8 @@ def initialise():
 def main():
     initialise()
 
-    commands = ['release', 'changelog', 'test', 'version', 'tag', 'upload',
-                'install', 'pypi']
+    commands = ['release', 'changelog', 'test', 'bump_version', 'tag',
+                'upload', 'install', 'pypi']
     suppress_version_prompt_for = ['test', 'upload']
 
     if arguments['--new-version']:
@@ -368,6 +355,6 @@ def main():
                 arguments['new_version'] = version.get_new_version(
                     app_name,
                     version.current_version(app_name),
-                    **extract_version_arguments()
+                    **version.extract_version_arguments()
                 )
             globals()[command]()

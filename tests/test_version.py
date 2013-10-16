@@ -3,6 +3,7 @@ from unittest2 import TestCase
 from changes import version
 from . import BaseTestCase
 
+
 class VersionTestCase(TestCase):
 
     def test_increment(self):
@@ -37,6 +38,7 @@ class VersionTestCase(TestCase):
             expected,
             version.strip_long_arguments(arguments, long_keys)
         )
+
 
 class CurrentVersionTestCase(BaseTestCase):
 

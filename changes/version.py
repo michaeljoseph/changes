@@ -18,6 +18,7 @@ def strip_long_arguments(arguments, long_keys):
 def extract_version_arguments():
     return strip_long_arguments(['--major', '--minor', '--patch'])
 
+
 def increment(version, major=False, minor=False, patch=True):
     """
     Increment a semantic version

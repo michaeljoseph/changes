@@ -157,7 +157,7 @@ To git@github.com:michaeljoseph/changes.git
 
 [API Documentation][1]
 
-## Testing ##
+## Testing
 
 Install development requirements:
 

@@ -111,12 +111,14 @@ def changelog():
     git_log = 'git log --oneline --no-merges'
     version_difference = '%s..master' % version.current_version(app_name)
 
-    git_log_content = execute('%s %s' % (git_log, version_difference),
-                              dry_run=False)
+    git_log_content = shell.execute(
+        '%s %s' % (git_log, version_difference),
+        dry_run=False
+    )
 
     if not git_log_content:
-        log.debug('sniffing initial release, drop tags: %s', git_log_commands)
-        git_log_content = execute(git_log, dry_run=False)
+        log.debug('sniffing initial release, drop tags: %s', git_log)
+        git_log_content = shell.execute(git_log, dry_run=False)
 
     for index, line in enumerate(git_log_content):
         # http://stackoverflow.com/a/468378/5549
@@ -168,8 +170,8 @@ def commit_version_change():
         new_version, app_name, CHANGELOG 
     )
 
-    if not (execute(command, dry_run=dry_run) and
-            execute('git push', dry_run=dry_run)):
+    if not (shell.execute(command, dry_run=dry_run) and
+            shell.execute('git push', dry_run=dry_run)):
         raise Exception('Version change commit failed')
 
 
@@ -178,7 +180,7 @@ def test():
     if arguments['--tox']:
         command = 'tox'
 
-    if not execute(command, dry_run=False):
+    if not shell.execute(command, dry_run=False):
         raise Exception('Test command failed')
 
 
@@ -191,7 +193,7 @@ def make_virtualenv():
 def run_test_command():
     if arguments['--test-command']:
         test_command = arguments['--test-command']
-        result = execute(test_command, dry_run=arguments['--dry-run'])
+        result = shell.execute(test_command, dry_run=arguments['--dry-run'])
         log.info('Test command "%s", returned %s', test_command, result)
     else:
         log.warning('Test command "%s" failed', test_command)
@@ -200,7 +202,7 @@ def run_test_command():
 def install():
     app_name, dry_run, new_version = common_arguments()
 
-    result = execute('python setup.py clean sdist', dry_run=dry_run)
+    result = shell.execute('python setup.py clean sdist', dry_run=dry_run)
     if result:
         tmp_dir = make_virtualenv()
         try:
@@ -227,7 +229,7 @@ def upload():
     if pypi:
         upload = upload + '-r %s' % pypi
 
-    if not execute(upload, dry_run=dry_run):
+    if not shell.execute(upload, dry_run=dry_run):
         raise Exception('Error uploading')
     else:
         log.info('Succesfully uploaded %s %s', app_name, new_version)
@@ -246,7 +248,7 @@ def pypi():
         package_index = pypi
 
     try:
-        result = execute(install, dry_run=dry_run)
+        result = shell.execute(install, dry_run=dry_run)
         if result:
             log.info('Successfully installed %s from %s',
                      app_name, package_index)
@@ -264,8 +266,11 @@ def pypi():
 def tag():
     _, dry_run, new_version = common_arguments()
 
-    execute('git tag -a %s -m "%s"' % (new_version, new_version), dry_run=dry_run)
-    execute('git push --tags', dry_run=dry_run)
+    shell.execute(
+        'git tag -a %s -m "%s"' % (new_version, new_version),
+        dry_run=dry_run
+    )
+    shell.execute('git push --tags', dry_run=dry_run)
 
 
 def release():

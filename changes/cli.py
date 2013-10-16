@@ -52,7 +52,7 @@ import logging
 import virtualenv
 
 import changes
-from changes.util import extract, increment
+from changes import attributes, probe, shell, util, version
 
 
 log = logging.getLogger(__name__)
@@ -84,47 +84,6 @@ def common_arguments():
     )
 
 
-def get_new_version(app_name, current_version,
-                    major=False, minor=False, patch=True):
-
-    guess_new_version = increment(
-        current_version,
-        major=major,
-        minor=minor,
-        patch=patch
-    )
-
-    new_version = raw_input(
-        'What is the release version for "%s" '
-        '[Default: %s]: ' % (
-            app_name, guess_new_version
-        )
-    )
-    if not new_version:
-        new_version = guess_new_version
-    return new_version.strip()
-
-
-def has_requirement(dependency, requirements_contents):
-    return any(
-        [dependency in requirement for requirement in requirements_contents]
-    )
-
-
-def current_version(app_name):
-    return extract_attribute(app_name, '__version__')
-
-
-def execute(command, dry_run=True):
-    log.debug('executing %s', commands)
-    if not dry_run:
-        try:
-            return subprocess.check_output(command.split(' ')).split('\n')
-        except subprocess.CalledProcessError, e:
-            log.debug('return code: %s, output: %s', e.returncode, e.output)
-            return False
-    else:
-        return True
 
 
 def write_new_changelog(app_name, filename, content_lines, dry_run=True):
@@ -158,12 +117,12 @@ def changelog():
 
     changelog_content = [
         '\n## [%s](%s/compare/%s...%s)\n\n' % (
-            current_version(app_name), new_version,
             new_version, attributes.extract_attribute(app_name, '__url__'),
+            version.current_version(app_name), new_version,
         )
     ]
     git_log = 'git log --oneline --no-merges'
-    version_difference = '%s..master' % current_version(app_name)
+    version_difference = '%s..master' % version.current_version(app_name)
 
     git_log_content = execute('%s %s' % (git_log, version_difference),
                               dry_run=False)
@@ -406,9 +365,9 @@ def main():
     for command in commands:
         if arguments[command]:
             if command not in suppress_version_prompt_for:
-                arguments['new_version'] = get_new_version(
+                arguments['new_version'] = version.get_new_version(
                     app_name,
-                    current_version(app_name),
+                    version.current_version(app_name),
                     **extract_version_arguments()
                 )
             globals()[command]()

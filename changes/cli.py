@@ -153,7 +153,7 @@ def changelog():
     log.info('Added content to CHANGELOG.md')
 
 
-def version():
+def bump_version():
     app_name, dry_run, new_version = common_arguments()
 
     attributes.replace_attribute(

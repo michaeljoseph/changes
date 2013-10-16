@@ -1,14 +1,18 @@
+import re
 from setuptools import setup
-import changes
+
+init_py = open('changes/__init__.py').read()
+metadata = dict(re.findall("__([a-z]+)__ = '([^']+)'", init_py))
+metadata['doc'] = re.findall('"""(.+)"""', init_py)[0]
 
 setup(
-    name=changes.__name__,
-    version=changes.__version__,
-    description=changes.__doc__,
-    author=changes.__author__,
-    author_email=changes.__email__,
-    url=changes.__url__,
-    packages=[changes.__name__],
+    name='changes',
+    version=metadata['version'],
+    description=metadata['doc'],
+    author=metadata['author'],
+    author_email=metadata['email'],
+    url=metadata['url'],
+    packages=['changes'],
     install_requires=[
         'docopt < 1.0.0',
         'path.py < 5.0.0',
@@ -17,7 +21,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'changes = changes.cli:main',
+            'changes = changes:main',
         ],
     },
     test_suite='nose.collector',

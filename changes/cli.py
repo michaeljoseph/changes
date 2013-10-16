@@ -283,48 +283,6 @@ def release():
         log.exception('Error releasing')
 
 
-def probe_project():
-    """
-    Check if the project meets `changes` requirements
-    """
-    app_name = arguments['<app_name>']
-
-    log.info('Checking project for changes requirements..self.')
-    # on [github](https://github.com)
-    git_remotes = execute('git remote -v', dry_run=False)
-    on_github = any(['github.com' in remote for remote in git_remotes])
-    log.info('On Github? %s', on_github)
-
-    # `setup.py`
-    setup = exists('setup.py')
-    log.info('setup.py? %s', setup)
-
-    # * `requirements.txt`
-    has_requirements = exists('requirements.txt')
-    log.info('requirements.txt? %s', setup)
-    requirements_contents = open('requirements.txt').readlines()
-
-    # * `CHANGELOG.md`
-    has_changelog = exists('CHANGELOG.md')
-    log.info('CHANGELOG.md? %s', has_changelog)
-
-    # * `<app_name>/__init__.py` with `__version__` and `__url__`
-    init_path = '%s/__init__.py' % app_name
-    init_contents = open(init_path).readlines()
-    has_metadata = (exists(init_path) and has_attribute(app_name, '__version__')
-                    and has_attribute(app_name, '__url__'))
-    log.info('Has module metadata? %s', has_metadata)
-
-    # * supports executing tests with [`nosetests`][2] or [`tox`][3]
-    log.debug(requirements_contents)
-    runs_tests = (has_requirement('nose', requirements_contents) or
-                 has_requirement('tox', requirements_contents))
-    log.info('Runs tests? %s' % runs_tests)
-
-    return (on_github and setup and has_changelog and has_metadata and
-            has_requirements and runs_tests)
-
-
 def initialise():
     global arguments
     arguments = docopt(__doc__, version=changes.__version__)
@@ -345,9 +303,8 @@ def main():
 
     app_name = arguments['<app_name>']
 
-    if not probe_project():
+    if not probe.probe_project(app_name):
         raise Exception('Project does not meet `changes` requirements')
-
 
     for command in commands:
         if arguments[command]:

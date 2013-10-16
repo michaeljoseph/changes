@@ -105,39 +105,6 @@ def get_new_version(app_name, current_version,
     return new_version.strip()
 
 
-def extract_attribute(app_name, attribute_name):
-    """Extract metatdata property from a module"""
-    with open('%s/__init__.py' % app_name) as input_file:
-        for line in input_file:
-            if line.startswith(attribute_name):
-                return ast.literal_eval(line.split('=')[1].strip())
-
-
-def replace_attribute(app_name, attribute_name, new_value, dry_run=True):
-    init_file = '%s/__init__.py' % app_name
-    _, tmp_file = tempfile.mkstemp()
-
-    with open(init_file) as input_file:
-        with open(tmp_file, 'w') as output_file:
-            for line in input_file:
-                if line.startswith(attribute_name):
-                    line = "%s = '%s'\n" % (attribute_name, new_value)
-
-                output_file.write(line)
-
-    if not dry_run:
-        path(tmp_file).move(init_file)
-    else:
-        log.debug(execute('diff %s %s' % (tmp_file, init_file), dry_run=False))
-
-
-def has_attribute(app_name, attribute_name):
-    init_file = '%s/__init__.py' % app_name 
-    return any(
-        [attribute_name in init_line for init_line in open(init_file).readlines()]
-    )
-
-
 def has_requirement(dependency, requirements_contents):
     return any(
         [dependency in requirement for requirement in requirements_contents]
@@ -163,7 +130,7 @@ def execute(command, dry_run=True):
 def write_new_changelog(app_name, filename, content_lines, dry_run=True):
     heading_and_newline = (
         '# [Changelog](%s/releases)\n' %
-        extract_attribute(app_name, '__url__')
+        attributes.extract_attribute(app_name, '__url__')
     )
 
     with open(filename, 'r+') as f:
@@ -191,8 +158,8 @@ def changelog():
 
     changelog_content = [
         '\n## [%s](%s/compare/%s...%s)\n\n' % (
-            new_version, extract_attribute(app_name, '__url__'),
             current_version(app_name), new_version,
+            new_version, attributes.extract_attribute(app_name, '__url__'),
         )
     ]
     git_log = 'git log --oneline --no-merges'
@@ -215,7 +182,7 @@ def changelog():
                 sha1,
                 '[%s](%s/commit/%s)' % (
                     sha1,
-                    extract_attribute(app_name, '__url__'),
+                    attributes.extract_attribute(app_name, '__url__'),
                     sha1
                 )
             )
@@ -241,7 +208,7 @@ def changelog():
 def version():
     app_name, dry_run, new_version = common_arguments()
 
-    replace_attribute(
+    attributes.replace_attribute(
         app_name,
         '__version__',
         new_version,

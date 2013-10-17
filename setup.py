@@ -1,6 +1,8 @@
 import re
 from setuptools import setup
 
+import changes
+
 init_py = open('changes/__init__.py').read()
 metadata = dict(re.findall("__([a-z]+)__ = '([^']+)'", init_py))
 metadata['doc'] = re.findall('"""(.+)"""', init_py)[0]
@@ -9,6 +11,7 @@ setup(
     name='changes',
     version=metadata['version'],
     description=metadata['doc'],
+    long_description=changes.md2rst('README.md'),
     author=metadata['author'],
     author_email=metadata['email'],
     url=metadata['url'],

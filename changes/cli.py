@@ -4,7 +4,7 @@ changes.
 Usage:
   changes [options] <app_name> changelog
   changes [options] <app_name> release
-  changes [options] <app_name> version
+  changes [options] <app_name> bump_version
   changes [options] <app_name> test
   changes [options] <app_name> install
   changes [options] <app_name> upload

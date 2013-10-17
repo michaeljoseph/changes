@@ -4,6 +4,7 @@ iterpipes < 1.0.0
 flake8 < 3.0.0
 mock < 2.0.0
 nose < 2.0.0
+pypandoc < 1.0.0
 path.py < 5.0.0
 pinocchio < 1.0.0
 python-coveralls < 3.0.0

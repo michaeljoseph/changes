@@ -7,3 +7,4 @@ __email__ = 'michaeljoseph@gmail.com'
 
 
 from .cli import main  # noqa
+from .pandoc import md2rst

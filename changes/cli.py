@@ -265,6 +265,9 @@ def pypi():
 def tag():
     _, dry_run, new_version = common_arguments()
 
+    if arguments['--version-prefix']:
+        new_version = arguments['--version-prefix'] + new_version
+
     shell.execute(
         'git tag -a %s -m "%s"' % (new_version, new_version),
         dry_run=dry_run

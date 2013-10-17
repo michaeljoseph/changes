@@ -16,6 +16,7 @@ setup(
     install_requires=[
         'docopt < 1.0.0',
         'iterpipes < 1.0.0',
+        'pypandoc < 1.0.0',
         'path.py < 5.0.0',
         'semantic_version < 3.0.0',
         'virtualenv < 2.0.0',

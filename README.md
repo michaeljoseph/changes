@@ -69,15 +69,16 @@ Options:
   --test-command=<cmd>  Command to use to test the newly installed package
   --debug               Debug output.
 
+
 The commands do the following:
-   changelog   Generates an automatic changelog from your commit messages
-   version     Increments the __version__ attribute of your module's __init__
-   test        Runs your tests with nosetests
-   install     Attempts to install the sdist
-   tag         Tags your git repo with the new version number
-   upload      Uploads your project with setup.py clean sdist upload
-   pypi        Attempts to install your package from pypi 
-   release     Runs all the previous commands
+   changelog      Generates an automatic changelog from your commit messages
+   bump_version   Increments the __version__ attribute of your module's __init__
+   test           Runs your tests with nosetests
+   install        Attempts to install the sdist
+   tag            Tags your git repo with the new version number
+   upload         Uploads your project with setup.py clean sdist upload
+   pypi           Attempts to install your package from pypi
+   release        Runs all the previous commands
 ```
 
 The default workflow is to run the `changelog` command to autogenerate
@@ -157,7 +158,7 @@ To git@github.com:michaeljoseph/changes.git
 
 [API Documentation][1]
 
-## Testing ##
+## Testing
 
 Install development requirements:
 

@@ -38,7 +38,7 @@ class VersionTestCase(TestCase):
         )
 
 
-class VersionTestCase(BaseTestCase):
+class VersionApplicationTestCase(BaseTestCase):
 
     def test_current_version(self):
         self.assertEquals(

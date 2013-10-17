@@ -1,5 +1,5 @@
 import pypandoc
-#
+
 
 def md2rst(markdown):
     return pypandoc.convert(
@@ -7,5 +7,3 @@ def md2rst(markdown):
         'rst',
         format='md'
     )
-
-

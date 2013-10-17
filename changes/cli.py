@@ -14,20 +14,21 @@ Usage:
   changes -h | --help
 
 Options:
-  --new-version=<ver>   Specify version.
-  -p --patch            Patch-level version increment.
-  -m --minor            Minor-level version increment.
-  -M --major            Minor-level version increment.
+  --new-version=<ver>        Specify version.
+  -p --patch                 Patch-level version increment.
+  -m --minor                 Minor-level version increment.
+  -M --major                 Minor-level version increment.
 
-  -h --help             Show this screen.
+  -h --help                  Show this screen.
 
-  --pypi=<pypi>         Use alternative package index
-  --dry-run             Prints the commands that would have been executed.
-  --skip-changelog      For the release task: should the changelog be generated
-                        and committed?
-  --tox                 Use tox instead of nosetests
-  --test-command=<cmd>  Command to use to test the newly installed package
-  --debug               Debug output.
+  --pypi=<pypi>              Use alternative package index
+  --dry-run                  Prints the commands that would have been executed.
+  --skip-changelog           For the release task: should the changelog be
+                             generated and committed?
+  --tox                      Use `tox` instead of the default: `nosetests`
+  --test-command=<cmd>       Command to use to test the newly installed package
+  --version-prefix=<prefix>  Specify a prefix for version number tags
+  --debug                    Debug output.
 
 The commands do the following:
    changelog     Generates an automatic changelog from your commit messages

@@ -54,31 +54,31 @@ Usage:
   changes -h | --help
 
 Options:
-  --new-version=<ver>   Specify version.
-  -p --patch            Patch-level version increment.
-  -m --minor            Minor-level version increment.
-  -M --major            Minor-level version increment.
+  --new-version=<ver>        Specify version.
+  -p --patch                 Patch-level version increment.
+  -m --minor                 Minor-level version increment.
+  -M --major                 Minor-level version increment.
 
-  -h --help             Show this screen.
+  -h --help                  Show this screen.
 
-  --pypi=<pypi>         Use alternative package index
-  --dry-run             Prints the commands that would have been executed.
-  --skip-changelog      For the release task: should the changelog be generated
-                        and committed?
-  --tox                 Use tox instead of nosetests
-  --test-command=<cmd>  Command to use to test the newly installed package
-  --debug               Debug output.
-
+  --pypi=<pypi>              Use alternative package index
+  --dry-run                  Prints the commands that would have been executed.
+  --skip-changelog           For the release task: should the changelog be
+                             generated and committed?
+  --tox                      Use `tox` instead of the default: `nosetests`
+  --test-command=<cmd>       Command to use to test the newly installed package
+  --version-prefix=<prefix>  Specify a prefix for version number tags
+  --debug                    Debug output.
 
 The commands do the following:
-   changelog      Generates an automatic changelog from your commit messages
-   bump_version   Increments the __version__ attribute of your module's __init__
-   test           Runs your tests with nosetests
-   install        Attempts to install the sdist
-   tag            Tags your git repo with the new version number
-   upload         Uploads your project with setup.py clean sdist upload
-   pypi           Attempts to install your package from pypi
-   release        Runs all the previous commands
+   changelog     Generates an automatic changelog from your commit messages
+   bump_version  Increments the __version__ attribute of your module's __init__
+   test          Runs your tests with nosetests
+   install       Attempts to install the sdist
+   tag           Tags your git repo with the new version number
+   upload        Uploads your project with setup.py clean sdist upload
+   pypi          Attempts to install your package from pypi
+   release       Runs all the previous commands
 ```
 
 The default workflow is to run the `changelog` command to autogenerate

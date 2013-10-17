@@ -91,7 +91,7 @@ The remaining tasks can be automated with the `release` command (the
 `--skip-changelog` option prevents `release` from regenerating the automatic changelog)
 
 ```python
-(changes)➜  changes git:(master) changes -p changes changelog
+(changes)$  changes changes -p changes changelog
 What is the release version for "changes" [Default: 0.1.1]:
 INFO:changes.cli:Added content to CHANGELOG.md
 Everything up-to-date
@@ -99,7 +99,7 @@ INFO:changes.cli:Committed changelog update
 
 << changelog pruning >>
 
-(changes)➜  changes git:(master) ✗ changes -p changes release --skip-changelog
+(changes)$  changes -p changes release --skip-changelog
 What is the release version for "changes" [Default: 0.1.1]:
 Counting objects: 7, done.
 Delta compression using up to 8 threads.
@@ -118,7 +118,7 @@ warning: sdist: standard file not found: should have one of README, README.rst, 
 
 Or you can do it all in one step (if your commit messages are good enough):
 ```python
-(changes)➜  changes git:(master) changes -m changes release
+(changes)$  changes -m changes release
 What is the release version for "changes" [Default: 0.2.0]:
 INFO:changes.cli:Added content to CHANGELOG.md
 

@@ -30,20 +30,18 @@ Options:
   --debug               Debug output.
 
 The commands do the following:
-   changelog   Generates an automatic changelog from your commit messages
-   version     Increments the __version__ attribute of your module's __init__
-   test        Runs your tests with nosetests
-   install     Attempts to install the sdist
-   tag         Tags your git repo with the new version number
-   upload      Uploads your project with setup.py clean sdist upload
-   pypi        Attempts to install your package from pypi
-   release     Runs all the previous commands
+   changelog     Generates an automatic changelog from your commit messages
+   bump_version  Increments the __version__ attribute of your module's __init__
+   test          Runs your tests with nosetests
+   install       Attempts to install the sdist
+   tag           Tags your git repo with the new version number
+   upload        Uploads your project with setup.py clean sdist upload
+   pypi          Attempts to install your package from pypi
+   release       Runs all the previous commands
 """
 
-import ast
-from os.path import exists
 import re
-import subprocess
+
 import tempfile
 
 from docopt import docopt
@@ -52,23 +50,12 @@ import logging
 import virtualenv
 
 import changes
-from changes.util import extract, increment
+from changes import attributes, probe, shell, version
 
 
 log = logging.getLogger(__name__)
 CHANGELOG = 'CHANGELOG.md'
 arguments = None
-
-
-def strip_long_arguments(argument_names):
-    long_arguments = extract(arguments, argument_names)
-    return dict([
-        (key[2:], value) for key, value in long_arguments.items()
-    ])
-
-
-def extract_version_arguments():
-    return strip_long_arguments(['--major', '--minor', '--patch'])
 
 
 def common_arguments():
@@ -84,86 +71,10 @@ def common_arguments():
     )
 
 
-def get_new_version(app_name, current_version,
-                    major=False, minor=False, patch=True):
-
-    guess_new_version = increment(
-        current_version,
-        major=major,
-        minor=minor,
-        patch=patch
-    )
-
-    new_version = raw_input(
-        'What is the release version for "%s" '
-        '[Default: %s]: ' % (
-            app_name, guess_new_version
-        )
-    )
-    if not new_version:
-        new_version = guess_new_version
-    return new_version.strip()
-
-
-def extract_attribute(app_name, attribute_name):
-    """Extract metatdata property from a module"""
-    with open('%s/__init__.py' % app_name) as input_file:
-        for line in input_file:
-            if line.startswith(attribute_name):
-                return ast.literal_eval(line.split('=')[1].strip())
-
-
-def replace_attribute(app_name, attribute_name, new_value, dry_run=True):
-    init_file = '%s/__init__.py' % app_name
-    _, tmp_file = tempfile.mkstemp()
-
-    with open(init_file) as input_file:
-        with open(tmp_file, 'w') as output_file:
-            for line in input_file:
-                if line.startswith(attribute_name):
-                    line = "%s = '%s'\n" % (attribute_name, new_value)
-
-                output_file.write(line)
-
-    if not dry_run:
-        path(tmp_file).move(init_file)
-    else:
-        log.debug(execute('diff %s %s' % (tmp_file, init_file), dry_run=False))
-
-
-def has_attribute(app_name, attribute_name):
-    init_file = '%s/__init__.py' % app_name 
-    return any(
-        [attribute_name in init_line for init_line in open(init_file).readlines()]
-    )
-
-
-def has_requirement(dependency, requirements_contents):
-    return any(
-        [dependency in requirement for requirement in requirements_contents]
-    )
-
-
-def current_version(app_name):
-    return extract_attribute(app_name, '__version__')
-
-
-def execute(command, dry_run=True):
-    log.debug('executing %s', commands)
-    if not dry_run:
-        try:
-            return subprocess.check_output(command.split(' ')).split('\n')
-        except subprocess.CalledProcessError, e:
-            log.debug('return code: %s, output: %s', e.returncode, e.output)
-            return False
-    else:
-        return True
-
-
 def write_new_changelog(app_name, filename, content_lines, dry_run=True):
     heading_and_newline = (
         '# [Changelog](%s/releases)\n' %
-        extract_attribute(app_name, '__url__')
+        attributes.extract_attribute(app_name, '__url__')
     )
 
     with open(filename, 'r+') as f:
@@ -191,19 +102,21 @@ def changelog():
 
     changelog_content = [
         '\n## [%s](%s/compare/%s...%s)\n\n' % (
-            new_version, extract_attribute(app_name, '__url__'),
-            current_version(app_name), new_version,
+            new_version, attributes.extract_attribute(app_name, '__url__'),
+            version.current_version(app_name), new_version,
         )
     ]
     git_log = 'git log --oneline --no-merges'
-    version_difference = '%s..master' % current_version(app_name)
+    version_difference = '%s..master' % version.current_version(app_name)
 
-    git_log_content = execute('%s %s' % (git_log, version_difference),
-                              dry_run=False)
+    git_log_content = shell.execute(
+        '%s %s' % (git_log, version_difference),
+        dry_run=False
+    )
 
     if not git_log_content:
-        log.debug('sniffing initial release, drop tags: %s', git_log_commands)
-        git_log_content = execute(git_log, dry_run=False)
+        log.debug('sniffing initial release, drop tags: %s', git_log)
+        git_log_content = shell.execute(git_log, dry_run=False)
 
     for index, line in enumerate(git_log_content):
         # http://stackoverflow.com/a/468378/5549
@@ -215,7 +128,7 @@ def changelog():
                 sha1,
                 '[%s](%s/commit/%s)' % (
                     sha1,
-                    extract_attribute(app_name, '__url__'),
+                    attributes.extract_attribute(app_name, '__url__'),
                     sha1
                 )
             )
@@ -238,10 +151,10 @@ def changelog():
     log.info('Added content to CHANGELOG.md')
 
 
-def version():
+def bump_version():
     app_name, dry_run, new_version = common_arguments()
 
-    replace_attribute(
+    attributes.replace_attribute(
         app_name,
         '__version__',
         new_version,
@@ -251,12 +164,12 @@ def version():
 def commit_version_change():
     app_name, dry_run, new_version = common_arguments()
 
-    commands = 'git commit -m %s %s/__init__.py %s' % (
-        new_version, app_name, CHANGELOG 
+    command = 'git commit -m %s %s/__init__.py %s' % (
+        new_version, app_name, CHANGELOG
     )
 
-    if not (execute(command, dry_run=dry_run) and
-            execute('git push', dry_run=dry_run)):
+    if not (shell.execute(command, dry_run=dry_run) and
+            shell.execute('git push', dry_run=dry_run)):
         raise Exception('Version change commit failed')
 
 
@@ -265,7 +178,7 @@ def test():
     if arguments['--tox']:
         command = 'tox'
 
-    if not execute(command, dry_run=False):
+    if not shell.execute(command, dry_run=False):
         raise Exception('Test command failed')
 
 
@@ -278,7 +191,7 @@ def make_virtualenv():
 def run_test_command():
     if arguments['--test-command']:
         test_command = arguments['--test-command']
-        result = execute(test_command, dry_run=arguments['--dry-run'])
+        result = shell.execute(test_command, dry_run=arguments['--dry-run'])
         log.info('Test command "%s", returned %s', test_command, result)
     else:
         log.warning('Test command "%s" failed', test_command)
@@ -287,7 +200,7 @@ def run_test_command():
 def install():
     app_name, dry_run, new_version = common_arguments()
 
-    result = execute('python setup.py clean sdist', dry_run=dry_run)
+    result = shell.execute('python setup.py clean sdist', dry_run=dry_run)
     if result:
         tmp_dir = make_virtualenv()
         try:
@@ -314,7 +227,7 @@ def upload():
     if pypi:
         upload = upload + '-r %s' % pypi
 
-    if not execute(upload, dry_run=dry_run):
+    if not shell.execute(upload, dry_run=dry_run):
         raise Exception('Error uploading')
     else:
         log.info('Succesfully uploaded %s %s', app_name, new_version)
@@ -333,7 +246,7 @@ def pypi():
         package_index = pypi
 
     try:
-        result = execute(install, dry_run=dry_run)
+        result = shell.execute(install, dry_run=dry_run)
         if result:
             log.info('Successfully installed %s from %s',
                      app_name, package_index)
@@ -351,8 +264,11 @@ def pypi():
 def tag():
     _, dry_run, new_version = common_arguments()
 
-    execute('git tag -a %s -m "%s"' % (new_version, new_version), dry_run=dry_run)
-    execute('git push --tags', dry_run=dry_run)
+    shell.execute(
+        'git tag -a %s -m "%s"' % (new_version, new_version),
+        dry_run=dry_run
+    )
+    shell.execute('git push --tags', dry_run=dry_run)
 
 
 def release():
@@ -370,48 +286,6 @@ def release():
         log.exception('Error releasing')
 
 
-def probe_project():
-    """
-    Check if the project meets `changes` requirements
-    """
-    app_name = arguments['<app_name>']
-
-    log.info('Checking project for changes requirements..self.')
-    # on [github](https://github.com)
-    git_remotes = execute('git remote -v', dry_run=False)
-    on_github = any(['github.com' in remote for remote in git_remotes])
-    log.info('On Github? %s', on_github)
-
-    # `setup.py`
-    setup = exists('setup.py')
-    log.info('setup.py? %s', setup)
-
-    # * `requirements.txt`
-    has_requirements = exists('requirements.txt')
-    log.info('requirements.txt? %s', setup)
-    requirements_contents = open('requirements.txt').readlines()
-
-    # * `CHANGELOG.md`
-    has_changelog = exists('CHANGELOG.md')
-    log.info('CHANGELOG.md? %s', has_changelog)
-
-    # * `<app_name>/__init__.py` with `__version__` and `__url__`
-    init_path = '%s/__init__.py' % app_name
-    init_contents = open(init_path).readlines()
-    has_metadata = (exists(init_path) and has_attribute(app_name, '__version__')
-                    and has_attribute(app_name, '__url__'))
-    log.info('Has module metadata? %s', has_metadata)
-
-    # * supports executing tests with [`nosetests`][2] or [`tox`][3]
-    log.debug(requirements_contents)
-    runs_tests = (has_requirement('nose', requirements_contents) or
-                 has_requirement('tox', requirements_contents))
-    log.info('Runs tests? %s' % runs_tests)
-
-    return (on_github and setup and has_changelog and has_metadata and
-            has_requirements and runs_tests)
-
-
 def initialise():
     global arguments
     arguments = docopt(__doc__, version=changes.__version__)
@@ -423,8 +297,8 @@ def initialise():
 def main():
     initialise()
 
-    commands = ['release', 'changelog', 'test', 'version', 'tag', 'upload',
-                'install', 'pypi']
+    commands = ['release', 'changelog', 'test', 'bump_version', 'tag',
+                'upload', 'install', 'pypi']
     suppress_version_prompt_for = ['test', 'upload']
 
     if arguments['--new-version']:
@@ -432,16 +306,15 @@ def main():
 
     app_name = arguments['<app_name>']
 
-    if not probe_project():
+    if not probe.probe_project(app_name):
         raise Exception('Project does not meet `changes` requirements')
-
 
     for command in commands:
         if arguments[command]:
             if command not in suppress_version_prompt_for:
-                arguments['new_version'] = get_new_version(
+                arguments['new_version'] = version.get_new_version(
                     app_name,
-                    current_version(app_name),
-                    **extract_version_arguments()
+                    version.current_version(app_name),
+                    **version.extract_version_arguments()
                 )
             globals()[command]()

@@ -4,19 +4,43 @@ import semantic_version
 
 from changes import util, attributes
 
-
 log = logging.getLogger(__name__)
 
 
-def strip_long_arguments(arguments, long_keys):
-    long_arguments = util.extract(arguments, long_keys)
+def current_version(app_name):
+    return attributes.extract_attribute(app_name, '__version__')
+
+
+def get_new_version(app_name, current_version,
+                    major=False, minor=False, patch=True):
+
+    proposed_new_version = increment(
+        current_version,
+        major=major,
+        minor=minor,
+        patch=patch
+    )
+
+    new_version = raw_input(
+        'What is the release version for "%s" '
+        '[Default: %s]: ' % (
+            app_name, proposed_new_version
+        )
+    )
+    if not new_version:
+        return proposed_new_version.strip()
+    else:
+        return new_version.strip()
+
+
+def extract_version_arguments(arguments):
+    long_arguments = util.extract(
+        arguments,
+        ['--major', '--minor', '--patch'],
+    )
     return dict([
         (key[2:], value) for key, value in long_arguments.items()
     ])
-
-
-def extract_version_arguments():
-    return strip_long_arguments(['--major', '--minor', '--patch'])
 
 
 def increment(version, major=False, minor=False, patch=True):
@@ -41,28 +65,3 @@ def increment(version, major=False, minor=False, patch=True):
         version.patch += 1
 
     return str(version)
-
-
-def get_new_version(app_name, current_version,
-                    major=False, minor=False, patch=True):
-
-    guess_new_version = increment(
-        current_version,
-        major=major,
-        minor=minor,
-        patch=patch
-    )
-
-    new_version = raw_input(
-        'What is the release version for "%s" '
-        '[Default: %s]: ' % (
-            app_name, guess_new_version
-        )
-    )
-    if not new_version:
-        new_version = guess_new_version
-    return new_version.strip()
-
-
-def current_version(app_name):
-    return attributes.extract_attribute(app_name, '__version__')

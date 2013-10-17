@@ -1,3 +1,4 @@
+import mock
 from unittest2 import TestCase
 
 from changes import version
@@ -22,28 +23,37 @@ class VersionTestCase(TestCase):
             version.increment('1.0.0', patch=True)
         )
 
-    def test_strip_long_arguments(self):
-        arguments = {
-            '--major': True,
-            '--minor': False,
-            '--patch': False,
-        }
-        long_keys = ['--major', '--minor', '--patch']
-        expected = {
-            'major': True,
-            'minor': False,
-            'patch': False,
-        }
+    def test_extract_version_arguments(self):
         self.assertEquals(
-            expected,
-            version.strip_long_arguments(arguments, long_keys)
+            {
+                'major': True,
+                'minor': False,
+                'patch': False,
+            },
+            version.extract_version_arguments({
+                '--major': True,
+                '--minor': False,
+                '--patch': False,
+            })
         )
 
 
-class CurrentVersionTestCase(BaseTestCase):
+class VersionTestCase(BaseTestCase):
 
     def test_current_version(self):
         self.assertEquals(
             '0.0.1',
             version.current_version(self.module_name)
         )
+
+    def test_get_new_version(self):
+        with mock.patch('__builtin__.raw_input') as mock_raw_input:
+            mock_raw_input.return_value = None
+            self.assertEquals(
+                '0.1.0',
+                version.get_new_version(
+                    self.module_name,
+                    '0.0.1',
+                    minor=True
+                )
+            )

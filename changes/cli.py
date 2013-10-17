@@ -315,6 +315,6 @@ def main():
                 arguments['new_version'] = version.get_new_version(
                     app_name,
                     version.current_version(app_name),
-                    **version.extract_version_arguments()
+                    **version.extract_version_arguments(arguments)
                 )
             globals()[command]()

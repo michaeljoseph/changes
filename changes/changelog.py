@@ -31,13 +31,13 @@ def write_new_changelog(app_name, filename, content_lines, dry_run=True):
     else:
         log.info('New changelog:\n%s', ''.join(content_lines))
 
+
 def replace_sha_with_commit_link(git_log_content):
     repo_url = attributes.extract_attribute(
-                    config.common_arguments()[0],
-                    '__url__'
-                )
+        config.common_arguments()[0],
+        '__url__'
+    )
 
-    commit_link = ''
     for index, line in enumerate(git_log_content):
         # http://stackoverflow.com/a/468378/5549
         sha1_re = re.match(r'^[0-9a-f]{5,40}\b', line)
@@ -46,18 +46,13 @@ def replace_sha_with_commit_link(git_log_content):
 
             new_line = line.replace(
                 sha1,
-                '[%s](%s/commit/%s)' % (
-                    sha1,
-                    attributes.extract_attribute(
-                        config.common_arguments()[0],
-                        '__url__'
-                    ),
-                    sha1
-                )
+                '[%s](%s/commit/%s)' % (sha1, repo_url, sha1)
             )
             log.debug('old line: %s\nnew line: %s', line, new_line)
             git_log_content[index] = new_line
+
     return git_log_content
+
 
 def changelog():
     app_name, dry_run, new_version = config.common_arguments()

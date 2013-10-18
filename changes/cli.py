@@ -54,22 +54,12 @@ from changes.changelog import changelog
 
 from changes.packaging import install, upload, pypi
 from changes.testing import run_tests
+from changes.version import bump_version
 from changes.vcs import tag, commit_version_change
 
 log = logging.getLogger(__name__)
 
 
-def bump_version():
-    app_name, dry_run, new_version = config.common_arguments()
-
-    attributes.replace_attribute(
-        app_name,
-        '__version__',
-        new_version,
-        dry_run=dry_run)
-
-
-    )
 def release():
     try:
         if not arguments['--skip-changelog']:

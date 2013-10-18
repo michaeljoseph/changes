@@ -7,6 +7,16 @@ from changes import util, attributes
 log = logging.getLogger(__name__)
 
 
+def bump_version():
+    app_name, dry_run, new_version = config.common_arguments()
+
+    attributes.replace_attribute(
+        app_name,
+        '__version__',
+        new_version,
+        dry_run=dry_run)
+
+
 def current_version(app_name):
     return attributes.extract_attribute(app_name, '__version__')
 

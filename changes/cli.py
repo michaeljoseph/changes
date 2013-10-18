@@ -43,7 +43,6 @@ The commands do the following:
 
 import re
 
-import tempfile
 
 from docopt import docopt
 from path import path
@@ -55,6 +54,7 @@ from changes import attributes, config, probe, shell, version
 from changes.config import arguments
 from changes.changelog import changelog
 
+from changes.testing import test, run_test_command
 from changes.vcs import tag, commit_version_change
 
 log = logging.getLogger(__name__)
@@ -72,28 +72,10 @@ def bump_version():
 
     )
 
-def test():
-    command = 'nosetests'
-    if arguments['--tox']:
-        command = 'tox'
-
-    if not shell.execute(command, dry_run=False):
-        raise Exception('Test command failed')
-
-
 def make_virtualenv():
     tmp_dir = tempfile.mkdtemp()
     virtualenv.create_environment(tmp_dir, site_packages=False)
     return tmp_dir
-
-
-def run_test_command():
-    if arguments['--test-command']:
-        test_command = arguments['--test-command']
-        result = shell.execute(test_command, dry_run=arguments['--dry-run'])
-        log.info('Test command "%s", returned %s', test_command, result)
-    else:
-        log.warning('Test command "%s" failed', test_command)
 
 
 def install():

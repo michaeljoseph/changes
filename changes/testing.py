@@ -6,7 +6,7 @@ from changes import shell
 log = logging.getLogger(__name__)
 
 
-def test():
+def run_tests():
     command = 'nosetests'
     if arguments['--tox']:
         command = 'tox'

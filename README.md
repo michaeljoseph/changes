@@ -45,7 +45,7 @@ Usage:
   changes [options] <app_name> changelog
   changes [options] <app_name> release
   changes [options] <app_name> bump_version
-  changes [options] <app_name> test
+  changes [options] <app_name> run_tests
   changes [options] <app_name> install
   changes [options] <app_name> upload
   changes [options] <app_name> pypi
@@ -68,12 +68,15 @@ Options:
   --tox                      Use `tox` instead of the default: `nosetests`
   --test-command=<cmd>       Command to use to test the newly installed package
   --version-prefix=<prefix>  Specify a prefix for version number tags
+  --noinput                  To be used in conjuction with one of the increment
+                             options above, this option stops `changes` from
+                             confirming the new version number.
   --debug                    Debug output.
 
 The commands do the following:
    changelog     Generates an automatic changelog from your commit messages
    bump_version  Increments the __version__ attribute of your module's __init__
-   test          Runs your tests with nosetests
+   run_tests     Runs your tests with nosetests
    install       Attempts to install the sdist
    tag           Tags your git repo with the new version number
    upload        Uploads your project with setup.py clean sdist upload

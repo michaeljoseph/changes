@@ -5,7 +5,7 @@ Usage:
   changes [options] <app_name> changelog
   changes [options] <app_name> release
   changes [options] <app_name> bump_version
-  changes [options] <app_name> test
+  changes [options] <app_name> run_tests
   changes [options] <app_name> install
   changes [options] <app_name> upload
   changes [options] <app_name> pypi
@@ -33,7 +33,7 @@ Options:
 The commands do the following:
    changelog     Generates an automatic changelog from your commit messages
    bump_version  Increments the __version__ attribute of your module's __init__
-   test          Runs your tests with nosetests
+   run_tests     Runs your tests with nosetests
    install       Attempts to install the sdist
    tag           Tags your git repo with the new version number
    upload        Uploads your project with setup.py clean sdist upload
@@ -54,7 +54,7 @@ from changes import attributes, config, probe, shell, version
 from changes.config import arguments
 from changes.changelog import changelog
 
-from changes.testing import test, run_test_command
+from changes.testing import run_tests
 from changes.vcs import tag, commit_version_change
 
 log = logging.getLogger(__name__)
@@ -169,10 +169,9 @@ def initialise():
 def main():
     arguments = initialise()
 
-    commands = ['release', 'changelog', 'test', 'bump_version', 'tag',
+    commands = ['release', 'changelog', 'run_tests', 'bump_version', 'tag',
                 'upload', 'install', 'pypi']
-    suppress_version_prompt_for = ['test', 'upload']
-
+    suppress_version_prompt_for = ['run_tests', 'upload']
     if arguments['--new-version']:
         arguments['new_version'] = arguments['--new-version']
 

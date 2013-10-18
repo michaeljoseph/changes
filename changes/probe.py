@@ -16,7 +16,7 @@ def probe_project(app_name):
     """
     Check if the project meets `changes` requirements
     """
-    log.info('Checking project for changes requirements..self.')
+    log.info('Checking project for changes requirements.')
     # on [github](https://github.com)
     git_remotes = shell.execute('git remote -v', dry_run=False)
     on_github = any(['github.com' in remote for remote in git_remotes])

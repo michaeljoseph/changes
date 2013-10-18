@@ -45,15 +45,14 @@ import re
 
 
 from docopt import docopt
-from path import path
 import logging
-import virtualenv
 
 import changes
 from changes import attributes, config, probe, shell, version
 from changes.config import arguments
 from changes.changelog import changelog
 
+from changes.packaging import install, upload, pypi
 from changes.testing import run_tests
 from changes.vcs import tag, commit_version_change
 
@@ -71,77 +70,6 @@ def bump_version():
 
 
     )
-
-def make_virtualenv():
-    tmp_dir = tempfile.mkdtemp()
-    virtualenv.create_environment(tmp_dir, site_packages=False)
-    return tmp_dir
-
-
-def install():
-    app_name, dry_run, new_version = common_arguments()
-
-    result = shell.execute('python setup.py clean sdist', dry_run=dry_run)
-    if result:
-        tmp_dir = make_virtualenv()
-        try:
-            virtualenv.install_sdist(
-                arguments['<app_name>'],
-                'dist/%s-%s.tar.gz' % (app_name, new_version),
-                '%s/bin/python' % tmp_dir
-            )
-            log.info('Successfully installed %s sdist', app_name)
-            if run_test_command():
-                log.info('Successfully ran test command: %s',
-                         arguments['--test-command'])
-        except:
-            raise Exception('Error installing %s sdist', app_name)
-
-        path(tmp_dir).rmtree(path(tmp_dir))
-
-
-def upload():
-    app_name, dry_run, new_version = common_arguments()
-    pypi = arguments['--pypi']
-
-    upload = 'python setup.py clean sdist upload'
-    if pypi:
-        upload = upload + '-r %s' % pypi
-
-    if not shell.execute(upload, dry_run=dry_run):
-        raise Exception('Error uploading')
-    else:
-        log.info('Succesfully uploaded %s %s', app_name, new_version)
-
-
-def pypi():
-    app_name, dry_run, _ = common_arguments()
-    pypi = arguments['--pypi']
-    package_index = 'pypi'
-
-    tmp_dir = make_virtualenv()
-    install = '%s/bin/pip install %s' % (tmp_dir, app_name)
-
-    if pypi:
-        install = install + '-i %s' % pypi
-        package_index = pypi
-
-    try:
-        result = shell.execute(install, dry_run=dry_run)
-        if result:
-            log.info('Successfully installed %s from %s',
-                     app_name, package_index)
-        else:
-            log.error('Failed to install %s from %s',
-                      app_name, package_index)
-
-        run_test_command()
-    except:
-        raise Exception('Error installing %s from %s', app_name, package_index)
-
-    path(tmp_dir).rmtree(path(tmp_dir))
-
-
 def release():
     try:
         if not arguments['--skip-changelog']:

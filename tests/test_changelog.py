@@ -1,8 +1,8 @@
-from changes import cli
+from changes import changelog
 from . import BaseTestCase
 
 
-class CliTestCase(BaseTestCase):
+class ChangeLogTestCase(BaseTestCase):
 
     def test_write_new_changelog(self):
         content = [
@@ -13,7 +13,7 @@ class CliTestCase(BaseTestCase):
         with open(self.tmp_file, 'w') as existing_file:
             existing_file.writelines(content)
 
-        cli.write_new_changelog('test_app', self.tmp_file, 'Now this is')
+        changelog.write_new_changelog('test_app', self.tmp_file, 'Now this is')
 
         self.assertEquals(
             ''.join(content),
@@ -25,7 +25,7 @@ class CliTestCase(BaseTestCase):
         with open(self.tmp_file, 'w') as existing_file:
             existing_file.writelines(content)
 
-        cli.write_new_changelog(
+        changelog.write_new_changelog(
             'test_app',
             self.tmp_file,
             'Now this is',
@@ -42,3 +42,6 @@ class CliTestCase(BaseTestCase):
                 open(self.tmp_file).readlines()
             )
         )
+
+    def test_changelog(self):
+        pass

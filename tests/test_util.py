@@ -12,3 +12,20 @@ class UtilTestCase(TestCase):
                 ['a', 'b']
             )
         )
+
+    def test_extract_arguments(self):
+        self.assertEquals(
+            {
+                'major': True,
+                'minor': False,
+                'patch': False,
+            },
+            util.extract_arguments(
+                {
+                    '--major': True,
+                    '--minor': False,
+                    '--patch': False,
+                },
+                ['--major', '--minor', '--patch']
+            ),
+        )

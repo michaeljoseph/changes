@@ -25,6 +25,7 @@ def get_new_version(app_name, current_version,
         'What is the release version for "%s" '
         '[Default: %s]: ' % (
             app_name, proposed_new_version
+        **util.extract_arguments(
         )
     )
     if not new_version:
@@ -33,14 +34,6 @@ def get_new_version(app_name, current_version,
         return new_version.strip()
 
 
-def extract_version_arguments(arguments):
-    long_arguments = util.extract(
-        arguments,
-        ['--major', '--minor', '--patch'],
-    )
-    return dict([
-        (key[2:], value) for key, value in long_arguments.items()
-    ])
 
 
 def increment(version, major=False, minor=False, patch=True):

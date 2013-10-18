@@ -51,25 +51,12 @@ import logging
 import virtualenv
 
 import changes
-from changes import attributes, probe, shell, version
+from changes import attributes, config, probe, shell, version
 
 
 log = logging.getLogger(__name__)
-CHANGELOG = 'CHANGELOG.md'
-arguments = None
 
-
-def common_arguments():
-    """
-    Return common arguments
-
-    :return: tuple of <app_name>, --dry-run, new_version
-    """
-    return (
-        arguments['<app_name>'],
-        arguments['--dry-run'],
-        arguments['new_version'],
-    )
+arguments = config.arguments
 
 
 def write_new_changelog(app_name, filename, content_lines, dry_run=True):
@@ -145,7 +132,7 @@ def changelog():
 
     write_new_changelog(
         app_name,
-        CHANGELOG,
+        config.CHANGELOG,
         changelog_content,
         dry_run=dry_run
     )

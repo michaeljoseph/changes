@@ -40,18 +40,14 @@ The commands do the following:
    pypi          Attempts to install your package from pypi
    release       Runs all the previous commands
 """
-
-import re
-
-
-from docopt import docopt
 import logging
 
+from docopt import docopt
+
 import changes
-from changes import attributes, config, probe, shell, version
+from changes import probe
 from changes.config import arguments
 from changes.changelog import changelog
-
 from changes.packaging import install, upload, pypi
 from changes.testing import run_tests
 from changes.version import bump_version

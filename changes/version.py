@@ -2,7 +2,7 @@ import logging
 
 import semantic_version
 
-from changes import util, attributes
+from changes import config, util, attributes
 
 log = logging.getLogger(__name__)
 

@@ -279,7 +279,7 @@ def release():
     try:
         if not arguments['--skip-changelog']:
             changelog()
-        version()
+        bump_version()
         test()
         commit_version_change()
         install()

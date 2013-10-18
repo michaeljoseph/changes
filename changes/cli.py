@@ -55,6 +55,7 @@ from changes import attributes, config, probe, shell, version
 from changes.config import arguments
 from changes.changelog import changelog
 
+from changes.vcs import tag, commit_version_change
 
 log = logging.getLogger(__name__)
 
@@ -69,17 +70,7 @@ def bump_version():
         dry_run=dry_run)
 
 
-def commit_version_change():
-    app_name, dry_run, new_version = config.common_arguments()
-
-    command = 'git commit -m %s %s/__init__.py %s' % (
-        new_version, app_name, config.CHANGELOG
     )
-
-    if not (shell.execute(command, dry_run=dry_run) and
-            shell.execute('git push', dry_run=dry_run)):
-        raise Exception('Version change commit failed')
-
 
 def test():
     command = 'nosetests'
@@ -167,19 +158,6 @@ def pypi():
         raise Exception('Error installing %s from %s', app_name, package_index)
 
     path(tmp_dir).rmtree(path(tmp_dir))
-
-
-def tag():
-    _, dry_run, new_version = common_arguments()
-
-    if arguments['--version-prefix']:
-        new_version = arguments['--version-prefix'] + new_version
-
-    shell.execute(
-        'git tag -a %s -m "%s"' % (new_version, new_version),
-        dry_run=dry_run
-    )
-    shell.execute('git push --tags', dry_run=dry_run)
 
 
 def release():

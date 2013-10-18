@@ -52,11 +52,10 @@ import virtualenv
 
 import changes
 from changes import attributes, config, probe, shell, version
+from changes.config import arguments
 
 
 log = logging.getLogger(__name__)
-
-arguments = config.arguments
 
 
 def write_new_changelog(app_name, filename, content_lines, dry_run=True):
@@ -140,7 +139,7 @@ def changelog():
 
 
 def bump_version():
-    app_name, dry_run, new_version = common_arguments()
+    app_name, dry_run, new_version = config.common_arguments()
 
     attributes.replace_attribute(
         app_name,
@@ -150,10 +149,10 @@ def bump_version():
 
 
 def commit_version_change():
-    app_name, dry_run, new_version = common_arguments()
+    app_name, dry_run, new_version = config.common_arguments()
 
     command = 'git commit -m %s %s/__init__.py %s' % (
-        new_version, app_name, CHANGELOG
+        new_version, app_name, config.CHANGELOG
     )
 
     if not (shell.execute(command, dry_run=dry_run) and
@@ -278,15 +277,16 @@ def release():
 
 
 def initialise():
-    global arguments
     arguments = docopt(__doc__, version=changes.__version__)
     debug = arguments['--debug']
     logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
     log.debug('arguments: %s', arguments)
+    config.arguments = arguments
+    return arguments
 
 
 def main():
-    initialise()
+    arguments = initialise()
 
     commands = ['release', 'changelog', 'test', 'bump_version', 'tag',
                 'upload', 'install', 'pypi']
@@ -295,7 +295,7 @@ def main():
     if arguments['--new-version']:
         arguments['new_version'] = arguments['--new-version']
 
-    app_name = arguments['<app_name>']
+    app_name = config.arguments['<app_name>']
 
     if not probe.probe_project(app_name):
         raise Exception('Project does not meet `changes` requirements')

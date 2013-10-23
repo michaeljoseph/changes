@@ -1,17 +1,13 @@
 import logging
 
-import iterpipes
+from changes import config
 
 log = logging.getLogger(__name__)
 
 
-def execute(command, dry_run=True):
-    log.debug('executing %s', command)
-    if not dry_run:
-        try:
-            return [result for result in iterpipes.linecmd(command)(None)]
-        except iterpipes.CalledProcessError, e:
-            log.debug('return code: %s, output: %s', e.returncode, e.output)
-            return False
+def handle_dry_run(function, *args):
+    if not config.arguments.get('--dry-run', True):
+        return function(*args)
     else:
+        log.debug('dry run of %s %s, skipping' % (function, args))
         return True

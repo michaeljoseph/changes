@@ -49,7 +49,7 @@ from changes import probe
 from changes.config import arguments
 from changes.changelog import changelog
 from changes.packaging import install, upload, pypi
-from changes.testing import run_tests
+from changes.verification import run_tests
 from changes.version import bump_version
 from changes.vcs import tag, commit_version_change
 
@@ -61,7 +61,7 @@ def release():
         if not arguments['--skip-changelog']:
             changelog()
         bump_version()
-        test()
+        run_tests()
         commit_version_change()
         install()
         upload()

@@ -2,7 +2,7 @@ import logging
 
 import semantic_version
 
-from changes import config, util, attributes
+from changes import config, attributes
 
 log = logging.getLogger(__name__)
 
@@ -35,15 +35,13 @@ def get_new_version(app_name, current_version,
         'What is the release version for "%s" '
         '[Default: %s]: ' % (
             app_name, proposed_new_version
-        **util.extract_arguments(
         )
     )
+
     if not new_version:
         return proposed_new_version.strip()
     else:
         return new_version.strip()
-
-
 
 
 def increment(version, major=False, minor=False, patch=True):

@@ -179,7 +179,7 @@ Lint the project with:
 
 Generate the documentation with:
 
-    cd docs && PYTHONPATH=.. make singlehtml
+    (cd docs && make singlehtml)
 
 To monitor changes to Python files and execute flake8 and nosetests
 automatically, execute the following from the root project directory:

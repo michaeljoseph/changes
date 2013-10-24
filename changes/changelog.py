@@ -1,7 +1,8 @@
 import logging
 import re
 
-from changes import attributes, config, shell, version
+import sh
+from changes import attributes, config, version
 
 log = logging.getLogger(__name__)
 
@@ -64,21 +65,21 @@ def changelog():
         )
     ]
 
-    ## vcs (todo: config templatise all these commands)
-    git_log = 'git log --oneline --no-merges'
-    version_difference = '%s..master' % version.current_version(app_name)
-
-    git_log_content = shell.execute(
-        '%s %s' % (git_log, version_difference),
-        dry_run=False
-    )
+    git_log_content = sh.git.log(
+        '--oneline',
+        '--no-merges',
+        '%s..master' % version.current_version(app_name),
+        _tty_out=False
+    ).split('\n')
     log.debug('content: %s' % git_log_content)
 
     if not git_log_content:
-        log.debug('sniffing initial release, drop tags: %s', git_log)
-        git_log_content = shell.execute(git_log, dry_run=False)
-
-    ## /vcs
+        log.debug('sniffing initial release, drop tags')
+        git_log_content = sh.git.log(
+            '--oneline',
+            '--no-merges',
+            _tty_out=False
+        ).split('\n')
 
     git_log_content = replace_sha_with_commit_link(git_log_content)
 
@@ -87,10 +88,9 @@ def changelog():
     # makes change log entries into bullet points
     if git_log_content:
         [
-            changelog_content.append('* %s' % line)
+            changelog_content.append('* %s\n' % line)
             if line else line
             for line in git_log_content[:-1]
-            # for all except the last line?
         ]
 
     write_new_changelog(

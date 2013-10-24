@@ -1,6 +1,5 @@
 coverage < 4.0.0
 docopt < 1.0.0 
-iterpipes < 1.0.0
 flake8 < 3.0.0
 mock < 2.0.0
 nose < 2.0.0
@@ -9,6 +8,7 @@ path.py < 5.0.0
 pinocchio < 1.0.0
 python-coveralls < 3.0.0
 semantic_version < 3.0.0
+sh < 2.0.0
 sphinx-bootstrap-theme < 1.0.0
 sphinxcontrib-httpdomain < 2.0.0
 testtube < 1.0.0

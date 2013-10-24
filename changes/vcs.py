@@ -1,22 +1,35 @@
+import logging
+
+import sh
+
 from changes import config, shell
+
+log = logging.getLogger(__name__)
 
 
 def commit_version_change():
     app_name, dry_run, new_version = config.common_arguments()
 
-    command = 'git commit -m %s %s/__init__.py %s' % (
-        new_version, app_name, config.CHANGELOG
+    commit_result = shell.handle_dry_run(
+        sh.git.commit,
+        ('-m', new_version, '%s/__init__.py' % app_name, config.CHANGELOG)
     )
 
-    if not (shell.execute(command, dry_run=dry_run) and
-            shell.execute('git push', dry_run=dry_run)):
-        raise Exception('Version change commit failed')
+    if commit_result:
+        push_result = shell.handle_dry_run(sh.git.push, ())
+        if not push_result:
+            raise Exception('Version change commit failed')
+
 
 def tag():
     _, dry_run, new_version = config.common_arguments()
 
-    shell.execute(
-        'git tag -a %s -m "%s"' % (new_version, new_version),
-        dry_run=dry_run
+    tag_result = shell.handle_dry_run(
+        sh.git.tag,
+        ('-a', new_version, '-m', '"%s"' % new_version)
     )
-    shell.execute('git push --tags', dry_run=dry_run)
+
+    if tag_result:
+        push_tags_result = shell.handle_dry_run(sh.git.push, ('--tags'))
+        if not push_tags_result:
+            raise Exception('Tagging failed')

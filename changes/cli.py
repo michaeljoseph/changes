@@ -46,12 +46,13 @@ from docopt import docopt
 
 import changes
 from changes import config, probe, util, version
-from changes.config import arguments
 from changes.changelog import changelog
+from changes.config import arguments
 from changes.packaging import install, upload, pypi
+from changes.vcs import tag, commit_version_change
 from changes.verification import run_tests
 from changes.version import bump_version
-from changes.vcs import tag, commit_version_change
+
 
 log = logging.getLogger(__name__)
 

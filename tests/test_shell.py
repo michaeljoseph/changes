@@ -7,6 +7,7 @@ from changes import config, shell
 class ShellTestCase(TestCase):
 
     def test_handle_dry_run(self):
+        config.arguments['--dry-run'] = False
         self.assertEquals(
             '',
             shell.handle_dry_run(

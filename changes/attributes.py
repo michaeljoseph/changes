@@ -4,7 +4,7 @@ import tempfile
 
 from path import path
 
-from changes import shell
+import sh
 
 log = logging.getLogger(__name__)
 
@@ -32,10 +32,7 @@ def replace_attribute(app_name, attribute_name, new_value, dry_run=True):
     if not dry_run:
         path(tmp_file).move(init_file)
     else:
-        log.debug(shell.execute(
-            'diff %s %s' % (tmp_file, init_file),
-            dry_run=False
-        ))
+        log.debug(sh.diff(tmp_file, init_file, _ok_code=1))
 
 
 def has_attribute(app_name, attribute_name):

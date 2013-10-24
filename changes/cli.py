@@ -28,6 +28,9 @@ Options:
   --tox                      Use `tox` instead of the default: `nosetests`
   --test-command=<cmd>       Command to use to test the newly installed package
   --version-prefix=<prefix>  Specify a prefix for version number tags
+  --noinput                  To be used in conjuction with one of the increment
+                             options above, this option stops `changes` from
+                             confirming the new version number.
   --debug                    Debug output.
 
 The commands do the following:
@@ -103,6 +106,7 @@ def main():
                 arguments['new_version'] = version.get_new_version(
                     app_name,
                     version.current_version(app_name),
+                    arguments.get('--noinput', False),
                     **util.extract_arguments(arguments, version_arguments)
                 )
             globals()[command]()

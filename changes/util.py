@@ -10,11 +10,13 @@ def extract(dictionary, keys):
         (k, dictionary[k]) for k in keys if k in dictionary
     )
 
+
 def extract_arguments(arguments, long_keys, key_prefix='--'):
     long_arguments = extract(
         arguments,
         long_keys,
     )
     return dict([
-        (key.replace(key_prefix, ''), value) for key, value in long_arguments.items()
+        (key.replace(key_prefix, ''), value)
+        for key, value in long_arguments.items()
     ])

@@ -1,7 +1,9 @@
 import logging
 from os.path import exists
 
-from changes import attributes, shell
+import sh
+
+from changes import attributes
 
 log = logging.getLogger(__name__)
 
@@ -18,7 +20,7 @@ def probe_project(app_name):
     """
     log.info('Checking project for changes requirements.')
     # on [github](https://github.com)
-    git_remotes = shell.execute('git remote -v', dry_run=False)
+    git_remotes = sh.git.remote('-v')
     on_github = any(['github.com' in remote for remote in git_remotes])
     log.info('On Github? %s', on_github)
 
@@ -45,7 +47,6 @@ def probe_project(app_name):
     log.info('Has module metadata? %s', has_metadata)
 
     # supports executing tests with `nosetests` or `tox`
-    log.debug(requirements_contents)
     runs_tests = (
         has_requirement('nose', requirements_contents) or
         has_requirement('tox', requirements_contents)

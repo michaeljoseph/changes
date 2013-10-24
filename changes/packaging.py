@@ -57,18 +57,16 @@ def pypi():
     app_name, dry_run, _ = config.common_arguments()
 
     tmp_dir = make_virtualenv()
-    install_args = ('%s/bin/pip install %s' % (tmp_dir, app_name)).split(' ')
+    install_cmd = '%s/bin/pip install %s' % (tmp_dir, app_name)
 
     package_index = 'pypi'
     pypi = config.arguments['--pypi']
     if pypi:
-        install_args.extend('-i', pypi)
+        install_cmd += '-i %s' % pypi
         package_index = pypi
 
-    install_args = tuple(install_args)
-    log.debug(install_args)
     try:
-        result = shell.handle_dry_run(sh, install_args)
+        result = shell.execute(install_cmd, dry_run=dry_run)
         if result:
             log.info('Successfully installed %s from %s',
                      app_name, package_index)

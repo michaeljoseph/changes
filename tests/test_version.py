@@ -40,6 +40,7 @@ class VersionApplicationTestCase(BaseTestCase):
                 version.get_new_version(
                     self.module_name,
                     '0.0.1',
-                    minor=True
+                    True,
+                    minor=True,
                 )
             )

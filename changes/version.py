@@ -22,7 +22,7 @@ def current_version(app_name):
 
 
 def get_new_version(app_name, current_version, no_input,
-                    major=False, minor=False, patch=True):
+                    major=False, minor=False, patch=False):
 
     proposed_new_version = increment(
         current_version,

@@ -23,20 +23,6 @@ class VersionTestCase(TestCase):
             version.increment('1.0.0', patch=True)
         )
 
-    def test_extract_version_arguments(self):
-        self.assertEquals(
-            {
-                'major': True,
-                'minor': False,
-                'patch': False,
-            },
-            version.extract_version_arguments({
-                '--major': True,
-                '--minor': False,
-                '--patch': False,
-            })
-        )
-
 
 class VersionApplicationTestCase(BaseTestCase):
 
@@ -54,6 +40,7 @@ class VersionApplicationTestCase(BaseTestCase):
                 version.get_new_version(
                     self.module_name,
                     '0.0.1',
-                    minor=True
+                    True,
+                    minor=True,
                 )
             )

@@ -28,6 +28,22 @@ class AttributeTestCase(BaseTestCase):
             )
         )
 
+    def test_replace_attribute_dry_run(self):
+        attributes.replace_attribute(
+            'test_app',
+            '__version__',
+            '1.0.0',
+            dry_run=True
+        )
+
+        expected_content = list(self.initial_init_content)
+        self.assertEquals(
+            '\n'.join(expected_content),
+            ''.join(
+                open(self.tmp_file).readlines()
+            )
+        )
+
     def test_has_attribute(self):
         self.assertTrue(
             attributes.has_attribute(

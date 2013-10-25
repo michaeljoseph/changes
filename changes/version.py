@@ -2,17 +2,27 @@ import logging
 
 import semantic_version
 
-from changes import util, attributes
+from changes import config, attributes
 
 log = logging.getLogger(__name__)
+
+
+def bump_version():
+    app_name, dry_run, new_version = config.common_arguments()
+
+    attributes.replace_attribute(
+        app_name,
+        '__version__',
+        new_version,
+        dry_run=dry_run)
 
 
 def current_version(app_name):
     return attributes.extract_attribute(app_name, '__version__')
 
 
-def get_new_version(app_name, current_version,
-                    major=False, minor=False, patch=True):
+def get_new_version(app_name, current_version, no_input,
+                    major=False, minor=False, patch=False):
 
     proposed_new_version = increment(
         current_version,
@@ -21,26 +31,17 @@ def get_new_version(app_name, current_version,
         patch=patch
     )
 
-    new_version = raw_input(
-        'What is the release version for "%s" '
-        '[Default: %s]: ' % (
-            app_name, proposed_new_version
-        )
-    )
-    if not new_version:
-        return proposed_new_version.strip()
+    if no_input:
+        new_version = proposed_new_version.strip()
     else:
-        return new_version.strip()
+        new_version = raw_input(
+            'What is the release version for "%s" '
+            '[Default: %s]: ' % (
+                app_name, proposed_new_version
+            )
+        )
 
-
-def extract_version_arguments(arguments):
-    long_arguments = util.extract(
-        arguments,
-        ['--major', '--minor', '--patch'],
-    )
-    return dict([
-        (key[2:], value) for key, value in long_arguments.items()
-    ])
+    return new_version.strip()
 
 
 def increment(version, major=False, minor=False, patch=True):

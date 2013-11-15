@@ -44,7 +44,6 @@ def probe_project(module_name):
     # `requirements.txt`
     requirements_file, requirements = get_requirements()
     has_requirements = exists(requirements_file)
-    log.info('%s? %s', requirements, has_requirements)
 
     if has_requirements:
         # supports executing tests with `nosetests` or `tox`

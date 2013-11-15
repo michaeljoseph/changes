@@ -22,10 +22,11 @@ def install():
     result = shell.handle_dry_run(sh.python, ('setup.py', 'clean', 'sdist'))
     if result:
         tmp_dir = make_virtualenv()
+        module_name = config.arguments.get('--module-name') or app_name
         try:
             virtualenv.install_sdist(
                 config.arguments['<app_name>'],
-                'dist/%s-%s.tar.gz' % (app_name, new_version),
+                'dist/%s-%s.tar.gz' % (module_name, new_version),
                 '%s/bin/python' % tmp_dir
             )
             log.info('Successfully installed %s sdist', app_name)

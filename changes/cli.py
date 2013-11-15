@@ -31,6 +31,7 @@ Options:
   --noinput                  To be used in conjuction with one of the version
                              increment options above, this option stops
                              `changes` from confirming the new version number.
+  --module-name=<module>     If your module and package aren't the same
   --debug                    Debug output.
 
 The commands do the following:

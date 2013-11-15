@@ -1,5 +1,94 @@
 # [Changelog](https://github.com/michaeljoseph/changes/releases)
 
+## [0.4.0](https://github.com/michaeljoseph/changes/compare/0.3.0...0.4.0)
+
+* [8796606](https://github.com/michaeljoseph/changes/commit/8796606) Discard sh intermediates
+* [9df6e19](https://github.com/michaeljoseph/changes/commit/9df6e19) Rm debug logging
+* [f3c3fad](https://github.com/michaeljoseph/changes/commit/f3c3fad) Revert "0.4.0"
+* [7beb4ee](https://github.com/michaeljoseph/changes/commit/7beb4ee) 0.4.0
+* [bb356d7](https://github.com/michaeljoseph/changes/commit/bb356d7) We don't need the result, sh will raise
+* [0cd1d9a](https://github.com/michaeljoseph/changes/commit/0cd1d9a) Generate wheels if the project requires it
+* [4a207e3](https://github.com/michaeljoseph/changes/commit/4a207e3) Test has_requirement
+* [f848963](https://github.com/michaeljoseph/changes/commit/f848963) Refactor requirements handling
+* [dc76567](https://github.com/michaeljoseph/changes/commit/dc76567) Require wheel
+* [beffa15](https://github.com/michaeljoseph/changes/commit/beffa15) s/module/package
+* [4c68326](https://github.com/michaeljoseph/changes/commit/4c68326) Use the default
+* [c4333dc](https://github.com/michaeljoseph/changes/commit/c4333dc) Update readme
+* [8b0e4a9](https://github.com/michaeljoseph/changes/commit/8b0e4a9) Add alternate requirements option
+* [73323c2](https://github.com/michaeljoseph/changes/commit/73323c2) Ignore .noseids
+* [e42c815](https://github.com/michaeljoseph/changes/commit/e42c815) Authors!
+* [ef055e0](https://github.com/michaeljoseph/changes/commit/ef055e0) s/app_name/module_name/g
+* [b5e02d6](https://github.com/michaeljoseph/changes/commit/b5e02d6) s/module/package/
+* [4be26cf](https://github.com/michaeljoseph/changes/commit/4be26cf) Fixed bug with release command
+* [7c59ed0](https://github.com/michaeljoseph/changes/commit/7c59ed0) Use the module name for tarball installation, if specified, with a test.
+* [3970e4b](https://github.com/michaeljoseph/changes/commit/3970e4b) Document package=module expectation
+* [67e18d0](https://github.com/michaeljoseph/changes/commit/67e18d0) autoenv
+* [a142e7b](https://github.com/michaeljoseph/changes/commit/a142e7b) whee!
+* [b8b1db4](https://github.com/michaeljoseph/changes/commit/b8b1db4) Rm pandoc
+* [d9e4b3c](https://github.com/michaeljoseph/changes/commit/d9e4b3c) Update noinput option description
+* [d958a9f](https://github.com/michaeljoseph/changes/commit/d958a9f) Stop defaulting patch to true
+* [79361ee](https://github.com/michaeljoseph/changes/commit/79361ee) Add noinput option
+* [2426764](https://github.com/michaeljoseph/changes/commit/2426764) abc
+* [e2e97d1](https://github.com/michaeljoseph/changes/commit/e2e97d1) Linting
+* [7561d38](https://github.com/michaeljoseph/changes/commit/7561d38) Dry runs
+* [756cd63](https://github.com/michaeljoseph/changes/commit/756cd63) Add subprocess execution for testing installation in a virtualenv
+* [e22b2d5](https://github.com/michaeljoseph/changes/commit/e22b2d5) Port packaging to sh
+* [182fb0a](https://github.com/michaeljoseph/changes/commit/182fb0a) Fix versioning
+* [0d45807](https://github.com/michaeljoseph/changes/commit/0d45807) Migrate probe to sh
+* [5b20588](https://github.com/michaeljoseph/changes/commit/5b20588) Migrate vcs to sh
+* [ab8bd20](https://github.com/michaeljoseph/changes/commit/ab8bd20) iterpipes => sh
+* [95c6b71](https://github.com/michaeljoseph/changes/commit/95c6b71) Port changelog to sh
+* [9abb0ca](https://github.com/michaeljoseph/changes/commit/9abb0ca) Port attributes to sh
+* [cf36094](https://github.com/michaeljoseph/changes/commit/cf36094) Rename testing to verification
+* [7d27e37](https://github.com/michaeljoseph/changes/commit/7d27e37) Wrap sh calls to check for dry_run
+* [0e0505b](https://github.com/michaeljoseph/changes/commit/0e0505b) Use subshell to avoid changing directories
+* [95d424d](https://github.com/michaeljoseph/changes/commit/95d424d) Cleanup
+* [17d5f9f](https://github.com/michaeljoseph/changes/commit/17d5f9f) Refactor bump_version
+* [bd9beae](https://github.com/michaeljoseph/changes/commit/bd9beae) Refactor packaging module
+* [de1741d](https://github.com/michaeljoseph/changes/commit/de1741d) Renamed run_tests command
+* [de3b939](https://github.com/michaeljoseph/changes/commit/de3b939) Improve attributes coverage
+* [6275e71](https://github.com/michaeljoseph/changes/commit/6275e71) Refactor testing module
+* [9fae7a5](https://github.com/michaeljoseph/changes/commit/9fae7a5) Refactor vcs functions
+* [91d24f6](https://github.com/michaeljoseph/changes/commit/91d24f6) Test config
+* [ea1454e](https://github.com/michaeljoseph/changes/commit/ea1454e) Move and generalise `extract_version_arguments`
+* [3243197](https://github.com/michaeljoseph/changes/commit/3243197) Correct english
+* [e3121c8](https://github.com/michaeljoseph/changes/commit/e3121c8) Cleanup and linting
+* [091f0b0](https://github.com/michaeljoseph/changes/commit/091f0b0) Refactor changelog
+* [12a975e](https://github.com/michaeljoseph/changes/commit/12a975e) Alias config.arguments and setup from docopt
+* [b797fdc](https://github.com/michaeljoseph/changes/commit/b797fdc) Add config module
+* [0b57bd3](https://github.com/michaeljoseph/changes/commit/0b57bd3) Renamed this function
+* [7f9ea0d](https://github.com/michaeljoseph/changes/commit/7f9ea0d) Use version prefix for tagging
+* [60cbb34](https://github.com/michaeljoseph/changes/commit/60cbb34) Lint
+* [434e812](https://github.com/michaeljoseph/changes/commit/434e812) Unique test case names
+* [2d32c57](https://github.com/michaeljoseph/changes/commit/2d32c57) Add optional version prefix option
+* [3fcf1e3](https://github.com/michaeljoseph/changes/commit/3fcf1e3) Install requirements first
+* [50df640](https://github.com/michaeljoseph/changes/commit/50df640) Correct docopt command name too
+* [7efc4e0](https://github.com/michaeljoseph/changes/commit/7efc4e0) Fix call to `extract_version_arguments` and test
+* [a4e4b15](https://github.com/michaeljoseph/changes/commit/a4e4b15) Use pandoc to convert README.md to rst for setuptools.long_description
+* [192232b](https://github.com/michaeljoseph/changes/commit/192232b) Fix non-ascii characters in README
+* [275a3be](https://github.com/michaeljoseph/changes/commit/275a3be) Require pypandoc
+* [349be50](https://github.com/michaeljoseph/changes/commit/349be50) Use iterpipes for 2.6 subprocess compatibility
+* [707adca](https://github.com/michaeljoseph/changes/commit/707adca) Alias cli.main and read metadata in setup
+* [4c9b7f5](https://github.com/michaeljoseph/changes/commit/4c9b7f5) Cleanup and linting
+* [7e31de7](https://github.com/michaeljoseph/changes/commit/7e31de7) Rename version command
+* [dc86ef4](https://github.com/michaeljoseph/changes/commit/dc86ef4) Refactor shell
+* [57e1db6](https://github.com/michaeljoseph/changes/commit/57e1db6) Refactor probe
+* [9606c27](https://github.com/michaeljoseph/changes/commit/9606c27) Refactor version redux
+* [b0c5204](https://github.com/michaeljoseph/changes/commit/b0c5204) Cleanup
+* [daeda05](https://github.com/michaeljoseph/changes/commit/daeda05) Refactor version
+* [da2f4e6](https://github.com/michaeljoseph/changes/commit/da2f4e6) Refactor project attributes
+* [67fe635](https://github.com/michaeljoseph/changes/commit/67fe635) Fix markup
+* [9b1fe29](https://github.com/michaeljoseph/changes/commit/9b1fe29) Exclude travis builds from coverage reporting
+* [b3bc141](https://github.com/michaeljoseph/changes/commit/b3bc141) Just output the new content
+* [93257b4](https://github.com/michaeljoseph/changes/commit/93257b4) Refactor execute to take a command string
+* [72dc308](https://github.com/michaeljoseph/changes/commit/72dc308) Use the real command over an alias that may not be configured
+* [9f10a34](https://github.com/michaeljoseph/changes/commit/9f10a34) Check for `changes` requirements and bail if they're not met
+* [784acb6](https://github.com/michaeljoseph/changes/commit/784acb6) Update apidocs
+* [e793999](https://github.com/michaeljoseph/changes/commit/e793999) Refactor common_arguments
+* [c4bdab5](https://github.com/michaeljoseph/changes/commit/c4bdab5) Rename and refactor argument extract and strip
+* [7e3b12c](https://github.com/michaeljoseph/changes/commit/7e3b12c) Global arguments and reuse
+* [819b733](https://github.com/michaeljoseph/changes/commit/819b733) Refactor extract and increment
+
 ## [0.3.0](https://github.com/michaeljoseph/changes/compare/0.2.0...0.3.0)
 
 * [2d35668](https://github.com/michaeljoseph/changes/commit/2d35668) Fail on install, upload and pypi

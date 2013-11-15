@@ -31,6 +31,7 @@ An application wanting to use `changes` must meet these requirements:
 * `CHANGELOG.md`
 * `<app_name>/__init__.py` with `__version__` and `__url__`
 * supports executing tests with [`nosetests`][2] or [`tox`][3]
+* we expect `<app_name>` to be the package and module name
 
 Install `changes`:
 

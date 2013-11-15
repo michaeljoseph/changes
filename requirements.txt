@@ -15,3 +15,4 @@ testtube < 1.0.0
 tox < 2.0.0
 unittest2 < 1.0.0
 virtualenv < 2.0.0
+wheel < 1.0.0

@@ -10,9 +10,20 @@ log = logging.getLogger(__name__)
 REQUIREMENTS = 'requirements.txt'
 
 
-def has_requirement(dependency, requirements_contents):
+def get_requirements():
+    requirements_file = config.arguments.get('--requirements') or REQUIREMENTS
+    has_requirements = exists(requirements_file)
+    requirements = None
+    if has_requirements:
+        requirements = open(requirements_file).readlines()
+
+    return requirements_file, requirements
+
+
+def has_requirement(dependency):
+    _, requirements = get_requirements()
     return any(
-        [dependency in requirement for requirement in requirements_contents]
+        [dependency in requirement for requirement in requirements]
     )
 
 
@@ -31,16 +42,14 @@ def probe_project(module_name):
     log.info('setup.py? %s', setup)
 
     # `requirements.txt`
-    requirements = config.arguments.get('--requirements') or REQUIREMENTS
-    has_requirements = exists(requirements)
+    requirements_file, requirements = get_requirements()
+    has_requirements = exists(requirements_file)
     log.info('%s? %s', requirements, has_requirements)
-    if has_requirements:
-        requirements_contents = open(requirements).readlines()
 
+    if has_requirements:
         # supports executing tests with `nosetests` or `tox`
         runs_tests = (
-            has_requirement('nose', requirements_contents) or
-            has_requirement('tox', requirements_contents)
+            has_requirement('nose') or has_requirement('tox')
         )
         log.info('Runs tests? %s' % runs_tests)
 

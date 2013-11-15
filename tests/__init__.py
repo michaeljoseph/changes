@@ -3,6 +3,8 @@ import shutil
 
 from unittest2 import TestCase
 
+from changes import config
+
 
 class BaseTestCase(TestCase):
     module_name = 'test_app'
@@ -22,6 +24,11 @@ class BaseTestCase(TestCase):
         ]
         with open(self.tmp_file, 'w') as init_file:
             init_file.write('\n'.join(self.initial_init_content))
+
+        config.arguments.update({
+            '<module_name>': 'test_app',
+            '--dry-run': True,
+        })
 
     def tearDown(self):
         if os.path.exists(self.tmp_file):

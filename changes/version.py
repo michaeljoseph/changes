@@ -8,20 +8,20 @@ log = logging.getLogger(__name__)
 
 
 def bump_version():
-    app_name, dry_run, new_version = config.common_arguments()
+    module_name, dry_run, new_version = config.common_arguments()
 
     attributes.replace_attribute(
-        app_name,
+        module_name,
         '__version__',
         new_version,
         dry_run=dry_run)
 
 
-def current_version(app_name):
-    return attributes.extract_attribute(app_name, '__version__')
+def current_version(module_name):
+    return attributes.extract_attribute(module_name, '__version__')
 
 
-def get_new_version(app_name, current_version, no_input,
+def get_new_version(module_name, current_version, no_input,
                     major=False, minor=False, patch=False):
 
     proposed_new_version = increment(
@@ -32,14 +32,14 @@ def get_new_version(app_name, current_version, no_input,
     )
 
     if no_input:
-        new_version = proposed_new_version.strip()
+        new_version = proposed_new_version
     else:
         new_version = raw_input(
             'What is the release version for "%s" '
             '[Default: %s]: ' % (
-                app_name, proposed_new_version
+                module_name, proposed_new_version
             )
-        )
+        ) or proposed_new_version
 
     return new_version.strip()
 

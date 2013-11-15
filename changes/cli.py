@@ -2,14 +2,14 @@
 changes.
 
 Usage:
-  changes [options] <app_name> changelog
-  changes [options] <app_name> release
-  changes [options] <app_name> bump_version
-  changes [options] <app_name> run_tests
-  changes [options] <app_name> install
-  changes [options] <app_name> upload
-  changes [options] <app_name> pypi
-  changes [options] <app_name> tag
+  changes [options] <module_name> changelog
+  changes [options] <module_name> release
+  changes [options] <module_name> bump_version
+  changes [options] <module_name> run_tests
+  changes [options] <module_name> install
+  changes [options] <module_name> upload
+  changes [options] <module_name> pypi
+  changes [options] <module_name> tag
 
   changes -h | --help
 
@@ -31,6 +31,8 @@ Options:
   --noinput                  To be used in conjuction with one of the version
                              increment options above, this option stops
                              `changes` from confirming the new version number.
+  --package-name=<package>   If your module and package aren't the same
+  --requirements=<req>       Requirements file name (default: requirements.txt)
   --debug                    Debug output.
 
 The commands do the following:
@@ -50,7 +52,6 @@ from docopt import docopt
 import changes
 from changes import config, probe, util, version
 from changes.changelog import changelog
-from changes.config import arguments
 from changes.packaging import install, upload, pypi
 from changes.vcs import tag, commit_version_change
 from changes.verification import run_tests
@@ -95,17 +96,17 @@ def main():
     if arguments['--new-version']:
         arguments['new_version'] = arguments['--new-version']
 
-    app_name = config.arguments['<app_name>']
+    module_name = config.arguments['<module_name>']
 
-    if not probe.probe_project(app_name):
+    if not probe.probe_project(module_name):
         raise Exception('Project does not meet `changes` requirements')
 
     for command in commands:
         if arguments[command]:
             if command not in suppress_version_prompt_for:
                 arguments['new_version'] = version.get_new_version(
-                    app_name,
-                    version.current_version(app_name),
+                    module_name,
+                    version.current_version(module_name),
                     arguments.get('--noinput', False),
                     **util.extract_arguments(arguments, version_arguments)
                 )

@@ -62,7 +62,7 @@ log = logging.getLogger(__name__)
 
 def release():
     try:
-        if not arguments['--skip-changelog']:
+        if not config.arguments['--skip-changelog']:
             changelog()
         bump_version()
         run_tests()

@@ -31,6 +31,7 @@ An application wanting to use `changes` must meet these requirements:
 * `CHANGELOG.md`
 * `<app_name>/__init__.py` with `__version__` and `__url__`
 * supports executing tests with [`nosetests`][2] or [`tox`][3]
+* we expect `<app_name>` to be the package and module name
 
 Install `changes`:
 
@@ -42,14 +43,14 @@ Run the cli:
 changes.
 
 Usage:
-  changes [options] <app_name> changelog
-  changes [options] <app_name> release
-  changes [options] <app_name> bump_version
-  changes [options] <app_name> run_tests
-  changes [options] <app_name> install
-  changes [options] <app_name> upload
-  changes [options] <app_name> pypi
-  changes [options] <app_name> tag
+  changes [options] <module_name> changelog
+  changes [options] <module_name> release
+  changes [options] <module_name> bump_version
+  changes [options] <module_name> run_tests
+  changes [options] <module_name> install
+  changes [options] <module_name> upload
+  changes [options] <module_name> pypi
+  changes [options] <module_name> tag
 
   changes -h | --help
 
@@ -71,6 +72,8 @@ Options:
   --noinput                  To be used in conjuction with one of the version
                              increment options above, this option stops
                              `changes` from confirming the new version number.
+  --module-name=<module>     If your module and package aren't the same
+  --requirements=<reqfile>   Requirements file name (defaults to requirements.txt)
   --debug                    Debug output.
 
 The commands do the following:
@@ -94,7 +97,7 @@ The remaining tasks can be automated with the `release` command (the
 `--skip-changelog` option prevents `release` from regenerating the automatic changelog)
 
 ```python
-(changes)$  changes changes -p changes changelog
+(changes)$ changes changes -p changes changelog
 What is the release version for "changes" [Default: 0.1.1]:
 INFO:changes.cli:Added content to CHANGELOG.md
 Everything up-to-date
@@ -102,7 +105,7 @@ INFO:changes.cli:Committed changelog update
 
 << changelog pruning >>
 
-(changes)$  changes -p changes release --skip-changelog
+(changes)$ changes -p changes release --skip-changelog
 What is the release version for "changes" [Default: 0.1.1]:
 Counting objects: 7, done.
 Delta compression using up to 8 threads.
@@ -121,7 +124,7 @@ warning: sdist: standard file not found: should have one of README, README.rst, 
 
 Or you can do it all in one step (if your commit messages are good enough):
 ```python
-(changes)$  changes -m changes release
+(changes)$ changes -m changes release
 What is the release version for "changes" [Default: 0.2.0]:
 INFO:changes.cli:Added content to CHANGELOG.md
 

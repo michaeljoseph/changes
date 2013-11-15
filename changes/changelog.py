@@ -7,10 +7,10 @@ from changes import attributes, config, version
 log = logging.getLogger(__name__)
 
 
-def write_new_changelog(app_name, filename, content_lines, dry_run=True):
+def write_new_changelog(module_name, filename, content_lines, dry_run=True):
     heading_and_newline = (
         '# [Changelog](%s/releases)\n' %
-        attributes.extract_attribute(app_name, '__url__')
+        attributes.extract_attribute(module_name, '__url__')
     )
 
     with open(filename, 'r+') as f:
@@ -56,19 +56,19 @@ def replace_sha_with_commit_link(git_log_content):
 
 
 def changelog():
-    app_name, dry_run, new_version = config.common_arguments()
+    module_name, dry_run, new_version = config.common_arguments()
 
     changelog_content = [
         '\n## [%s](%s/compare/%s...%s)\n\n' % (
-            new_version, attributes.extract_attribute(app_name, '__url__'),
-            version.current_version(app_name), new_version,
+            new_version, attributes.extract_attribute(module_name, '__url__'),
+            version.current_version(module_name), new_version,
         )
     ]
 
     git_log_content = sh.git.log(
         '--oneline',
         '--no-merges',
-        '%s..master' % version.current_version(app_name),
+        '%s..master' % version.current_version(module_name),
         _tty_out=False
     ).split('\n')
     log.debug('content: %s' % git_log_content)
@@ -94,7 +94,7 @@ def changelog():
         ]
 
     write_new_changelog(
-        app_name,
+        module_name,
         config.CHANGELOG,
         changelog_content,
         dry_run=dry_run

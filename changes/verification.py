@@ -9,14 +9,11 @@ log = logging.getLogger(__name__)
 
 def run_tests():
     if config.arguments['--tox']:
-        result = sh.tox()
+        sh.tox()
     else:
-        result = sh.nosetests()
+        sh.nosetests()
 
-    if not result:
-        raise Exception('Test command failed')
-    else:
-        return True
+    return True
 
 
 def run_test_command():

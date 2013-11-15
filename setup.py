@@ -19,6 +19,7 @@ setup(
         'semantic_version < 3.0.0',
         'sh < 2.0.0',
         'virtualenv < 2.0.0',
+        'wheel < 1.0.0',
     ],
     entry_points={
         'console_scripts': [

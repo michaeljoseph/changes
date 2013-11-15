@@ -5,7 +5,7 @@ from path import path
 import sh
 import virtualenv
 
-from changes import config, shell, verification
+from changes import config, shell, probe, verification
 
 log = logging.getLogger(__name__)
 
@@ -18,7 +18,10 @@ def make_virtualenv():
 
 def install():
     module_name, dry_run, new_version = config.common_arguments()
-    result = shell.handle_dry_run(sh.python, ('setup.py', 'clean', 'sdist'))
+    commands = ['setup.py', 'clean', 'sdist']
+    if probe.has_requirement('wheel'):
+        commands.append('bdist_wheel')
+    result = shell.handle_dry_run(sh.python, tuple(commands))
     if result:
         tmp_dir = make_virtualenv()
         package_name = config.arguments.get('--package-name') or module_name

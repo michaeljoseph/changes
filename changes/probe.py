@@ -3,9 +3,11 @@ from os.path import exists
 
 import sh
 
-from changes import attributes
+from changes import attributes, config
 
 log = logging.getLogger(__name__)
+
+REQUIREMENTS = 'requirements.txt'
 
 
 def has_requirement(dependency, requirements_contents):
@@ -29,9 +31,18 @@ def probe_project(module_name):
     log.info('setup.py? %s', setup)
 
     # `requirements.txt`
-    has_requirements = exists('requirements.txt')
-    log.info('requirements.txt? %s', setup)
-    requirements_contents = open('requirements.txt').readlines()
+    requirements = config.arguments.get('--requirements') or REQUIREMENTS
+    has_requirements = exists(requirements)
+    log.info('%s? %s', requirements, has_requirements)
+    if has_requirements:
+        requirements_contents = open(requirements).readlines()
+
+        # supports executing tests with `nosetests` or `tox`
+        runs_tests = (
+            has_requirement('nose', requirements_contents) or
+            has_requirement('tox', requirements_contents)
+        )
+        log.info('Runs tests? %s' % runs_tests)
 
     # `CHANGELOG.md`
     has_changelog = exists('CHANGELOG.md')
@@ -45,13 +56,6 @@ def probe_project(module_name):
         attributes.has_attribute(module_name, '__url__')
     )
     log.info('Has module metadata? %s', has_metadata)
-
-    # supports executing tests with `nosetests` or `tox`
-    runs_tests = (
-        has_requirement('nose', requirements_contents) or
-        has_requirement('tox', requirements_contents)
-    )
-    log.info('Runs tests? %s' % runs_tests)
 
     return (on_github and setup and has_changelog and has_metadata and
             has_requirements and runs_tests)

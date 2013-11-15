@@ -32,6 +32,7 @@ Options:
                              increment options above, this option stops
                              `changes` from confirming the new version number.
   --module-name=<module>     If your module and package aren't the same
+  --requirements=<req>       Requirements file name (default: requirements.txt)
   --debug                    Debug output.
 
 The commands do the following:
@@ -51,7 +52,6 @@ from docopt import docopt
 import changes
 from changes import config, probe, util, version
 from changes.changelog import changelog
-from changes.config import arguments
 from changes.packaging import install, upload, pypi
 from changes.vcs import tag, commit_version_change
 from changes.verification import run_tests

@@ -25,6 +25,9 @@ class BaseTestCase(TestCase):
         with open(self.tmp_file, 'w') as init_file:
             init_file.write('\n'.join(self.initial_init_content))
 
+        with open('%s/requirements.txt' % self.module_name, 'w') as req_file:
+            req_file.write('unittest2')
+
         config.arguments.update({
             '<module_name>': 'test_app',
             '--dry-run': True,

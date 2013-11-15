@@ -32,14 +32,14 @@ def get_new_version(module_name, current_version, no_input,
     )
 
     if no_input:
-        new_version = proposed_new_version.strip()
+        new_version = proposed_new_version
     else:
         new_version = raw_input(
             'What is the release version for "%s" '
             '[Default: %s]: ' % (
                 module_name, proposed_new_version
             )
-        )
+        ) or proposed_new_version
 
     return new_version.strip()
 

@@ -18,7 +18,7 @@ class ConfigTestCase(BaseTestCase):
         '--test-command': None,
         '--tox': False,
         '--version-prefix': None,
-        '<app_name>': 'changes',
+        '<module_name>': 'changes',
         'bump_version': False,
         'changelog': True,
         'install': False,

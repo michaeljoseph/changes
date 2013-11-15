@@ -2,14 +2,14 @@
 changes.
 
 Usage:
-  changes [options] <app_name> changelog
-  changes [options] <app_name> release
-  changes [options] <app_name> bump_version
-  changes [options] <app_name> run_tests
-  changes [options] <app_name> install
-  changes [options] <app_name> upload
-  changes [options] <app_name> pypi
-  changes [options] <app_name> tag
+  changes [options] <module_name> changelog
+  changes [options] <module_name> release
+  changes [options] <module_name> bump_version
+  changes [options] <module_name> run_tests
+  changes [options] <module_name> install
+  changes [options] <module_name> upload
+  changes [options] <module_name> pypi
+  changes [options] <module_name> tag
 
   changes -h | --help
 
@@ -96,17 +96,17 @@ def main():
     if arguments['--new-version']:
         arguments['new_version'] = arguments['--new-version']
 
-    app_name = config.arguments['<app_name>']
+    module_name = config.arguments['<module_name>']
 
-    if not probe.probe_project(app_name):
+    if not probe.probe_project(module_name):
         raise Exception('Project does not meet `changes` requirements')
 
     for command in commands:
         if arguments[command]:
             if command not in suppress_version_prompt_for:
                 arguments['new_version'] = version.get_new_version(
-                    app_name,
-                    version.current_version(app_name),
+                    module_name,
+                    version.current_version(module_name),
                     arguments.get('--noinput', False),
                     **util.extract_arguments(arguments, version_arguments)
                 )

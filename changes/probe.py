@@ -14,7 +14,7 @@ def has_requirement(dependency, requirements_contents):
     )
 
 
-def probe_project(app_name):
+def probe_project(module_name):
     """
     Check if the project meets `changes` requirements
     """
@@ -37,12 +37,12 @@ def probe_project(app_name):
     has_changelog = exists('CHANGELOG.md')
     log.info('CHANGELOG.md? %s', has_changelog)
 
-    # `<app_name>/__init__.py` with `__version__` and `__url__`
-    init_path = '%s/__init__.py' % app_name
+    # `<module_name>/__init__.py` with `__version__` and `__url__`
+    init_path = '%s/__init__.py' % module_name
     has_metadata = (
         exists(init_path) and
-        attributes.has_attribute(app_name, '__version__') and
-        attributes.has_attribute(app_name, '__url__')
+        attributes.has_attribute(module_name, '__version__') and
+        attributes.has_attribute(module_name, '__url__')
     )
     log.info('Has module metadata? %s', has_metadata)
 

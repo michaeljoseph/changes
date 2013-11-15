@@ -8,11 +8,11 @@ log = logging.getLogger(__name__)
 
 
 def commit_version_change():
-    app_name, dry_run, new_version = config.common_arguments()
+    module_name, dry_run, new_version = config.common_arguments()
 
     commit_result = shell.handle_dry_run(
         sh.git.commit,
-        ('-m', new_version, '%s/__init__.py' % app_name, config.CHANGELOG)
+        ('-m', new_version, '%s/__init__.py' % module_name, config.CHANGELOG)
     )
 
     if commit_result:

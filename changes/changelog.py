@@ -65,16 +65,18 @@ def changelog():
         )
     ]
 
-    git_log_content = sh.git.log(
-        '--oneline',
-        '--no-merges',
-        '%s..master' % version.current_version(module_name),
-        _tty_out=False
-    ).split('\n')
-    log.debug('content: %s' % git_log_content)
+    git_log_content = None
+    try:
+        git_log_content = sh.git.log(
+            '--oneline',
+            '--no-merges',
+            '%s..master' % version.current_version(module_name),
+            _tty_out=False
+        ).split('\n')
+        log.debug('content: %s' % git_log_content)
+    except:
+        log.warn('Error diffing previous version, initial release')
 
-    if not git_log_content:
-        log.debug('sniffing initial release, drop tags')
         git_log_content = sh.git.log(
             '--oneline',
             '--no-merges',

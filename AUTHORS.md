@@ -1,9 +1,9 @@
-c# Credits
+# Credits
 
 ## Lead
 
-* Michael Joseph <michaeljoseph@gmail.com>
+* [Michael Joseph](https://michaeljoseph.github.com)
 
 ## Contributors
 
-* Chris Modjeska `[Sureiya](https://github.com/Sureiya)`
+* [Chris Modjeska](https://github.com/Sureiya)

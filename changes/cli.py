@@ -41,7 +41,7 @@ The commands do the following:
    run_tests     Runs your tests with nosetests
    install       Attempts to install the sdist
    tag           Tags your git repo with the new version number
-   upload        Uploads your project with setup.py clean sdist upload
+   upload        Uploads your project with setup.py clean sdist bdist_wheel upload
    pypi          Attempts to install your package from pypi
    release       Runs all the previous commands
 """

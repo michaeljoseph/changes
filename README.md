@@ -6,7 +6,7 @@
 [![# of downloads](https://pypip.in/d/changes/badge.png)](https://crate.io/packages/changes?version=latest)
 [![code coverage](https://coveralls.io/repos/michaeljoseph/changes/badge.png?branch=master)](https://coveralls.io/r/michaeljoseph/changes?branch=master)
 
-:musical_note: [Ch-ch-changes](http://www.youtube.com/watch?v=pl3vxEudif8) :musical_note: 
+:musical_note: [Ch-ch-changes](http://www.youtube.com/watch?v=pl3vxEudif8) :musical_note:
 
 ![changes](https://github.com/michaeljoseph/changes/raw/master/resources/changes.png)
 
@@ -23,7 +23,7 @@ Manages the release of a python library.
 
 ## Usage
 
-An application wanting to use `changes` must meet these requirements: 
+An application wanting to use `changes` must meet these requirements:
 
 * on [github](https://github.com)
 * `setup.py`
@@ -82,7 +82,7 @@ The commands do the following:
    run_tests     Runs your tests with nosetests
    install       Attempts to install the sdist
    tag           Tags your git repo with the new version number
-   upload        Uploads your project with setup.py clean sdist upload
+   upload        Uploads your project with setup.py clean sdist bdist_wheel upload
    pypi          Attempts to install your package from pypi
    release       Runs all the previous commands
 ```
@@ -93,7 +93,7 @@ a changelog entry based on your commit messages.
 You're probably going to want to edit that a bit, so `changes` won't commit it,
  unless you're running the `release` command.
 
-The remaining tasks can be automated with the `release` command (the 
+The remaining tasks can be automated with the `release` command (the
 `--skip-changelog` option prevents `release` from regenerating the automatic changelog)
 
 ```python

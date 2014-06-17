@@ -70,6 +70,7 @@ def changelog():
         git_log_content = sh.git.log(
             '--oneline',
             '--no-merges',
+            '--no-color',
             '%s..master' % version.current_version(module_name),
             _tty_out=False
         ).split('\n')
@@ -80,6 +81,7 @@ def changelog():
         git_log_content = sh.git.log(
             '--oneline',
             '--no-merges',
+            '--no-color',
             _tty_out=False
         ).split('\n')
 

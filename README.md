@@ -97,7 +97,7 @@ The remaining tasks can be automated with the `release` command (the
 `--skip-changelog` option prevents `release` from regenerating the automatic changelog)
 
 ```python
-(changes)$ changes changes -p changes changelog
+(changes)$ changes -p changes changelog
 What is the release version for "changes" [Default: 0.1.1]:
 INFO:changes.cli:Added content to CHANGELOG.md
 Everything up-to-date

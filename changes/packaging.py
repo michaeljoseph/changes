@@ -3,7 +3,7 @@ import logging
 from path import path
 import sh
 
-from changes import config, shell, probe, util, venv, verification
+from changes import config, shell, util, venv, verification
 
 log = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ def install():
                 log.info('Successfully installed %s sdist', module_name)
                 if verification.run_test_command():
                     log.info('Successfully ran test command: %s',
-                            config.arguments['--test-command'])
+                             config.arguments['--test-command'])
             except Exception, e:
                 raise Exception('Error installing %s sdist', module_name, e)
 

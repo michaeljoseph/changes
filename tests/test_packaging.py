@@ -14,9 +14,6 @@ class PackagingTestCase(BaseTestCase):
         config.arguments['--package-name'] = 'thing'
         packaging.install()
 
-    def test_make_virtualenv(self):
-        packaging.make_virtualenv()
-
     def test_upload(self):
         packaging.upload()
 

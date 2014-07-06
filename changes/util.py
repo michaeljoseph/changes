@@ -39,5 +39,3 @@ def mktmpdir():
         yield tmp_dir
     finally:
         path(tmp_dir).rmtree(path(tmp_dir))
-
-

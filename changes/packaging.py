@@ -1,44 +1,33 @@
 import logging
-import tempfile
 
 from path import path
 import sh
-import virtualenv
 
-from changes import config, shell, probe, verification
+from changes import config, shell, probe, util, venv, verification
 
 log = logging.getLogger(__name__)
 
 
-def make_virtualenv():
-    tmp_dir = tempfile.mkdtemp()
-    virtualenv.create_environment(tmp_dir, site_packages=False)
-    return tmp_dir
-
-
 def install():
     module_name, dry_run, new_version = config.common_arguments()
-    commands = ['setup.py', 'clean', 'sdist']
-    if probe.has_requirement('wheel'):
-        commands.append('bdist_wheel')
-    result = shell.handle_dry_run(sh.python, tuple(commands))
-    if result:
-        tmp_dir = make_virtualenv()
-        package_name = config.arguments.get('--package-name') or module_name
-        try:
-            virtualenv.install_sdist(
-                config.arguments['<module_name>'],
-                'dist/%s-%s.tar.gz' % (package_name, new_version),
-                '%s/bin/python' % tmp_dir
-            )
-            log.info('Successfully installed %s sdist', module_name)
-            if verification.run_test_command():
-                log.info('Successfully ran test command: %s',
-                         config.arguments['--test-command'])
-        except:
-            raise Exception('Error installing %s sdist', module_name)
+    commands = ['setup.py', 'clean', 'bdist_wheel']
 
-        path(tmp_dir).rmtree(path(tmp_dir))
+    result = shell.handle_dry_run(sh.python, tuple(commands))
+
+    if result:
+        with util.mktmpdir() as tmp_dir:
+            venv.create_venv(tmp_dir=tmp_dir)
+            package_name = config.arguments.get('--package-name') or module_name
+            try:
+                print(package_name)
+                print(tmp_dir)
+                venv.install(package_name, tmp_dir)
+                log.info('Successfully installed %s sdist', module_name)
+                if verification.run_test_command():
+                    log.info('Successfully ran test command: %s',
+                            config.arguments['--test-command'])
+            except Exception, e:
+                raise Exception('Error installing %s sdist', module_name, e)
 
 
 def upload():
@@ -59,7 +48,7 @@ def upload():
 def pypi():
     module_name, dry_run, _ = config.common_arguments()
 
-    tmp_dir = make_virtualenv()
+    tmp_dir = venv.create_venv()
     install_cmd = '%s/bin/pip install %s' % (tmp_dir, module_name)
 
     package_index = 'pypi'
@@ -78,12 +67,12 @@ def pypi():
                       module_name, package_index)
 
         verification.run_test_command()
-    except:
+    except Exception, e:
         log.exception(
             'error installing %s from %s', module_name, package_index
         )
         raise Exception(
-            'Error installing %s from %s', module_name, package_index
+            'Error installing %s from %s', module_name, package_index, e
         )
 
     path(tmp_dir).rmtree(path(tmp_dir))

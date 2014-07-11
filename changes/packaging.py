@@ -42,7 +42,7 @@ def upload():
     if not upload_result:
         raise Exception('Error uploading')
     else:
-        log.info('Succesfully uploaded %s %s', module_name, new_version)
+        log.info('Successfully uploaded %s %s', module_name, new_version)
 
 
 def pypi():

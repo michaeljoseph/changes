@@ -33,7 +33,7 @@ def upload():
         upload_args += ' -r %s' % pypi
 
     upload_result = shell.dry_run(upload_args)
-    if not upload_result:
+    if upload_result.failed:
         raise Exception('Error uploading: %s' % upload_result)
     else:
         log.info('Successfully uploaded %s %s', module_name, new_version)

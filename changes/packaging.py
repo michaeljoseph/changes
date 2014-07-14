@@ -11,20 +11,18 @@ log = logging.getLogger(__name__)
 def install():
     module_name, dry_run, new_version = config.common_arguments()
     commands = ['setup.py', 'clean', 'sdist', 'bdist_wheel']
-
-    shell.handle_dry_run(sh.python, tuple(commands))
-
-    with util.mktmpdir() as tmp_dir:
-        venv.create_venv(tmp_dir=tmp_dir)
-        for distribution in path('dist').files():
-            try:
-                venv.install(distribution, tmp_dir)
-                log.info('Successfully installed %s sdist', module_name)
-                if verification.run_test_command():
-                    log.info('Successfully ran test command: %s',
-                             config.arguments['--test-command'])
-            except Exception, e:
-                raise Exception('Error installing distribution %s' % distribution, e)
+    try:
+        if (shell.handle_dry_run(sh.python, tuple(commands))):
+            with util.mktmpdir() as tmp_dir:
+                venv.create_venv(tmp_dir=tmp_dir)
+                for distribution in path('dist').files():
+                    venv.install(distribution, tmp_dir)
+                    log.info('Successfully installed %s sdist', module_name)
+                    if verification.run_test_command():
+                        log.info('Successfully ran test command: %s',
+                                 config.arguments['--test-command'])
+    except Exception, e:
+        raise Exception('Error installing distribution %s' % distribution, e)
 
 
 def upload():

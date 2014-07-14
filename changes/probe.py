@@ -3,7 +3,7 @@ from os.path import exists
 
 from fabric.api import local
 
-from changes import attributes, config, exceptions
+from changes import attributes, config
 
 log = logging.getLogger(__name__)
 

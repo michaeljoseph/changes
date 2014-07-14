@@ -18,7 +18,6 @@ setup(
         'docopt < 1.0.0',
         'path.py < 5.0.0',
         'semantic_version < 3.0.0',
-        'sh < 2.0.0',
         'wheel < 1.0.0',
     ],
     entry_points={

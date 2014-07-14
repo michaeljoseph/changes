@@ -1,4 +1,5 @@
 CHANGELOG = 'CHANGELOG.md'
+REQUIREMENTS = 'requirements.txt'
 arguments = {}
 
 

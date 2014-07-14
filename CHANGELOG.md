@@ -1,5 +1,8 @@
 # [Changelog](https://github.com/michaeljoseph/changes/releases)
 
+## [0.5.0](https://github.com/michaeljoseph/changes/compare/0.4.0...0.5.0)
+
+
 ## [0.4.0](https://github.com/michaeljoseph/changes/compare/0.3.0...0.4.0)
 
 * [8796606](https://github.com/michaeljoseph/changes/commit/8796606) Discard sh intermediates

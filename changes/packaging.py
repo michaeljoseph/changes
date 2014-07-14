@@ -10,24 +10,19 @@ log = logging.getLogger(__name__)
 
 def install():
     module_name, dry_run, new_version = config.common_arguments()
-    commands = ['setup.py', 'clean', 'bdist_wheel']
-
-    result = shell.handle_dry_run(sh.python, tuple(commands))
-
-    if result:
-        with util.mktmpdir() as tmp_dir:
-            venv.create_venv(tmp_dir=tmp_dir)
-            package_name = config.arguments.get('--package-name') or module_name
-            try:
-                print(package_name)
-                print(tmp_dir)
-                venv.install(package_name, tmp_dir)
-                log.info('Successfully installed %s sdist', module_name)
-                if verification.run_test_command():
-                    log.info('Successfully ran test command: %s',
-                             config.arguments['--test-command'])
-            except Exception, e:
-                raise Exception('Error installing %s sdist', module_name, e)
+    commands = ['setup.py', 'clean', 'sdist', 'bdist_wheel']
+    try:
+        if (shell.handle_dry_run(sh.python, tuple(commands))):
+            with util.mktmpdir() as tmp_dir:
+                venv.create_venv(tmp_dir=tmp_dir)
+                for distribution in path('dist').files():
+                    venv.install(distribution, tmp_dir)
+                    log.info('Successfully installed %s sdist', module_name)
+                    if verification.run_test_command():
+                        log.info('Successfully ran test command: %s',
+                                 config.arguments['--test-command'])
+    except Exception, e:
+        raise Exception('Error installing distribution %s' % distribution, e)
 
 
 def upload():
@@ -40,7 +35,7 @@ def upload():
 
     upload_result = shell.handle_dry_run(sh.python, tuple(upload_args))
     if not upload_result:
-        raise Exception('Error uploading')
+        raise Exception('Error uploading: %s' % upload_result)
     else:
         log.info('Successfully uploaded %s %s', module_name, new_version)
 

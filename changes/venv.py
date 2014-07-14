@@ -1,20 +1,17 @@
 import os
 import tempfile
 
-import virtualenv
+from fabric.api import local
 
 
 def create_venv(tmp_dir=None):
     if not tmp_dir:
         tmp_dir = tempfile.mkdtemp()
-    virtualenv.create_environment(tmp_dir, site_packages=False)
+    local('virtualenv --no-site-packages %s' % tmp_dir)
     return tmp_dir
 
 
 def install(package_name, venv_dir):
     if not os.path.exists(venv_dir):
         venv_dir = create_venv()
-    virtualenv.install_wheel(
-        [package_name],
-        '%s/bin/python' % venv_dir,
-    )
+    local('%s/bin/pip install %s' % (venv_dir, package_name))

@@ -9,6 +9,7 @@ log = logging.getLogger(__name__)
 
 
 def dry_run(command):
+    """Executes a shell command unless the dry run option is set"""
     if not config.arguments.get('--dry-run', True):
         return local(command, capture=False)
     else:

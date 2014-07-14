@@ -2,16 +2,20 @@ import logging
 
 from path import path
 
-from changes import config, shell, util, venv, verification
+from changes import config, probe, shell, util, venv, verification
 
 log = logging.getLogger(__name__)
 
 
 def install():
     module_name, dry_run, new_version = config.common_arguments()
-    build_package_command = 'python setup.py clean sdist' # bdist_wheel'
+    build_package_command = 'python setup.py clean sdist'
+    if probe.has_requirement('wheel'):
+        build_package_command += ' bdist_wheel'
+
     try:
-        if (shell.dry_run(build_package_command)):
+        result = shell.dry_run(build_package_command)
+        if not dry_run and shell.dry_run(build_package_command).succeeded:
             with util.mktmpdir() as tmp_dir:
                 venv.create_venv(tmp_dir=tmp_dir)
                 for distribution in path('dist').files():
@@ -33,7 +37,7 @@ def upload():
         upload_args += ' -r %s' % pypi
 
     upload_result = shell.dry_run(upload_args)
-    if upload_result.failed:
+    if not dry_run and upload_result.failed:
         raise Exception('Error uploading: %s' % upload_result)
     else:
         log.info('Successfully uploaded %s %s', module_name, new_version)
@@ -53,20 +57,17 @@ def pypi():
 
     try:
         result = shell.dry_run(install_cmd)
-        if result:
-            log.info('Successfully installed %s from %s',
-                     module_name, package_index)
-        else:
+        if not dry_run and result.failed:
             log.error('Failed to install %s from %s',
                       module_name, package_index)
+        else:
+            log.info('Successfully installed %s from %s',
+                     module_name, package_index)
 
         verification.run_test_command()
     except Exception, e:
-        log.exception(
-            'error installing %s from %s', module_name, package_index
-        )
-        raise Exception(
-            'Error installing %s from %s', module_name, package_index, e
-        )
+        error_msg = 'Error installing %s from %s' % (module_name, package_index)
+        log.exception(error_msg)
+        raise Exception(error_msg, e)
 
     path(tmp_dir).rmtree(path(tmp_dir))

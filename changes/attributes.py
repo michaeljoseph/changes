@@ -2,9 +2,9 @@ import ast
 import logging
 import tempfile
 
+from fabric.api import local, settings
 from path import path
 
-import sh
 
 log = logging.getLogger(__name__)
 
@@ -32,7 +32,8 @@ def replace_attribute(module_name, attribute_name, new_value, dry_run=True):
     if not dry_run:
         path(tmp_file).move(init_file)
     else:
-        log.debug(sh.diff(tmp_file, init_file, _ok_code=1))
+        with settings(warn_only=True):
+            log.info(local('diff %s %s' % (tmp_file, init_file)))
 
 
 def has_attribute(module_name, attribute_name):

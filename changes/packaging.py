@@ -1,7 +1,6 @@
 import logging
 
 from path import path
-import sh
 
 from changes import config, shell, util, venv, verification
 
@@ -10,9 +9,9 @@ log = logging.getLogger(__name__)
 
 def install():
     module_name, dry_run, new_version = config.common_arguments()
-    commands = ['setup.py', 'clean', 'sdist', 'bdist_wheel']
+    build_package_command = 'python setup.py clean sdist' # bdist_wheel'
     try:
-        if (shell.handle_dry_run(sh.python, tuple(commands))):
+        if (shell.dry_run(build_package_command)):
             with util.mktmpdir() as tmp_dir:
                 venv.create_venv(tmp_dir=tmp_dir)
                 for distribution in path('dist').files():
@@ -29,11 +28,11 @@ def upload():
     module_name, dry_run, new_version = config.common_arguments()
     pypi = config.arguments['--pypi']
 
-    upload_args = 'setup.py clean sdist upload'.split(' ')
+    upload_args = 'python setup.py clean sdist upload'
     if pypi:
-        upload_args.extend(['-r',  pypi])
+        upload_args += ' -r %s' % pypi
 
-    upload_result = shell.handle_dry_run(sh.python, tuple(upload_args))
+    upload_result = shell.dry_run(upload_args)
     if not upload_result:
         raise Exception('Error uploading: %s' % upload_result)
     else:
@@ -53,7 +52,7 @@ def pypi():
         package_index = pypi
 
     try:
-        result = shell.execute(install_cmd, dry_run=dry_run)
+        result = shell.dry_run(install_cmd)
         if result:
             log.info('Successfully installed %s from %s',
                      module_name, package_index)

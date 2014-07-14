@@ -1,7 +1,8 @@
 import logging
 import re
 
-import sh
+from fabric.api import local
+
 from changes import attributes, config, version
 
 log = logging.getLogger(__name__)
@@ -39,7 +40,7 @@ def replace_sha_with_commit_link(git_log_content):
         '__url__'
     )
 
-    for index, line in enumerate(git_log_content):
+    for index, line in enumerate(git_log_content.split('\n')):
         # http://stackoverflow.com/a/468378/5549
         sha1_re = re.match(r'^[0-9a-f]{5,40}\b', line)
         if sha1_re:
@@ -67,23 +68,14 @@ def changelog():
 
     git_log_content = None
     try:
-        git_log_content = sh.git.log(
-            '--oneline',
-            '--no-merges',
-            '--no-color',
-            '%s..master' % version.current_version(module_name),
-            _tty_out=False
-        ).split('\n')
+
+        git_log = 'git log --oneline --no-merges --no-color'
+        git_log_content = local('%s %s..master' % (git_log, version.current_version(module_name)))
         log.debug('content: %s' % git_log_content)
     except:
         log.warn('Error diffing previous version, initial release')
 
-        git_log_content = sh.git.log(
-            '--oneline',
-            '--no-merges',
-            '--no-color',
-            _tty_out=False
-        ).split('\n')
+        git_log_content = local(git_log)
 
     git_log_content = replace_sha_with_commit_link(git_log_content)
 

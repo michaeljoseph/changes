@@ -1,17 +1,15 @@
 import logging
 from os.path import exists
 
-import sh
+from fabric.api import local
 
-from changes import attributes, config
+from changes import attributes, config, exceptions
 
 log = logging.getLogger(__name__)
 
-REQUIREMENTS = 'requirements.txt'
-
 
 def get_requirements():
-    requirements_file = config.arguments.get('--requirements') or REQUIREMENTS
+    requirements_file = config.arguments.get('--requirements') or config.REQUIREMENTS
     has_requirements = exists(requirements_file)
     requirements = None
     if has_requirements:
@@ -33,7 +31,7 @@ def probe_project(module_name):
     """
     log.info('Checking project for changes requirements.')
     # on [github](https://github.com)
-    git_remotes = sh.git.remote('-v')
+    git_remotes = local('git remote -v', capture=True).split('\n')
     on_github = any(['github.com' in remote for remote in git_remotes])
     log.info('On Github? %s', on_github)
 

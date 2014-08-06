@@ -4,9 +4,12 @@ python:
     - "2.7"
     - "pypy"
 install:
-    - pip install -r requirements.txt --use-mirrors
+    - pip install -U -r requirements.txt --use-mirrors
+before_success:
+  - coverage erase
 script:
     - nosetests --with-coverage --cover-package=changes
-
 after_success:
+  - coverage combine
   - coveralls
+  - ocular

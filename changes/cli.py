@@ -39,7 +39,7 @@ The commands do the following:
    changelog     Generates an automatic changelog from your commit messages
    bump_version  Increments the __version__ attribute of your module's __init__
    run_tests     Runs your tests with nosetests
-   install       Attempts to install the sdist
+   install       Attempts to install the sdist and wheel
    tag           Tags your git repo with the new version number
    upload        Uploads your project with setup.py clean sdist bdist_wheel upload
    pypi          Attempts to install your package from pypi

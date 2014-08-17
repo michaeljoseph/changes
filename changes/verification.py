@@ -1,6 +1,6 @@
 import logging
 
-from fabric.api import local
+from plumbum.cmd import nosetests, tox
 
 from changes import config, shell
 
@@ -9,9 +9,9 @@ log = logging.getLogger(__name__)
 
 def run_tests():
     if config.arguments['--tox']:
-        result = local('tox')
+        result = tox()
     else:
-        result = local('nosetests')
+        result = nosetests()
     return result.succeeded
 
 

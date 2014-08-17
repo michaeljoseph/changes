@@ -1,7 +1,7 @@
 import logging
 import re
 
-from fabric.api import local
+from plumbum.cmd import git
 
 from changes import attributes, config, version
 
@@ -69,13 +69,13 @@ def changelog():
     git_log_content = None
     try:
 
-        git_log = 'git log --oneline --no-merges --no-color'
-        git_log_content = local('%s %s..master' % (git_log, version.current_version(module_name)))
+        git_log = 'log --oneline --no-merges --no-color'.split(' ')
+        git_log.append('%s..master' % version.current_version(module_name))
+        git_log_content = git(git_log)
         log.debug('content: %s' % git_log_content)
     except:
         log.warn('Error diffing previous version, initial release')
-
-        git_log_content = local(git_log)
+        git_log_content = git(git_log.split(' '))
 
     git_log_content = replace_sha_with_commit_link(git_log_content)
 

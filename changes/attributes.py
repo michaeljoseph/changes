@@ -2,7 +2,7 @@ import ast
 import logging
 import tempfile
 
-from fabric.api import local, settings
+from plumbum.cmd import diff
 from path import path
 
 
@@ -32,8 +32,7 @@ def replace_attribute(module_name, attribute_name, new_value, dry_run=True):
     if not dry_run:
         path(tmp_file).move(init_file)
     else:
-        with settings(warn_only=True):
-            log.info(local('diff %s %s' % (tmp_file, init_file)))
+        log.info(diff(tmp_file, init_file, retcode=None))
 
 
 def has_attribute(module_name, attribute_name):

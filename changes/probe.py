@@ -1,7 +1,7 @@
 import logging
 from os.path import exists
 
-from fabric.api import local
+from plumbum.cmd import git
 
 from changes import attributes, config
 
@@ -31,7 +31,7 @@ def probe_project(module_name):
     """
     log.info('Checking project for changes requirements.')
     # on [github](https://github.com)
-    git_remotes = local('git remote -v', capture=True).split('\n')
+    git_remotes = git('remote', '-v').split('\n')
     on_github = any(['github.com' in remote for remote in git_remotes])
     log.info('On Github? %s', on_github)
 

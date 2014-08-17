@@ -1,13 +1,14 @@
 import os
 import tempfile
 
-from fabric.api import local
+from plumbum import local
+from plumbum.cmd import virtualenv
 
 
 def create_venv(tmp_dir=None):
     if not tmp_dir:
         tmp_dir = tempfile.mkdtemp()
-    local('virtualenv --no-site-packages %s' % tmp_dir)
+    virtualenv('--no-site-packages', tmp_dir)
     return tmp_dir
 
 

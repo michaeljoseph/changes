@@ -20,6 +20,5 @@ setup(
             'changes = changes:main',
         ],
     },
-    test_suite='nose.collector',
     license=open('LICENSE').read(),
 )

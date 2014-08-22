@@ -1,3 +1,5 @@
+from click.testing import CliRunner
+
 from changes import changelog
 from . import BaseTestCase
 
@@ -26,13 +28,13 @@ class ChangeLogTestCase(BaseTestCase):
             existing_file.writelines(content)
 
         changelog.write_new_changelog(
-            'test_app',
+            'https://github.com/someuser/test_app',
             self.tmp_file,
             'Now this is',
             dry_run=False
         )
         expected_content = [
-            '# [Changelog](None/releases)\n',
+            '# [Changelog](https://github.com/someuser/test_app/releases)\n',
             'Now this is\n',
             'This is the first line\n'
         ]
@@ -43,5 +45,10 @@ class ChangeLogTestCase(BaseTestCase):
             )
         )
 
-    def test_changelog(self):
-        pass
+    def test_replace_sha_with_commit_link(self):
+        repo_url = 'http://github.com/michaeljoseph/changes'
+        log = 'dde9538 Coverage for all python version runs'
+        self.assertEquals(
+            changelog.replace_sha_with_commit_link(repo_url, log),
+            ['[dde9538](http://github.com/michaeljoseph/changes/commit/dde9538) Coverage for all python version runs']
+        )

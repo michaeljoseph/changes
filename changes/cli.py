@@ -47,10 +47,10 @@ The commands do the following:
 """
 import logging
 
-from docopt import docopt
+import click
 
 import changes
-from changes import config, probe, util, version
+from changes import attributes, config, probe, version
 from changes.changelog import changelog
 from changes.flow import release
 from changes.packaging import install, upload, pypi
@@ -61,39 +61,31 @@ from changes.version import bump_version
 
 log = logging.getLogger(__name__)
 
+@click.group()
+@click.argument('module_name')
+@click.option('--dry-run', is_flag=True, default=False, help='Prints (instead of executing) the operations to be performed.')
+@click.option('--debug', is_flag=True, default=False, help='Enables debug output.')
+@click.option('--no-input', is_flag=True, default=False, help='Suppresses version number confirmation prompt.')
+@click.option('--requirements', default='requirements.txt', help='Requirements file name')
+@click.option('-p', '--patch', is_flag=True, help='Patch-level version increment.')
+@click.option('-m', '--minor', is_flag=True, help='Minor-level version increment.')
+@click.option('-M', '--major', is_flag=True, help='Minor-level version increment.')
+@click.pass_context
+def main(context, module_name, dry_run, debug, no_input, requirements, patch, minor, major):
+    """Ch-ch-changes"""
 
-def initialise():
-    arguments = docopt(__doc__, version=changes.__version__)
-    debug = arguments['--debug']
     logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
-    log.debug('arguments: %s', arguments)
-    config.arguments = arguments
-    return arguments
 
+    new_version = version.get_new_version(
+        module_name,
+        version.current_version(module_name),
+        no_input, major, minor, patch,
+    )
 
-def main():
-    arguments = initialise()
+    current_version = version.current_version(module_name)
+    repo_url = attributes.extract_attribute(module_name, '__url__')
+    context.obj = config.Changes(module_name, dry_run, debug, no_input, requirements, new_version, current_version, repo_url)
 
-    version_arguments = ['--major', '--minor', '--patch']
-    commands = ['release', 'changelog', 'run_tests', 'bump_version', 'tag',
-                'upload', 'install', 'pypi']
-    suppress_version_prompt_for = ['run_tests', 'upload']
+    probe.probe_project(context.obj)
 
-    if arguments['--new-version']:
-        arguments['new_version'] = arguments['--new-version']
-
-    module_name = config.arguments['<module_name>']
-
-    if not probe.probe_project(module_name):
-        raise Exception('Project does not meet `changes` requirements')
-
-    for command in commands:
-        if arguments[command]:
-            if command not in suppress_version_prompt_for:
-                arguments['new_version'] = version.get_new_version(
-                    module_name,
-                    version.current_version(module_name),
-                    arguments.get('--noinput', False),
-                    **util.extract_arguments(arguments, version_arguments)
-                )
-            globals()[command]()
+main.add_command(changelog)

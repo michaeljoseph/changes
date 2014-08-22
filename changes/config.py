@@ -1,6 +1,17 @@
 CHANGELOG = 'CHANGELOG.md'
-REQUIREMENTS = 'requirements.txt'
 arguments = {}
+
+
+class Changes(object):
+    def __init__(self, module_name, dry_run, debug, no_input, requirements, new_version, current_version, repo_url):
+        self.module_name = module_name
+        self.dry_run = dry_run
+        self.debug = debug
+        self.no_input = no_input
+        self.requirements = requirements
+        self.new_version = new_version
+        self.current_version = current_version
+        self.repo_url = repo_url
 
 
 def common_arguments():

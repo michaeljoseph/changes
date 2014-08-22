@@ -15,4 +15,5 @@ def create_venv(tmp_dir=None):
 def install(package_name, venv_dir):
     if not os.path.exists(venv_dir):
         venv_dir = create_venv()
-    local('%s/bin/pip install %s' % (venv_dir, package_name))
+    pip = '%s/bin/pip' % venv_dir
+    local[pip]('install', package_name)

@@ -90,3 +90,6 @@ def main(context, module_name, dry_run, debug, no_input, requirements, patch, mi
 
 main.add_command(changelog)
 main.add_command(bump_version)
+main.add_command(install)
+main.add_command(upload)
+main.add_command(pypi)

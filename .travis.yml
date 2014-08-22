@@ -8,7 +8,7 @@ install:
 before_success:
   - coverage erase
 script:
-  - py.test --durations=10 --cov changes --cov-report term-missing -x tests
+  - py.test --durations=10 --cov changes --cov-report term-missing tests
 after_success:
   - coverage combine
   - coveralls

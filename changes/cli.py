@@ -89,3 +89,4 @@ def main(context, module_name, dry_run, debug, no_input, requirements, patch, mi
     probe.probe_project(context.obj)
 
 main.add_command(changelog)
+main.add_command(bump_version)

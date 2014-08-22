@@ -1,8 +1,17 @@
 import mock
 from unittest2 import TestCase
+from click.testing import CliRunner
 
-from changes import version
+from changes import cli, version
 from . import BaseTestCase
+
+
+class BumpVersionTest(TestCase):
+
+    def test_bump_version(self):
+        runner = CliRunner()
+        result = runner.invoke(cli.main, '--dry-run -p --no-input changes bump_version'.split(' '))
+        assert result.exit_code == 0
 
 
 class VersionTestCase(TestCase):

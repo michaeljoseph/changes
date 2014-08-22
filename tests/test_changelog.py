@@ -1,10 +1,16 @@
 from click.testing import CliRunner
 
-from changes import changelog
+from changes import changelog, cli
 from . import BaseTestCase
 
 
 class ChangeLogTestCase(BaseTestCase):
+
+    def test_changelog(self):
+        runner = CliRunner()
+        result = runner.invoke(cli.main, '--dry-run -p --no-input test_app changelog'.split(' '))
+        assert result.exit_code == 0
+        assert 'Added content to CHANGELOG.md' in result.output
 
     def test_write_new_changelog(self):
         content = [

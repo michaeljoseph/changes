@@ -10,6 +10,7 @@ from changes.attributes import extract_attribute
 log = logging.getLogger(__name__)
 pass_changes = click.make_pass_decorator(config.Changes)
 
+
 def write_new_changelog(repo_url, filename, content_lines, dry_run=True):
     heading_and_newline = '# [Changelog](%s/releases)\n' % repo_url
 

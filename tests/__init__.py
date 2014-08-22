@@ -20,7 +20,7 @@ class BaseTestCase(TestCase):
             '"""A test app"""',
             '',
             "__version__ = '0.0.1'",
-            "__url__ = 'https://github.com/someuser/test_app'"
+            "__url__ = 'https://github.com/someuser/test_app'",
             "__author__ = 'Some User'",
             "__email__ = 'someuser@gmail.com'"
         ]

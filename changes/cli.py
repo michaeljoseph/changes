@@ -54,8 +54,7 @@ from changes import attributes, config, probe, version
 from changes.changelog import changelog
 from changes.flow import release
 from changes.packaging import install, upload, pypi
-from changes.vcs import tag, commit_version_change
-from changes.verification import run_tests
+from changes.vcs import tag
 from changes.version import bump_version
 
 
@@ -70,8 +69,9 @@ log = logging.getLogger(__name__)
 @click.option('-p', '--patch', is_flag=True, help='Patch-level version increment.')
 @click.option('-m', '--minor', is_flag=True, help='Minor-level version increment.')
 @click.option('-M', '--major', is_flag=True, help='Minor-level version increment.')
+@click.option('--version-prefix', help='Specify a prefix for version number tags.')
 @click.pass_context
-def main(context, module_name, dry_run, debug, no_input, requirements, patch, minor, major):
+def main(context, module_name, dry_run, debug, no_input, requirements, patch, minor, major, version_prefix):
     """Ch-ch-changes"""
 
     logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
@@ -84,7 +84,7 @@ def main(context, module_name, dry_run, debug, no_input, requirements, patch, mi
 
     current_version = version.current_version(module_name)
     repo_url = attributes.extract_attribute(module_name, '__url__')
-    context.obj = config.Changes(module_name, dry_run, debug, no_input, requirements, new_version, current_version, repo_url)
+    context.obj = config.Changes(module_name, dry_run, debug, no_input, requirements, new_version, current_version, repo_url, version_prefix)
 
     probe.probe_project(context.obj)
 
@@ -93,3 +93,4 @@ main.add_command(bump_version)
 main.add_command(install)
 main.add_command(upload)
 main.add_command(pypi)
+main.add_command(tag)

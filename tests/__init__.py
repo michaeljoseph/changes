@@ -9,10 +9,9 @@ from changes import config
 class BaseTestCase(TestCase):
     module_name = 'test_app'
     tmp_file = '%s/__init__.py' % module_name
+    context = config.Changes(module_name, True, True, True, 'requirements.txt', '0.0.2', '0.0.1', 'https://github.com/someuser/test_app', None)
 
     def setUp(self):
-        self.context = config.Changes(self.module_name, True, True, True, 'requirements.txt', '0.0.2', '0.0.1', 'https://github.com/someuser/test_app')
-
         if not os.path.exists(self.module_name):
             os.mkdir(self.module_name)
 

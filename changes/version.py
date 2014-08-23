@@ -3,10 +3,9 @@ import logging
 import click
 import semantic_version
 
-from changes import config, attributes
+from changes import attributes
 
 log = logging.getLogger(__name__)
-pass_changes = click.make_pass_decorator(config.Changes)
 
 
 def current_version(module_name):
@@ -60,9 +59,7 @@ def increment(version, major=False, minor=False, patch=True):
     return str(version)
 
 
-@click.command()
-@pass_changes
-def bump_version(context):
+def increment_version(context):
     """Increments the __version__ attribute of your module's __init__."""
 
     attributes.replace_attribute(

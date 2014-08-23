@@ -3,13 +3,13 @@ import shutil
 
 from unittest2 import TestCase
 
-from changes import config
+from changes.cli import Changes
 
 
 class BaseTestCase(TestCase):
     module_name = 'test_app'
     tmp_file = '%s/__init__.py' % module_name
-    context = config.Changes(module_name, True, True, True, 'requirements.txt', '0.0.2', '0.0.1', 'https://github.com/someuser/test_app', None)
+    context = Changes(module_name, True, True, True, 'requirements.txt', '0.0.2', '0.0.1', 'https://github.com/someuser/test_app', None)
 
     def setUp(self):
         if not os.path.exists(self.module_name):
@@ -28,11 +28,6 @@ class BaseTestCase(TestCase):
 
         with open('%s/requirements.txt' % self.module_name, 'w') as req_file:
             req_file.write('unittest2')
-
-        config.arguments.update({
-            '<module_name>': 'test_app',
-            '--dry-run': True,
-        })
 
     def tearDown(self):
         if os.path.exists(self.tmp_file):

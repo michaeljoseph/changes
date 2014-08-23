@@ -8,7 +8,6 @@ from changes import config, version
 from changes.attributes import extract_attribute
 
 log = logging.getLogger(__name__)
-pass_changes = click.make_pass_decorator(config.Changes)
 
 
 def write_new_changelog(repo_url, filename, content_lines, dry_run=True):
@@ -52,9 +51,7 @@ def replace_sha_with_commit_link(repo_url, git_log_content):
     return git_log_content
 
 
-@click.command()
-@pass_changes
-def changelog(context):
+def generate_changelog(context):
     """Generates an automatic changelog from your commit messages."""
 
     changelog_content = [

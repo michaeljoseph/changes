@@ -4,15 +4,12 @@ import click
 from path import path
 from plumbum.cmd import python
 
-from changes import config, probe, shell, util, venv, verification
+from changes import probe, shell, util, venv, verification
 
 log = logging.getLogger(__name__)
-pass_changes = click.make_pass_decorator(config.Changes)
 
-@click.command()
-@click.option('--test-command', help='Command to use to test the newly installed package.')
-@pass_changes
-def install(context, test_command):
+
+def install_package(context):
     """Attempts to install the sdist and wheel."""
     build_package_command = 'python setup.py clean sdist bdist_wheel'
     result = shell.dry_run(build_package_command, context.dry_run)
@@ -23,7 +20,7 @@ def install(context, test_command):
                 try:
                     venv.install(distribution, tmp_dir)
                     log.info('Successfully installed %s', distribution)
-                    if test_command and verification.run_test_command(test_command):
+                    if context.test_command and verification.run_test_command(context.test_command):
                         log.info('Successfully ran test command: %s',
                                  test_command)
                 except Exception, e:
@@ -32,15 +29,12 @@ def install(context, test_command):
         log.info('Dry run, skipping installation')
 
 
-@click.command()
-@click.option('--pypi', help='Use an alternative package index.')
-@pass_changes
-def upload(context, pypi):
+def upload_package(context):
     """Uploads your project with setup.py clean sdist bdist_wheel upload."""
 
     upload_args = 'python setup.py clean sdist upload'
-    if pypi:
-        upload_args += ' -r %s' % pypi
+    if context.pypi:
+        upload_args += ' -r %s' % context.pypi
 
     upload_result = shell.dry_run(upload_args, context.dry_run)
     if not context.dry_run and not upload_result:
@@ -49,19 +43,16 @@ def upload(context, pypi):
         log.info('Successfully uploaded %s:%s', context.module_name, context.new_version)
 
 
-@click.command()
-@click.option('--pypi', help='Use an alternative package index.')
-@pass_changes
-def pypi(context, pypi):
+def install_from_pypi(context):
     """Attempts to install your package from pypi."""
 
     tmp_dir = venv.create_venv()
     install_cmd = '%s/bin/pip install %s' % (tmp_dir, context.module_name)
 
     package_index = 'pypi'
-    if pypi:
-        install_cmd += '-i %s' % pypi
-        package_index = pypi
+    if context.pypi:
+        install_cmd += '-i %s' % context.pypi
+        package_index = context.pypi
 
     try:
         result = shell.dry_run(install_cmd, context.dry_run)

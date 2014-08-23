@@ -1,2 +1,0 @@
-CHANGELOG = 'CHANGELOG.md'
-arguments = {}

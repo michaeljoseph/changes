@@ -82,7 +82,7 @@ def generate_changelog(context):
 
     write_new_changelog(
         context.repo_url,
-        config.CHANGELOG,
+        'CHANGELOG.md',
         changelog_content,
         dry_run=context.dry_run
     )

@@ -7,7 +7,7 @@ log = logging.getLogger(__name__)
 
 
 def commit_version_change(context):
-    shell.dry_run('git commit -m "%s" %s/__init__.py %s' % (context.new_version, context.module_name, config.CHANGELOG), context.dry_run)
+    shell.dry_run('git commit -m "%s" %s/__init__.py CHANGELOG.md' % (context.new_version, context.module_name), context.dry_run)
     shell.dry_run('git push', context.dry_run)
 
 

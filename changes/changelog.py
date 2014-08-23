@@ -72,8 +72,7 @@ def generate_changelog(context):
         git_log_content = git(git_log)
 
     git_log_content = replace_sha_with_commit_link(context.repo_url, git_log_content)
-
-    # makes change log entries into bullet points
+    # turn change log entries into markdown bullet points
     if git_log_content:
         [
             changelog_content.append('* %s\n' % line)

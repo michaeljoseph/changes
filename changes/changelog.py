@@ -62,14 +62,14 @@ def generate_changelog(context):
     ]
 
     git_log_content = None
+    git_log = 'log --oneline --no-merges --no-color'.split(' ')
     try:
-        git_log = 'log --oneline --no-merges --no-color'.split(' ')
         git_log.append('%s..master' % context.current_version)
         git_log_content = git(git_log)
         log.debug('content: %s' % git_log_content)
     except:
         log.warn('Error diffing previous version, initial release')
-        git_log_content = git(git_log.split(' '))
+        git_log_content = git(git_log)
 
     git_log_content = replace_sha_with_commit_link(context.repo_url, git_log_content)
 

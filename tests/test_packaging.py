@@ -1,14 +1,13 @@
 from changes import packaging
 
-from . import BaseTestCase
+from . import *
 
 
-class PackagingTestCase(BaseTestCase):
-    def test_install_package(self):
-        pass
+def test_install_package():
+    pass
 
-    def test_upload_package(self):
-        pass
+def test_upload_package():
+    pass
 
-    def test_install_from_pypi(self):
-        pass
+def test_install_from_pypi():
+    pass

@@ -1,34 +1,33 @@
 import os
 import shutil
 
-from unittest2 import TestCase
-
 from changes.cli import Changes
 
 
-class BaseTestCase(TestCase):
-    module_name = 'test_app'
-    tmp_file = '%s/__init__.py' % module_name
-    context = Changes(module_name, True, True, True, 'requirements.txt', '0.0.2', '0.0.1', 'https://github.com/someuser/test_app', None)
+module_name = 'test_app'
+tmp_file = '%s/__init__.py' % module_name
+initial_init_content = [
+    '"""A test app"""',
+    '',
+    "__version__ = '0.0.1'",
+    "__url__ = 'https://github.com/someuser/test_app'",
+    "__author__ = 'Some User'",
+    "__email__ = 'someuser@gmail.com'"
+]
+context = Changes(module_name, True, True, True, 'requirements.txt', '0.0.2', '0.0.1', 'https://github.com/someuser/test_app', None)
 
-    def setUp(self):
-        if not os.path.exists(self.module_name):
-            os.mkdir(self.module_name)
 
-        self.initial_init_content = [
-            '"""A test app"""',
-            '',
-            "__version__ = '0.0.1'",
-            "__url__ = 'https://github.com/someuser/test_app'",
-            "__author__ = 'Some User'",
-            "__email__ = 'someuser@gmail.com'"
-        ]
-        with open(self.tmp_file, 'w') as init_file:
-            init_file.write('\n'.join(self.initial_init_content))
+def setup():
+    if not os.path.exists(module_name):
+        os.mkdir(module_name)
 
-        with open('%s/requirements.txt' % self.module_name, 'w') as req_file:
-            req_file.write('unittest2')
+    with open(tmp_file, 'w') as init_file:
+        init_file.write('\n'.join(initial_init_content))
 
-    def tearDown(self):
-        if os.path.exists(self.tmp_file):
-            shutil.rmtree(self.module_name)
+    with open('%s/requirements.txt' % module_name, 'w') as req_file:
+        req_file.write('unittest2')
+
+
+def teardown():
+    if os.path.exists(tmp_file):
+        shutil.rmtree(module_name)

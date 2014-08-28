@@ -1,13 +1,13 @@
 from changes import config, probe
-from . import BaseTestCase
+
+from pytest import raises
+from . import *
 
 
-class ProbeTestCase(BaseTestCase):
+def test_probe_project():
+    assert probe.probe_project(context)
 
-    def test_probe_project(self):
-        self.assertTrue(probe.probe_project(self.context))
-
-    def test_probe_with_alt_requirements(self):
-        self.context.requirements = 'test-requirements.txt'
-        with self.assertRaises(Exception):
-            probe.probe_project(self.context)
+def test_probe_with_alt_requirements():
+    context.requirements = 'test-requirements.txt'
+    with raises(Exception):
+        probe.probe_project(context)

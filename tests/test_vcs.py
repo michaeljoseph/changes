@@ -1,12 +1,10 @@
 from changes import vcs
-from . import BaseTestCase
+from . import *
 
 
-class VcsTestCase(BaseTestCase):
+def test_commit_version_change():
+    vcs.commit_version_change(context)
 
-    def test_commit_version_change(self):
-        vcs.commit_version_change(self.context)
-
-    def test_tag_and_push(self):
-        pass
+def test_tag_and_push():
+    pass
 

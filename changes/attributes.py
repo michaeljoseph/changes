@@ -18,6 +18,7 @@ def extract_attribute(module_name, attribute_name):
 
 
 def replace_attribute(module_name, attribute_name, new_value, dry_run=True):
+    """Update a metadata attribute"""
     init_file = '%s/__init__.py' % module_name
     _, tmp_file = tempfile.mkstemp()
 
@@ -36,6 +37,7 @@ def replace_attribute(module_name, attribute_name, new_value, dry_run=True):
 
 
 def has_attribute(module_name, attribute_name):
+    """Is this attribute present?"""
     init_file = '%s/__init__.py' % module_name
     return any(
         [attribute_name in init_line for

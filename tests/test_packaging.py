@@ -1,19 +1,14 @@
-from changes import config, packaging
+from changes import packaging
 
 from . import BaseTestCase
 
 
 class PackagingTestCase(BaseTestCase):
+    def test_install_package(self):
+        pass
 
-    def test_install(self):
-        packaging.install()
+    def test_upload_package(self):
+        pass
 
-    def test_install_with_module_name(self):
-        config.arguments['--package-name'] = 'thing'
-        packaging.install()
-
-    def test_upload(self):
-        packaging.upload()
-
-    def test_pypi(self):
-        packaging.pypi()
+    def test_install_from_pypi(self):
+        pass

@@ -1,7 +1,8 @@
 import mock
 from unittest2 import TestCase
+from click.testing import CliRunner
 
-from changes import version
+from changes import cli, version
 from . import BaseTestCase
 
 

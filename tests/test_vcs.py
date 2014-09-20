@@ -1,14 +1,12 @@
-from changes import config, vcs
+from changes import vcs
 from . import BaseTestCase
 
 
 class VcsTestCase(BaseTestCase):
 
-    def setUp(self):
-        config.arguments['--dry-run'] = True
-
     def test_commit_version_change(self):
-        vcs.commit_version_change()
+        vcs.commit_version_change(self.context)
 
-    def test_tag(self):
-        vcs.tag()
+    def test_tag_and_push(self):
+        pass
+

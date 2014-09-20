@@ -5,11 +5,9 @@ from . import BaseTestCase
 class ProbeTestCase(BaseTestCase):
 
     def test_probe_project(self):
-        self.assertTrue(probe.probe_project(self.module_name))
+        self.assertTrue(probe.probe_project(self.context))
 
     def test_probe_with_alt_requirements(self):
-        config.arguments['--requirements'] = 'test-requirements.txt'
-        self.assertFalse(probe.probe_project(self.module_name))
-
-    def test_has_requirements(self):
-        self.assertTrue(probe.has_requirement('unittest2'))
+        self.context.requirements = 'test-requirements.txt'
+        with self.assertRaises(Exception):
+            probe.probe_project(self.context)

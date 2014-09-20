@@ -1,18 +1,17 @@
 import logging
 import re
 
+import click
 from plumbum.cmd import git
 
-from changes import attributes, config, version
+from changes import config, version
+from changes.attributes import extract_attribute
 
 log = logging.getLogger(__name__)
 
 
-def write_new_changelog(module_name, filename, content_lines, dry_run=True):
-    heading_and_newline = (
-        '# [Changelog](%s/releases)\n' %
-        attributes.extract_attribute(module_name, '__url__')
-    )
+def write_new_changelog(repo_url, filename, content_lines, dry_run=True):
+    heading_and_newline = '# [Changelog](%s/releases)\n' % repo_url
 
     with open(filename, 'r+') as f:
         existing = f.readlines()
@@ -34,13 +33,9 @@ def write_new_changelog(module_name, filename, content_lines, dry_run=True):
         log.info('New changelog:\n%s', ''.join(content_lines))
 
 
-def replace_sha_with_commit_link(git_log_content):
-    repo_url = attributes.extract_attribute(
-        config.common_arguments()[0],
-        '__url__'
-    )
-
-    for index, line in enumerate(git_log_content.split('\n')):
+def replace_sha_with_commit_link(repo_url, git_log_content):
+    git_log_content = git_log_content.split('\n')
+    for index, line in enumerate(git_log_content):
         # http://stackoverflow.com/a/468378/5549
         sha1_re = re.match(r'^[0-9a-f]{5,40}\b', line)
         if sha1_re:
@@ -56,32 +51,28 @@ def replace_sha_with_commit_link(git_log_content):
     return git_log_content
 
 
-def changelog():
-    module_name, dry_run, new_version = config.common_arguments()
+def generate_changelog(context):
+    """Generates an automatic changelog from your commit messages."""
 
     changelog_content = [
         '\n## [%s](%s/compare/%s...%s)\n\n' % (
-            new_version, attributes.extract_attribute(module_name, '__url__'),
-            version.current_version(module_name), new_version,
+            context.new_version, context.repo_url,
+            context.current_version, context.new_version,
         )
     ]
 
     git_log_content = None
+    git_log = 'log --oneline --no-merges --no-color'.split(' ')
     try:
-
-        git_log = 'log --oneline --no-merges --no-color'.split(' ')
-        git_log.append('%s..master' % version.current_version(module_name))
-        git_log_content = git(git_log)
+        git_log_tag = git_log + '%s..master' % context.current_version
+        git_log_content = git(git_log_tag)
         log.debug('content: %s' % git_log_content)
     except:
         log.warn('Error diffing previous version, initial release')
-        git_log_content = git(git_log.split(' '))
+        git_log_content = git(git_log)
 
-    git_log_content = replace_sha_with_commit_link(git_log_content)
-
-    log.debug('content: %s' % git_log_content)
-
-    # makes change log entries into bullet points
+    git_log_content = replace_sha_with_commit_link(context.repo_url, git_log_content)
+    # turn change log entries into markdown bullet points
     if git_log_content:
         [
             changelog_content.append('* %s\n' % line)
@@ -90,9 +81,9 @@ def changelog():
         ]
 
     write_new_changelog(
-        module_name,
-        config.CHANGELOG,
+        context.repo_url,
+        'CHANGELOG.md',
         changelog_content,
-        dry_run=dry_run
+        dry_run=context.dry_run
     )
     log.info('Added content to CHANGELOG.md')

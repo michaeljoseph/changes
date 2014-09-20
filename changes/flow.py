@@ -2,26 +2,26 @@ import logging
 
 from plumbum import local, CommandNotFound
 
-from changes import config
-from changes.changelog import changelog
-from changes.packaging import install, upload, pypi
-from changes.vcs import tag, commit_version_change
+from changes.changelog import generate_changelog
+from changes.packaging import install_package, upload_package, install_from_pypi
+from changes.vcs import tag_and_push, commit_version_change
 from changes.verification import run_tests
-from changes.version import bump_version
-
+from changes.version import increment_version
 
 log = logging.getLogger(__name__)
 
-def release():
+
+def perform_release(context):
+    """Executes the release process."""
     try:
-        if not config.arguments['--skip-changelog']:
-            changelog()
-        bump_version()
-        run_tests()
-        commit_version_change()
-        install()
-        upload()
-        pypi()
-        tag()
+        print(context)
+        if not context.skip_changelog:
+            generate_changelog(context)
+        increment_version(context)
+        commit_version_change(context)
+        install_package(context)
+        upload_package(context)
+        install_from_pypi(context)
+        tag_and_push(context)
     except:
         log.exception('Error releasing')

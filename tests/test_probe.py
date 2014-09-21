@@ -1,13 +1,14 @@
-from changes import config, probe
-from . import BaseTestCase
+from pytest import raises
+import shutil
+
+from changes import probe
+from . import context, setup, teardown
 
 
-class ProbeTestCase(BaseTestCase):
+def test_probe_project():
+    assert probe.probe_project(context)
 
-    def test_probe_project(self):
-        self.assertTrue(probe.probe_project(self.context))
-
-    def test_probe_with_alt_requirements(self):
-        self.context.requirements = 'test-requirements.txt'
-        with self.assertRaises(Exception):
-            probe.probe_project(self.context)
+def test_probe_with_alt_requirements():
+    with raises(Exception):
+        shutil.rmtree(context.requirements)
+        probe.probe_project(context)

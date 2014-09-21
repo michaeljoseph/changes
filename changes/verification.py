@@ -2,7 +2,7 @@ import logging
 
 from plumbum import local, CommandNotFound
 
-from changes import config, shell
+from changes import shell
 
 log = logging.getLogger(__name__)
 

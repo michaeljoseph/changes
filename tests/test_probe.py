@@ -1,7 +1,6 @@
-from changes import config, probe
-
 from pytest import raises
-from . import *
+
+from changes import probe
 
 
 def test_probe_project():

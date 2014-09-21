@@ -1,4 +1,6 @@
-from changes import config, shell
+from unittest2 import TestCase
+
+from changes import shell
 
 from . import *
 

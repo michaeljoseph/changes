@@ -1,0 +1,13 @@
+-r requirements/runtime.txt
+
+flake8 < 3.0.0
+mock < 2.0.0
+pytest < 2.7.0
+pytest-cov < 1.8.0
+python-coveralls < 3.0.0
+scrutinizer-ocular < 1.1.0
+sphinx-bootstrap-theme < 1.0.0
+sphinxcontrib-httpdomain < 2.0.0
+tdaemon < 0.2.0
+tox < 2.0.0
+unittest2 < 0.6.0

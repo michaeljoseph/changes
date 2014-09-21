@@ -13,26 +13,26 @@
 
 ## Overview
 
-Manages the release of a python library.
+Manages the release of a Python Library.
 
-* auto generates a changelog entry (using github's compare view and commit urls)
-* cli that follows [semantic versioning][0] principles to auto-increment the library version
-* runs the library tests
-* test package installation from a tarball and pypi
-* uploads to pypi
-* tags the github repo
+* Auto generates changelog entries from commit messages
+* CLI that follows [Semantic Versioning] principles to auto-increment the library version
+* Runs the library tests
+* Checks the package installation from a tarball and PyPi
+* Uploads the distribution to PyPi
+* Tags the GitHub repository
 
 ## Usage
 
 An application wanting to use `changes` must meet these requirements:
 
-* on [github](https://github.com)
-* `setup.py`
-* `requirements.txt`
-* `CHANGELOG.md`
-* `<app_name>/__init__.py` with `__version__` and `__url__`
-* supports executing tests with [`nosetests`][2] or [`tox`][3]
-* we expect `<app_name>` to be the package and module name
+* Publically hosted on [GitHub].
+* Has a `setup.py`.
+* Has a `requirements.txt`.
+* Has a `CHANGELOG.md`
+* `<app_name>/__init__.py` contains `__version__` and `__url__`.
+* Executing tests with `[py.test]` or `[tox`].
+* `<app_name>` is the package _and_ module name
 
 Install `changes`:
 
@@ -88,14 +88,12 @@ The commands do the following:
    release       Runs all the previous commands
 ```
 
-The default workflow is to run the `changelog` command to autogenerate
+The recommended workflow starts with running the `changelog` command to autogenerate
 a changelog entry based on your commit messages.
 
-You're probably going to want to edit that a bit, so `changes` won't commit it,
- unless you're running the `release` command.
-
-The remaining tasks can be automated with the `release` command (the
-`--skip-changelog` option prevents `release` from regenerating the automatic changelog)
+Edit the change entry and then run the `release` command to perform the rest of the
+release tasks (use the `--skip-changelog` option to prevent the `release` command
+from generating the automatic changelog again).
 
 ```python
 (changes)$ changes -p changes changelog
@@ -123,7 +121,7 @@ To git@github.com:michaeljoseph/changes.git
 warning: sdist: standard file not found: should have one of README, README.rst, README.txt
 ```
 
-Or you can do it all in one step (if your commit messages are good enough):
+If you're made of sterner stuff (and your commit messages are good enough), you can do it all in one step:
 ```python
 (changes)$ changes -m changes release
 What is the release version for "changes" [Default: 0.2.0]:
@@ -163,7 +161,7 @@ To git@github.com:michaeljoseph/changes.git
 
 ## Documentation
 
-[API Documentation][1]
+[API Documentation]
 
 ## Testing
 
@@ -171,9 +169,9 @@ Install development requirements:
 
     pip install -r requirements.txt
 
-Tests can then be run with:
+Then run the tests with:
 
-    nosetests
+    py.test
 
 Lint the project with:
 
@@ -188,11 +186,10 @@ Generate the documentation with:
 To monitor changes to Python files and execute flake8 and nosetests
 automatically, execute the following from the root project directory:
 
-    stir
+    tdaemon -t py
 
-
-[0]:http://semver.org
-[1]:http://changes.rtfd.org
-[2]:http://nose.rtfd.org
-[3]:http://tox.rtfd.org
-
+[GitHub]:https://github.com
+[Semantic Versioning]:http://semver.org
+[API Documentation]:http://changes.rtfd.org
+[py.test]:http://pytest.org
+[tox]:http://tox.rtfd.org

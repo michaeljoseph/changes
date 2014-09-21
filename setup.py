@@ -1,7 +1,8 @@
+import io
 import re
 from setuptools import setup
 
-init_py = open('changes/__init__.py').read()
+init_py = io.open('changes/__init__.py').read()
 metadata = dict(re.findall("__([a-z]+)__ = '([^']+)'", init_py))
 metadata['doc'] = re.findall('"""(.+)"""', init_py)[0]
 
@@ -13,18 +14,11 @@ setup(
     author_email=metadata['email'],
     url=metadata['url'],
     packages=['changes'],
-    install_requires=[
-        'Fabric < 2.0.0',
-        'docopt < 1.0.0',
-        'path.py < 5.0.0',
-        'semantic_version < 3.0.0',
-        'wheel < 1.0.0',
-    ],
+    install_requires=io.open('requirements/runtime.txt').readlines(),
     entry_points={
         'console_scripts': [
             'changes = changes:main',
         ],
     },
-    test_suite='nose.collector',
     license=open('LICENSE').read(),
 )

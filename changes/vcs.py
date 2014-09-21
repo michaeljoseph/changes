@@ -1,17 +1,17 @@
 import logging
 
-from changes import config, shell
+import click
+from changes import shell
 
 log = logging.getLogger(__name__)
 
 
-def commit_version_change():
-    module_name, _, new_version = config.common_arguments()
-    shell.dry_run('git commit -m "%s" %s/__init__.py %s' % (new_version, module_name, config.CHANGELOG))
-    shell.dry_run('git push')
+def commit_version_change(context):
+    shell.dry_run('git commit -m "%s" %s/__init__.py CHANGELOG.md' % (context.new_version, context.module_name), context.dry_run)
+    shell.dry_run('git push', context.dry_run)
 
 
-def tag():
-    _, dry_run, new_version = config.common_arguments()
-    shell.dry_run('git tag -a %s -m "%s"' % (new_version, new_version))
-    shell.dry_run('git push --tags')
+def tag_and_push(context):
+    """Tags your git repo with the new version number"""
+    shell.dry_run('git tag -a %s -m "%s"' % (context.new_version, context.new_version), context.dry_run)
+    shell.dry_run('git push --tags', context.dry_run)

@@ -1,113 +1,108 @@
-"""
-changes.
-
-Usage:
-  changes [options] <module_name> changelog
-  changes [options] <module_name> release
-  changes [options] <module_name> bump_version
-  changes [options] <module_name> run_tests
-  changes [options] <module_name> install
-  changes [options] <module_name> upload
-  changes [options] <module_name> pypi
-  changes [options] <module_name> tag
-
-  changes -h | --help
-
-Options:
-  --new-version=<ver>        Specify version.
-  -p --patch                 Patch-level version increment.
-  -m --minor                 Minor-level version increment.
-  -M --major                 Minor-level version increment.
-
-  -h --help                  Show this screen.
-
-  --pypi=<pypi>              Use alternative package index
-  --dry-run                  Prints the commands that would have been executed.
-  --skip-changelog           For the release task: should the changelog be
-                             generated and committed?
-  --tox                      Use `tox` instead of the default: `nosetests`
-  --test-command=<cmd>       Command to use to test the newly installed package
-  --version-prefix=<prefix>  Specify a prefix for version number tags
-  --noinput                  To be used in conjuction with one of the version
-                             increment options above, this option stops
-                             `changes` from confirming the new version number.
-  --package-name=<package>   If your module and package aren't the same
-  --requirements=<req>       Requirements file name (default: requirements.txt)
-  --debug                    Debug output.
-
-The commands do the following:
-   changelog     Generates an automatic changelog from your commit messages
-   bump_version  Increments the __version__ attribute of your module's __init__
-   run_tests     Runs your tests with nosetests
-   install       Attempts to install the sdist
-   tag           Tags your git repo with the new version number
-   upload        Uploads your project with setup.py clean sdist bdist_wheel upload
-   pypi          Attempts to install your package from pypi
-   release       Runs all the previous commands
-"""
 import logging
 
-from docopt import docopt
+import click
 
-import changes
-from changes import config, probe, util, version
-from changes.changelog import changelog
-from changes.packaging import install, upload, pypi
-from changes.vcs import tag, commit_version_change
-from changes.verification import run_tests
-from changes.version import bump_version
-
+from changes import attributes, config, probe, version
+from changes.changelog import generate_changelog
+from changes.flow import perform_release
+from changes.packaging import install_package, upload_package, install_from_pypi
+from changes.vcs import tag_and_push
+from changes.version import increment_version
 
 log = logging.getLogger(__name__)
 
 
-def release():
-    try:
-        if not config.arguments['--skip-changelog']:
-            changelog()
-        bump_version()
-        run_tests()
-        commit_version_change()
-        install()
-        upload()
-        pypi()
-        tag()
-    except:
-        log.exception('Error releasing')
 
 
-def initialise():
-    arguments = docopt(__doc__, version=changes.__version__)
-    debug = arguments['--debug']
+@click.group()
+@click.argument('module_name')
+@click.option('--dry-run', is_flag=True, default=False, help='Prints (instead of executing) the operations to be performed.')
+@click.option('--debug', is_flag=True, default=False, help='Enables debug output.')
+@click.option('--no-input', is_flag=True, default=False, help='Suppresses version number confirmation prompt.')
+@click.option('--requirements', default='requirements.txt', help='Requirements file name')
+@click.option('-p', '--patch', is_flag=True, help='Patch-level version increment.')
+@click.option('-m', '--minor', is_flag=True, help='Minor-level version increment.')
+@click.option('-M', '--major', is_flag=True, help='Minor-level version increment.')
+@click.option('--version-prefix', help='Specify a prefix for version number tags.')
+@click.pass_context
+def main(context, module_name, dry_run, debug, no_input, requirements, patch, minor, major, version_prefix):
+    """Ch-ch-changes"""
+
     logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
-    log.debug('arguments: %s', arguments)
-    config.arguments = arguments
-    return arguments
+
+    new_version = version.get_new_version(
+        module_name,
+        version.current_version(module_name),
+        no_input, major, minor, patch,
+    )
+
+    current_version = version.current_version(module_name)
+    repo_url = attributes.extract_attribute(module_name, '__url__')
+    context.obj = config.Changes(module_name, dry_run, debug, no_input, requirements, new_version, current_version, repo_url, version_prefix)
+
+    probe.probe_project(context.obj)
 
 
-def main():
-    arguments = initialise()
+@click.command()
+@click.pass_context
+def changelog(context):
+    """Generates an automatic changelog from your commit messages."""
+    generate_changelog(context.obj)
 
-    version_arguments = ['--major', '--minor', '--patch']
-    commands = ['release', 'changelog', 'run_tests', 'bump_version', 'tag',
-                'upload', 'install', 'pypi']
-    suppress_version_prompt_for = ['run_tests', 'upload']
 
-    if arguments['--new-version']:
-        arguments['new_version'] = arguments['--new-version']
+@click.command()
+@click.pass_context
+def bump_version(context):
+    """Increments the __version__ attribute of your module's __init__."""
+    increment_version(context.obj)
 
-    module_name = config.arguments['<module_name>']
 
-    if not probe.probe_project(module_name):
-        raise Exception('Project does not meet `changes` requirements')
+@click.command()
+@click.option('--test-command', help='Command to use to test the newly installed package.')
+@click.pass_context
+def install(context, test_command):
+    """Attempts to install the sdist and wheel."""
+    context.obj.test_command = test_command
+    install_package(context.obj)
 
-    for command in commands:
-        if arguments[command]:
-            if command not in suppress_version_prompt_for:
-                arguments['new_version'] = version.get_new_version(
-                    module_name,
-                    version.current_version(module_name),
-                    arguments.get('--noinput', False),
-                    **util.extract_arguments(arguments, version_arguments)
-                )
-            globals()[command]()
+
+@click.command()
+@click.option('--pypi', help='Use an alternative package index.')
+@click.pass_context
+def upload(context, pypi):
+    """Uploads your project with setup.py clean sdist bdist_wheel upload."""
+    context.obj.pypi = pypi
+    upload_package(context.obj)
+
+
+@click.command()
+@click.option('--pypi', help='Use an alternative package index.')
+@click.pass_context
+def pypi(context, pypi):
+    """Attempts to install your package from pypi."""
+    context.obj.pypi = pypi
+    install_from_pypi(context.obj)
+
+
+@click.command()
+@click.pass_context
+def tag(context):
+    """Tags your git repo with the new version number"""
+    tag_and_push(context.obj)
+
+@click.command()
+@click.option('--skip-changelog', is_flag=True, help='For the release task: should the changelog be generated and committed?')
+@click.pass_context
+def release(context, skip_changelog):
+    """Executes the release process."""
+    context.obj.skip_changelog = skip_changelog
+    perform_release(context.obj)
+
+
+main.add_command(changelog)
+main.add_command(bump_version)
+main.add_command(install)
+main.add_command(upload)
+main.add_command(pypi)
+main.add_command(tag)
+main.add_command(release)

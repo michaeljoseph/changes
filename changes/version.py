@@ -1,20 +1,11 @@
 import logging
 
+import click
 import semantic_version
 
-from changes import config, attributes
+from changes import attributes
 
 log = logging.getLogger(__name__)
-
-
-def bump_version():
-    module_name, dry_run, new_version = config.common_arguments()
-
-    attributes.replace_attribute(
-        module_name,
-        '__version__',
-        new_version,
-        dry_run=dry_run)
 
 
 def current_version(module_name):
@@ -66,3 +57,14 @@ def increment(version, major=False, minor=False, patch=True):
         version.patch += 1
 
     return str(version)
+
+
+def increment_version(context):
+    """Increments the __version__ attribute of your module's __init__."""
+
+    attributes.replace_attribute(
+        context.module_name,
+        '__version__',
+        context.new_version,
+        dry_run=context.dry_run)
+    log.info('Bumped version from %s to %s' % (context.current_version, context.new_version))

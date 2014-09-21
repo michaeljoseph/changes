@@ -1,21 +1,13 @@
-from changes import config, packaging
-from unittest2 import skip
-from . import BaseTestCase
+from changes import packaging
+
+from . import context, setup, teardown
 
 
-class PackagingTestCase(BaseTestCase):
+def test_install_package():
+    pass
 
-    @skip
-    def test_install(self):
-        packaging.install()
+def test_upload_package():
+    pass
 
-    @skip
-    def test_install_with_module_name(self):
-        config.arguments['--package-name'] = 'thing'
-        packaging.install()
-
-    def test_upload(self):
-        packaging.upload()
-
-    def test_pypi(self):
-        packaging.pypi()
+def test_install_from_pypi():
+    pass

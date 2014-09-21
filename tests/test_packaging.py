@@ -1,6 +1,6 @@
 from changes import packaging
 
-from . import *
+from . import context, setup, teardown
 
 
 def test_install_package():

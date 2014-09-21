@@ -1,5 +1,5 @@
 from changes import vcs
-from . import *
+from . import context, setup, teardown
 
 
 def test_commit_version_change():

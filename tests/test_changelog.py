@@ -1,7 +1,7 @@
 from click.testing import CliRunner
 
 from changes import changelog, cli
-from . import *
+from . import context, setup, teardown
 
 
 def test_write_new_changelog():
@@ -10,19 +10,19 @@ def test_write_new_changelog():
         'This is the first line\n',
     ]
 
-    with open(tmp_file, 'w') as existing_file:
+    with open(context.tmp_file, 'w') as existing_file:
         existing_file.writelines(content)
 
-    changelog.write_new_changelog('test_app', tmp_file, 'Now this is')
+    changelog.write_new_changelog('test_app', context.tmp_file, 'Now this is')
 
-    assert ''.join(content) ==  ''.join(open(tmp_file).readlines())
+    assert ''.join(content) ==  ''.join(open(context.tmp_file).readlines())
 
-    with open(tmp_file, 'w') as existing_file:
+    with open(context.tmp_file, 'w') as existing_file:
         existing_file.writelines(content)
 
     changelog.write_new_changelog(
         'https://github.com/someuser/test_app',
-        tmp_file,
+        context.tmp_file,
         'Now this is',
         dry_run=False
     )
@@ -32,7 +32,7 @@ def test_write_new_changelog():
         'This is the first line\n'
     ]
 
-    assert ''.join(expected_content) ==  ''.join(open(tmp_file).readlines())
+    assert ''.join(expected_content) ==  ''.join(open(context.tmp_file).readlines())
 
 def test_replace_sha_with_commit_link():
     repo_url = 'http://github.com/michaeljoseph/changes'

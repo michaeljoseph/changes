@@ -2,7 +2,7 @@ from unittest2 import TestCase
 
 from changes import shell
 
-from . import *
+from . import context, setup, teardown
 
 
 def test_handle_dry_run():

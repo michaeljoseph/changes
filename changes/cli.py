@@ -2,7 +2,7 @@ import logging
 
 import click
 
-from changes import attributes, probe, version
+from changes import attributes, config, probe, version
 from changes.changelog import generate_changelog
 from changes.flow import perform_release
 from changes.packaging import install_package, upload_package, install_from_pypi
@@ -12,20 +12,6 @@ from changes.version import increment_version
 log = logging.getLogger(__name__)
 
 
-class Changes(object):
-    test_command = None
-    pypi = None
-    skip_changelog = None
-
-    def __init__(self, module_name, dry_run, debug, no_input, requirements, new_version, current_version, repo_url, version_prefix):
-        self.module_name = module_name
-        self.dry_run = dry_run
-        self.debug = debug
-        self.no_input = no_input
-        self.requirements = requirements
-        self.new_version = version_prefix + new_version if version_prefix else new_version
-        self.current_version = current_version
-        self.repo_url = repo_url
 
 
 @click.group()
@@ -52,7 +38,7 @@ def main(context, module_name, dry_run, debug, no_input, requirements, patch, mi
 
     current_version = version.current_version(module_name)
     repo_url = attributes.extract_attribute(module_name, '__url__')
-    context.obj = Changes(module_name, dry_run, debug, no_input, requirements, new_version, current_version, repo_url, version_prefix)
+    context.obj = config.Changes(module_name, dry_run, debug, no_input, requirements, new_version, current_version, repo_url, version_prefix)
 
     probe.probe_project(context.obj)
 

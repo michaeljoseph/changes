@@ -1,6 +1,6 @@
 from changes import util
 
-from . import *
+from . import context, setup, teardown
 
 
 def test_extract():

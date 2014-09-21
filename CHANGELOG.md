@@ -2,6 +2,64 @@
 
 ## [0.5.0](https://github.com/michaeljoseph/changes/compare/0.4.0...0.5.0)
 
+* [c3d75d4](https://github.com/michaeljoseph/changes/commit/c3d75d4) Add pytest options
+* [ccffd94](https://github.com/michaeljoseph/changes/commit/ccffd94) Actually bring config back
+* [07c9c07](https://github.com/michaeljoseph/changes/commit/07c9c07) Bring back config
+* [9d8232c](https://github.com/michaeljoseph/changes/commit/9d8232c) Config repytest conversion completion
+* [7a26f35](https://github.com/michaeljoseph/changes/commit/7a26f35) Rm config references
+* [69e9ab2](https://github.com/michaeljoseph/changes/commit/69e9ab2) Flatten nosetests with pytest
+* [db77edb](https://github.com/michaeljoseph/changes/commit/db77edb) Watch changes and test directories
+* [709de66](https://github.com/michaeljoseph/changes/commit/709de66) Hardcode changelog filename and rm config module
+* [8757baf](https://github.com/michaeljoseph/changes/commit/8757baf) Don't overwrite the log command
+* [dc1be57](https://github.com/michaeljoseph/changes/commit/dc1be57) Docs and comments
+* [36a1d1c](https://github.com/michaeljoseph/changes/commit/36a1d1c) Drop py3 and switch to py.test
+* [17db8d4](https://github.com/michaeljoseph/changes/commit/17db8d4) The git log command has already been split
+* [2e41996](https://github.com/michaeljoseph/changes/commit/2e41996) Massive cli refactor
+* [9723078](https://github.com/michaeljoseph/changes/commit/9723078) Port tag
+* [37170d6](https://github.com/michaeljoseph/changes/commit/37170d6) Run all the tests
+* [3256999](https://github.com/michaeljoseph/changes/commit/3256999) Port packaging commands
+* [b713d07](https://github.com/michaeljoseph/changes/commit/b713d07) Include requirements in package
+* [9d06f80](https://github.com/michaeljoseph/changes/commit/9d06f80) Port bump_version
+* [46aa205](https://github.com/michaeljoseph/changes/commit/46aa205) Refactor probe to use click context
+* [1798448](https://github.com/michaeljoseph/changes/commit/1798448) Test main changelog routine
+* [d9a8fae](https://github.com/michaeljoseph/changes/commit/d9a8fae) Port changelog command from docopt to click
+* [97a0449](https://github.com/michaeljoseph/changes/commit/97a0449) nose => py.test
+* [0bd827c](https://github.com/michaeljoseph/changes/commit/0bd827c) We build wheels
+* [abb1641](https://github.com/michaeljoseph/changes/commit/abb1641) Reinstate tests
+* [64f436d](https://github.com/michaeljoseph/changes/commit/64f436d) Aliases
+* [6139c07](https://github.com/michaeljoseph/changes/commit/6139c07) Refactor release command to flow module
+* [7c8d9bc](https://github.com/michaeljoseph/changes/commit/7c8d9bc) Improve README
+* [4b06b28](https://github.com/michaeljoseph/changes/commit/4b06b28) fabric => plumbum
+* [70a1e2d](https://github.com/michaeljoseph/changes/commit/70a1e2d) Link dev requirements to top level
+* [1733921](https://github.com/michaeljoseph/changes/commit/1733921) Use io.open and read runtime requirements
+* [dde9538](https://github.com/michaeljoseph/changes/commit/dde9538) Coverage for all python version runs
+* [fc37056](https://github.com/michaeljoseph/changes/commit/fc37056) Send coverage results to scrutinizer-ci
+* [a5c3922](https://github.com/michaeljoseph/changes/commit/a5c3922) Add scrutinizer-ci badge
+* [8bb96b4](https://github.com/michaeljoseph/changes/commit/8bb96b4) 0.5.0
+* [6ffabf2](https://github.com/michaeljoseph/changes/commit/6ffabf2) Handle dry_run result appropriately
+* [14a2437](https://github.com/michaeljoseph/changes/commit/14a2437) Raise if failed
+* [12d674b](https://github.com/michaeljoseph/changes/commit/12d674b) Premature exceptions
+* [52a9d2c](https://github.com/michaeljoseph/changes/commit/52a9d2c) s/sh/fabric.api.local/g
+* [6f306b6](https://github.com/michaeljoseph/changes/commit/6f306b6) Rm sh
+* [7f514a0](https://github.com/michaeljoseph/changes/commit/7f514a0) Improve error handling
+* [f576c02](https://github.com/michaeljoseph/changes/commit/f576c02) Fix tests
+* [ada17f5](https://github.com/michaeljoseph/changes/commit/ada17f5) Use fabric to create a tmp venv and install
+* [57d341f](https://github.com/michaeljoseph/changes/commit/57d341f) Install fabric, rm virtualenv
+* [7252d5a](https://github.com/michaeljoseph/changes/commit/7252d5a) Thanks @brendon9x
+* [74a6405](https://github.com/michaeljoseph/changes/commit/74a6405) Linting
+* [d51d9b1](https://github.com/michaeljoseph/changes/commit/d51d9b1) Rework virtualenv handling
+* [ca8b607](https://github.com/michaeljoseph/changes/commit/ca8b607) Add missing venv module
+* [742c723](https://github.com/michaeljoseph/changes/commit/742c723) virtualenv-api
+* [2819307](https://github.com/michaeljoseph/changes/commit/2819307) Ignore rope
+* [a1ea585](https://github.com/michaeljoseph/changes/commit/a1ea585) Spurious
+* [8128ebc](https://github.com/michaeljoseph/changes/commit/8128ebc) Skip failing tests (for now) (those are not famous last words)
+* [2cc181b](https://github.com/michaeljoseph/changes/commit/2cc181b) Revert "Snuggle requirements"
+* [a4e4993](https://github.com/michaeljoseph/changes/commit/a4e4993) Fix git log formatting
+* [a20c3f8](https://github.com/michaeljoseph/changes/commit/a20c3f8) Snuggle requirements
+* [80a3da5](https://github.com/michaeljoseph/changes/commit/80a3da5) Ignore travis-solo
+* [085e02b](https://github.com/michaeljoseph/changes/commit/085e02b) Update upload command docs to include wheels
+* [21dbae8](https://github.com/michaeljoseph/changes/commit/21dbae8) Fix markup
+* [2d02bd6](https://github.com/michaeljoseph/changes/commit/2d02bd6) Handle initial release with exceptions
 
 ## [0.4.0](https://github.com/michaeljoseph/changes/compare/0.3.0...0.4.0)
 

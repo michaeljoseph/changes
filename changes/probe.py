@@ -4,7 +4,7 @@ from os.path import exists
 
 from plumbum.cmd import git
 
-from changes import attributes, config
+from changes import attributes
 
 log = logging.getLogger(__name__)
 

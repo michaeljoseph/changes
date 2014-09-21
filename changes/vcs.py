@@ -1,7 +1,7 @@
 import logging
 
 import click
-from changes import config, shell
+from changes import shell
 
 log = logging.getLogger(__name__)
 

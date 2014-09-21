@@ -4,7 +4,7 @@ import re
 import click
 from plumbum.cmd import git
 
-from changes import config, version
+from changes import version
 from changes.attributes import extract_attribute
 
 log = logging.getLogger(__name__)

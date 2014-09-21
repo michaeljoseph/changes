@@ -2,7 +2,7 @@ import logging
 
 import click
 
-from changes import attributes, config, probe, version
+from changes import attributes, probe, version
 from changes.changelog import generate_changelog
 from changes.flow import perform_release
 from changes.packaging import install_package, upload_package, install_from_pypi

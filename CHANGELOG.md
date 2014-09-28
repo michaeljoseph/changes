@@ -1,5 +1,44 @@
 # [Changelog](https://github.com/michaeljoseph/changes/releases)
 
+## [0.6.0](https://github.com/michaeljoseph/changes/compare/0.5.0...0.6.0)
+
+* [9fbb6fe](https://github.com/michaeljoseph/changes/commit/9fbb6fe) Add wheel
+* [4fdcf03](https://github.com/michaeljoseph/changes/commit/4fdcf03) Add a list to a list
+* [e21ffe5](https://github.com/michaeljoseph/changes/commit/e21ffe5) Fix 0.5.0 changelog entry
+* [c3d75d4](https://github.com/michaeljoseph/changes/commit/c3d75d4) Add pytest options
+* [ccffd94](https://github.com/michaeljoseph/changes/commit/ccffd94) Actually bring config back
+* [07c9c07](https://github.com/michaeljoseph/changes/commit/07c9c07) Bring back config
+* [9d8232c](https://github.com/michaeljoseph/changes/commit/9d8232c) Config repytest conversion completion
+* [7a26f35](https://github.com/michaeljoseph/changes/commit/7a26f35) Rm config references
+* [69e9ab2](https://github.com/michaeljoseph/changes/commit/69e9ab2) Flatten nosetests with pytest
+* [db77edb](https://github.com/michaeljoseph/changes/commit/db77edb) Watch changes and test directories
+* [709de66](https://github.com/michaeljoseph/changes/commit/709de66) Hardcode changelog filename and rm config module
+* [8757baf](https://github.com/michaeljoseph/changes/commit/8757baf) Don't overwrite the log command
+* [dc1be57](https://github.com/michaeljoseph/changes/commit/dc1be57) Docs and comments
+* [36a1d1c](https://github.com/michaeljoseph/changes/commit/36a1d1c) Drop py3 and switch to py.test
+* [17db8d4](https://github.com/michaeljoseph/changes/commit/17db8d4) The git log command has already been split
+* [2e41996](https://github.com/michaeljoseph/changes/commit/2e41996) Massive cli refactor
+* [9723078](https://github.com/michaeljoseph/changes/commit/9723078) Port tag
+* [37170d6](https://github.com/michaeljoseph/changes/commit/37170d6) Run all the tests
+* [3256999](https://github.com/michaeljoseph/changes/commit/3256999) Port packaging commands
+* [b713d07](https://github.com/michaeljoseph/changes/commit/b713d07) Include requirements in package
+* [9d06f80](https://github.com/michaeljoseph/changes/commit/9d06f80) Port bump_version
+* [46aa205](https://github.com/michaeljoseph/changes/commit/46aa205) Refactor probe to use click context
+* [1798448](https://github.com/michaeljoseph/changes/commit/1798448) Test main changelog routine
+* [d9a8fae](https://github.com/michaeljoseph/changes/commit/d9a8fae) Port changelog command from docopt to click
+* [97a0449](https://github.com/michaeljoseph/changes/commit/97a0449) nose => py.test
+* [0bd827c](https://github.com/michaeljoseph/changes/commit/0bd827c) We build wheels
+* [abb1641](https://github.com/michaeljoseph/changes/commit/abb1641) Reinstate tests
+* [64f436d](https://github.com/michaeljoseph/changes/commit/64f436d) Aliases
+* [6139c07](https://github.com/michaeljoseph/changes/commit/6139c07) Refactor release command to flow module
+* [7c8d9bc](https://github.com/michaeljoseph/changes/commit/7c8d9bc) Improve README
+* [4b06b28](https://github.com/michaeljoseph/changes/commit/4b06b28) fabric => plumbum
+* [70a1e2d](https://github.com/michaeljoseph/changes/commit/70a1e2d) Link dev requirements to top level
+* [1733921](https://github.com/michaeljoseph/changes/commit/1733921) Use io.open and read runtime requirements
+* [dde9538](https://github.com/michaeljoseph/changes/commit/dde9538) Coverage for all python version runs
+* [fc37056](https://github.com/michaeljoseph/changes/commit/fc37056) Send coverage results to scrutinizer-ci
+* [a5c3922](https://github.com/michaeljoseph/changes/commit/a5c3922) Add scrutinizer-ci badge
+
 ## [0.5.0](https://github.com/michaeljoseph/changes/compare/0.4.0...0.5.0)
 
 * [c3d75d4](https://github.com/michaeljoseph/changes/commit/c3d75d4) Add pytest options

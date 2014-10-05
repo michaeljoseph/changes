@@ -1,0 +1,2 @@
+class ProbeException(Exception):
+    pass

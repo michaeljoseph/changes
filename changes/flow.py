@@ -14,6 +14,8 @@ log = logging.getLogger(__name__)
 def perform_release(context):
     """Executes the release process."""
     try:
+        run_tests()
+
         if not context.skip_changelog:
             generate_changelog(context)
         increment_version(context)

@@ -5,13 +5,11 @@ import click
 from changes import attributes, config, probe, version
 from changes.changelog import generate_changelog
 from changes.flow import perform_release
-from changes.packaging import install_package, upload_package, install_from_pypi
+from changes.packaging import build_package, install_package, upload_package, install_from_pypi
 from changes.vcs import tag_and_push
 from changes.version import increment_version
 
 log = logging.getLogger(__name__)
-
-
 
 
 @click.group()
@@ -58,6 +56,13 @@ def bump_version(context):
 
 
 @click.command()
+@click.pass_context
+def build(context):
+    """Attempts to build the sdist and wheel."""
+    build_package(context.obj)
+
+
+@click.command()
 @click.option('--test-command', help='Command to use to test the newly installed package.')
 @click.pass_context
 def install(context, test_command):
@@ -90,6 +95,7 @@ def tag(context):
     """Tags your git repo with the new version number"""
     tag_and_push(context.obj)
 
+
 @click.command()
 @click.option('--skip-changelog', is_flag=True, help='For the release task: should the changelog be generated and committed?')
 @click.pass_context
@@ -101,6 +107,7 @@ def release(context, skip_changelog):
 
 main.add_command(changelog)
 main.add_command(bump_version)
+main.add_command(build)
 main.add_command(install)
 main.add_command(upload)
 main.add_command(pypi)

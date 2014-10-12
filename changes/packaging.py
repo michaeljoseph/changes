@@ -43,7 +43,7 @@ def upload_package(context):
     """Uploads your project packages to pypi with twine."""
     result = build_package(context)
 
-    upload_args = 'python setup.py clean sdist upload'
+    upload_args = 'twine upload dist/*'
     if context.pypi:
         upload_args += ' -r %s' % context.pypi
 

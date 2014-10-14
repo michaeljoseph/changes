@@ -3,11 +3,14 @@ from changes import packaging
 from . import context, setup, teardown
 
 
+def test_build_package():
+    packaging.build_package(context)
+
 def test_install_package():
-    pass
+    packaging.install_package(context)
 
 def test_upload_package():
-    pass
+    packaging.upload_package(context)
 
 def test_install_from_pypi():
-    pass
+    packaging.install_from_pypi(context)

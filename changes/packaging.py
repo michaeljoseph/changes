@@ -9,11 +9,22 @@ from changes import probe, shell, util, venv, verification
 log = logging.getLogger(__name__)
 
 
-def install_package(context):
-    """Attempts to install the sdist and wheel."""
+def build_package(context):
+    """Builds package distributions"""
     build_package_command = 'python setup.py clean sdist bdist_wheel'
     result = shell.dry_run(build_package_command, context.dry_run)
-    if not context.dry_run and result:
+    packages = ', '.join(path('dist').files()) if not context.dry_run else "nothing"
+
+    if not result:
+        raise Exception('Error building packages: %s' % result)
+    else:
+        log.info('Built %s' % packages)
+    return True
+
+
+def install_package(context):
+    """Attempts to install the sdist and wheel."""
+    if not context.dry_run and build_package(context):
         with util.mktmpdir() as tmp_dir:
             venv.create_venv(tmp_dir=tmp_dir)
             for distribution in path('dist').files():
@@ -30,17 +41,19 @@ def install_package(context):
 
 
 def upload_package(context):
-    """Uploads your project with setup.py clean sdist bdist_wheel upload."""
+    """Uploads your project packages to pypi with twine."""
+    if not context.dry_run and build_package(context):
+        upload_args = 'twine upload dist/*'
+        if context.pypi:
+            upload_args += ' -r %s' % context.pypi
 
-    upload_args = 'python setup.py clean sdist upload'
-    if context.pypi:
-        upload_args += ' -r %s' % context.pypi
-
-    upload_result = shell.dry_run(upload_args, context.dry_run)
-    if not context.dry_run and not upload_result:
-        raise Exception('Error uploading: %s' % upload_result)
+        upload_result = shell.dry_run(upload_args, context.dry_run)
+        if not context.dry_run and not upload_result:
+            raise Exception('Error uploading: %s' % upload_result)
+        else:
+            log.info('Successfully uploaded %s:%s', context.module_name, context.new_version)
     else:
-        log.info('Successfully uploaded %s:%s', context.module_name, context.new_version)
+        log.info('Dry run, skipping package upload')
 
 
 def install_from_pypi(context):

@@ -19,6 +19,7 @@ def build_package(context):
         raise Exception('Error building packages: %s' % result)
     else:
         log.info('Built %s' % packages)
+    return True
 
 
 def install_package(context):
@@ -41,17 +42,18 @@ def install_package(context):
 
 def upload_package(context):
     """Uploads your project packages to pypi with twine."""
-    result = build_package(context)
+    if not context.dry_run and build_package(context):
+        upload_args = 'twine upload dist/*'
+        if context.pypi:
+            upload_args += ' -r %s' % context.pypi
 
-    upload_args = 'twine upload dist/*'
-    if context.pypi:
-        upload_args += ' -r %s' % context.pypi
-
-    upload_result = shell.dry_run(upload_args, context.dry_run)
-    if not context.dry_run and not upload_result:
-        raise Exception('Error uploading: %s' % upload_result)
+        upload_result = shell.dry_run(upload_args, context.dry_run)
+        if not context.dry_run and not upload_result:
+            raise Exception('Error uploading: %s' % upload_result)
+        else:
+            log.info('Successfully uploaded %s:%s', context.module_name, context.new_version)
     else:
-        log.info('Successfully uploaded %s:%s', context.module_name, context.new_version)
+        log.info('Dry run, skipping package upload')
 
 
 def install_from_pypi(context):

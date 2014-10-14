@@ -42,8 +42,10 @@ def install_package(context):
 
 def upload_package(context):
     """Uploads your project packages to pypi with twine."""
+
     if not context.dry_run and build_package(context):
-        upload_args = 'twine upload dist/*'
+        upload_args = 'twine upload '
+        upload_args +=  ' '.join(path('dist').files())
         if context.pypi:
             upload_args += ' -r %s' % context.pypi
 

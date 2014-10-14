@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 def build_package(context):
     """Builds package distributions"""
 
-    path('dist').rmtree()
+    path('dist').rmtree(ignore_errors=True)
 
     build_package_command = 'python setup.py clean sdist bdist_wheel'
     result = shell.dry_run(build_package_command, context.dry_run)

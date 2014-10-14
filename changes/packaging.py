@@ -11,6 +11,9 @@ log = logging.getLogger(__name__)
 
 def build_package(context):
     """Builds package distributions"""
+
+    path('dist').rmtree()
+
     build_package_command = 'python setup.py clean sdist bdist_wheel'
     result = shell.dry_run(build_package_command, context.dry_run)
     packages = ', '.join(path('dist').files()) if not context.dry_run else "nothing"
@@ -24,6 +27,7 @@ def build_package(context):
 
 def install_package(context):
     """Attempts to install the sdist and wheel."""
+
     if not context.dry_run and build_package(context):
         with util.mktmpdir() as tmp_dir:
             venv.create_venv(tmp_dir=tmp_dir)

@@ -1,4 +1,5 @@
 # changes
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/michaeljoseph/changes?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![Build Status](https://secure.travis-ci.org/michaeljoseph/changes.png)](http://travis-ci.org/michaeljoseph/changes)
 [![Stories in Ready](https://badge.waffle.io/michaeljoseph/changes.png?label=ready)](https://waffle.io/michaeljoseph/changes)

@@ -2,6 +2,7 @@ import logging
 
 import click
 
+import changes
 from changes import attributes, config, probe, version
 from changes.changelog import generate_changelog
 from changes.flow import perform_release
@@ -10,6 +11,13 @@ from changes.vcs import tag_and_push
 from changes.version import increment_version
 
 log = logging.getLogger(__name__)
+
+
+def print_version(ctx, param, value):
+    if not value or ctx.resilient_parsing:
+        return
+    click.echo('changes %s' % changes.__version__)
+    ctx.exit()
 
 
 @click.group()
@@ -22,6 +30,8 @@ log = logging.getLogger(__name__)
 @click.option('-m', '--minor', is_flag=True, help='Minor-level version increment.')
 @click.option('-M', '--major', is_flag=True, help='Minor-level version increment.')
 @click.option('--version-prefix', help='Specify a prefix for version number tags.')
+@click.option('--version', is_flag=True, callback=print_version,
+              expose_value=False, is_eager=True)
 @click.pass_context
 def main(context, module_name, dry_run, debug, no_input, requirements, patch, minor, major, version_prefix):
     """Ch-ch-changes"""

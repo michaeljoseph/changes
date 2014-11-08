@@ -46,7 +46,9 @@ def main(context, module_name, dry_run, debug, no_input, requirements, patch, mi
 
     current_version = version.current_version(module_name)
     repo_url = attributes.extract_attribute(module_name, '__url__')
-    context.obj = config.Changes(module_name, dry_run, debug, no_input, requirements, new_version, current_version, repo_url, version_prefix)
+    context.obj = config.CLI(module_name, dry_run, debug, no_input,
+                             requirements, new_version, current_version,
+                             repo_url, version_prefix)
 
     probe.probe_project(context.obj)
 

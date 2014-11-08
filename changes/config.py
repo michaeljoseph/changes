@@ -1,5 +1,5 @@
 
-class Changes(object):
+class CLI(object):
     test_command = None
     pypi = None
     skip_changelog = None

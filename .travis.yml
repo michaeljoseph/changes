@@ -12,4 +12,5 @@ script:
 after_success:
   - coverage combine
   - coveralls
+  - codecov
   - ocular

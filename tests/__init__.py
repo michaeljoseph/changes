@@ -2,11 +2,11 @@ import os
 import io
 import shutil
 
-from changes.config import Changes
+from changes.config import CLI
 
 
 module_name = 'test_app'
-context = Changes(module_name, True, True, True, '%s/requirements.txt' % module_name, '0.0.2', '0.0.1', 'https://github.com/someuser/test_app', None)
+context = CLI(module_name, True, True, True, '%s/requirements.txt' % module_name, '0.0.2', '0.0.1', 'https://github.com/someuser/test_app', None)
 context.requirements = '%s/requirements.txt' % module_name
 context.tmp_file = '%s/__init__.py' % module_name
 context.initial_init_content = [

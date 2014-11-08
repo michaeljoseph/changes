@@ -6,6 +6,7 @@
 [![pypi version](https://badge.fury.io/py/changes.png)](http://badge.fury.io/py/changes)
 [![# of downloads](https://pypip.in/d/changes/badge.png)](https://crate.io/packages/changes?version=latest)
 [![code coverage](https://coveralls.io/repos/michaeljoseph/changes/badge.png?branch=master)](https://coveralls.io/r/michaeljoseph/changes?branch=master)
+[![codecov.io](https://codecov.io/github/michaeljoseph/changes/coverage.svg?branch=master)](https://codecov.io/github/michaeljoseph/changes?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/michaeljoseph/changes/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/michaeljoseph/changes/?branch=master)
 [![Code Health](https://landscape.io/github/michaeljoseph/changes/master/landscape.png)](https://landscape.io/github/michaeljoseph/changes/master)
 

@@ -14,3 +14,9 @@ after_success:
   - coveralls
   - codecov
   - ocular
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/bb499a791e0cf35113e1
+    on_success: change
+    on_failure: always

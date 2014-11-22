@@ -11,4 +11,3 @@ sphinx-bootstrap-theme < 1.0.0
 sphinxcontrib-httpdomain < 2.0.0
 tdaemon < 0.2.0
 tox < 2.0.0
-unittest2 < 0.6.0

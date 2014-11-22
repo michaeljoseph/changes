@@ -2,8 +2,6 @@ import logging
 
 from plumbum import local
 
-from changes.compat import check_output, CalledProcessError
-
 log = logging.getLogger(__name__)
 
 

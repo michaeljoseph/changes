@@ -1,5 +1,3 @@
-from unittest2 import TestCase
-
 from changes import shell
 
 from . import context, setup, teardown

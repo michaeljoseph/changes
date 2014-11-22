@@ -20,7 +20,7 @@ def test_current_version():
 
 
 def test_get_new_version():
-    with mock.patch('__builtin__.raw_input') as mock_raw_input:
+    with mock.patch('builtins.input') as mock_raw_input:
         mock_raw_input.return_value = None
         assert '0.1.0' == version.get_new_version(
             module_name,

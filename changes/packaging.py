@@ -38,7 +38,7 @@ def install_package(context):
                     if context.test_command and verification.run_test_command(context.test_command):
                         log.info('Successfully ran test command: %s',
                                  test_command)
-                except Exception, e:
+                except Exception as e:
                     raise Exception('Error installing distribution %s' % distribution, e)
     else:
         log.info('Dry run, skipping installation')
@@ -82,7 +82,7 @@ def install_from_pypi(context):
             log.info('Successfully installed %s from %s',
                      context.module_name, package_index)
 
-    except Exception, e:
+    except Exception as e:
         error_msg = 'Error installing %s from %s' % (context.module_name, package_index)
         log.exception(error_msg)
         raise Exception(error_msg, e)

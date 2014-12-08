@@ -1,12 +1,16 @@
-import io
 import logging
 from os.path import exists
 
-from plumbum.cmd import git
+from plumbum import local
+from plumbum.commands import CommandNotFound
 
 from changes import attributes, exceptions
 
 log = logging.getLogger(__name__)
+
+
+TOOLS = ['git', 'diff', 'python']
+TEST_RUNNERS = ['pytest', 'nose', 'tox']
 
 
 def report_and_raise(probe_name, probe_result, failure_msg):
@@ -18,31 +22,28 @@ def report_and_raise(probe_name, probe_result, failure_msg):
         return True
 
 
-def on_github():
-    """on [github](https://github.com)"""
     return report_and_raise(
-        'On GitHub',
-        any(['github.com' in remote for remote in git('remote', '-v').split('\n')]),
-        'Your package needs to be a GitHub project'
     )
 
 
 def has_setup():
     """`setup.py`"""
     return report_and_raise('Has a setup.py', exists('setup.py'), 'Your project needs a setup.py')
+def has_binary(command):
+    try:
+        local.which(command)
+        return True
+    except CommandNotFound:
+        log.info('%s does not exist' % command)
+        return False
 
-# supports executing tests with `py.test`, `nosetests` or `tox`
-TEST_RUNNERS = ['pytest', 'nose', 'tox']
-def has_requirements():
-    """`requirements.txt` and required requirements"""
-    has_requirements = report_and_raise('Has a requirements.txt', exists(context.requirements), 'Create a requirements.txt for your project')
 
-    requirements = io.open(context.requirements).read()
-    return report_and_raise(
-        'Has a test runner (%s)' % TEST_RUNNERS,
-        any([runner in requirements for runner in TEST_RUNNERS]),
-        'Please use one of the supported test runners (%s)' % TEST_RUNNERS
-    )
+def has_tools():
+    return any([has_binary(tool) for tool in TOOLS])
+
+
+def has_test_runner():
+    return any([has_binary(runner) for runner in TEST_RUNNERS])
 
 
 def has_changelog():
@@ -76,8 +77,9 @@ def probe_project(context):
     Complain and exit otherwise.
     """
     log.info('Checking project for changes requirements.')
-    if (on_github() and has_setup() and
-        has_readme() and has_changelog() and has_metadata(context) and
-        has_requirements):
-        return True
+    return (
+        has_tools() and has_setup() and has_metadata(context) and
+        has_test_runner() and has_readme() and has_changelog()
+    )
+
     return False

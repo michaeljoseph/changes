@@ -34,7 +34,7 @@ class CLI(object):
 
         self.parsed_repo = parse(git('config --get remote.origin.url'.split(' ')))
 
-def project_config(context):
+
     @property
     def repo(self):
         return self.parsed_repo.repo
@@ -51,6 +51,8 @@ def project_config(context):
     def bitbucket(self):
         return self.parsed_repo.bitbucket
 
+
+def project_config(context):
     config = {}
     config_path = join(context.module_name, CONFIG_FILE)
 

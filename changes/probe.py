@@ -22,13 +22,15 @@ def report_and_raise(probe_name, probe_result, failure_msg):
         return True
 
 
+def has_setup():
+    """`setup.py`"""
     return report_and_raise(
+        'Has a setup.py',
+        exists('setup.py'),
+        'Your project needs a setup.py'
     )
 
 
-def has_setup():
-    """`setup.py`"""
-    return report_and_raise('Has a setup.py', exists('setup.py'), 'Your project needs a setup.py')
 def has_binary(command):
     try:
         local.which(command)
@@ -48,12 +50,20 @@ def has_test_runner():
 
 def has_changelog():
     """CHANGELOG.md"""
-    return report_and_raise('CHANGELOG.md', exists('CHANGELOG.md'), 'Create a CHANGELOG.md file')
+    return report_and_raise(
+        'CHANGELOG.md',
+        exists('CHANGELOG.md'),
+        'Create a CHANGELOG.md file'
+    )
 
 
 def has_readme():
     """README.md"""
-    return report_and_raise('README.md', exists('README.md'), 'Create a README.md file')
+    return report_and_raise(
+        'README.md',
+        exists('README.md'),
+        'Create a README.md file'
+    )
 
 
 def has_metadata(context):

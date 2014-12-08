@@ -1,6 +1,8 @@
 from os.path import exists, join
 
 import click
+from giturlparse import parse
+from plumbum.cmd import git
 import yaml
 
 CONFIG_FILE = '.changes'
@@ -30,8 +32,25 @@ class CLI(object):
         self.current_version = current_version
         self.repo_url = repo_url
 
+        self.parsed_repo = parse(git('config --get remote.origin.url'.split(' ')))
 
 def project_config(context):
+    @property
+    def repo(self):
+        return self.parsed_repo.repo
+
+    @property
+    def owner(self):
+        return self.parsed_repo.owner
+
+    @property
+    def github(self):
+        return self.parsed_repo.github
+
+    @property
+    def bitbucket(self):
+        return self.parsed_repo.bitbucket
+
     config = {}
     config_path = join(context.module_name, CONFIG_FILE)
 

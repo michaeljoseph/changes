@@ -26,7 +26,7 @@ install:
 build: false  # Not a C# project, build stuff at the test step instead.
 
 test_script:
-  - "%PYTHON%/Scripts/tox -e %TOX_ENV%"
+  - "%PYTHON%/Scripts/tox -c tox_appveyor.ini -e %TOX_ENV%"
 
 after_test:
   - "%PYTHON%/python setup.py bdist_wheel"

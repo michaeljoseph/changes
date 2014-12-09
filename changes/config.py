@@ -3,12 +3,14 @@ from os.path import exists, join
 import click
 from giturlparse import parse
 from plumbum.cmd import git
+from plumbum import local
 import yaml
 
 CONFIG_FILE = '.changes'
 DEFAULTS = {
     'changelog': 'CHANGELOG.md',
     'readme': 'README.md',
+    'gh_token': None,
 }
 
 
@@ -16,6 +18,8 @@ class CLI(object):
     test_command = None
     pypi = None
     skip_changelog = None
+    changelog_content = None
+    parsed_repo = None
 
     def __init__(self, module_name, dry_run, debug, no_input, requirements,
                  new_version, current_version, repo_url, version_prefix):
@@ -32,8 +36,28 @@ class CLI(object):
         self.current_version = current_version
         self.repo_url = repo_url
 
-        self.parsed_repo = parse(git('config --get remote.origin.url'.split(' ')))
 
+    @property
+    def repo(self):
+        return self.parsed_repo.repo
+
+    @property
+    def owner(self):
+        return self.parsed_repo.owner
+
+    @property
+    def github(self):
+        return self.parsed_repo.github
+
+    @property
+    def bitbucket(self):
+        return self.parsed_repo.bitbucket
+
+
+    @property
+    def parsed_repo(self):
+        with local.cwd(local.cwd / self.module_name):
+            return parse(git('config --get remote.origin.url'.split(' ')))
 
     @property
     def repo(self):

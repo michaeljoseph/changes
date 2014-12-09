@@ -10,6 +10,7 @@ from changes.config import CLI
 
 module_name = 'test_app'
 context = CLI(module_name, True, True, True, '%s/requirements.txt' % module_name, '0.0.2', '0.0.1', 'https://github.com/someuser/test_app', None)
+context.gh_token = 'foo'
 context.requirements = '%s/requirements.txt' % module_name
 context.tmp_file = '%s/__init__.py' % module_name
 context.initial_init_content = [
@@ -31,8 +32,10 @@ def setup():
     with open(context.requirements, 'w') as req_file:
         req_file.write('pytest')
 
-    with local.cwd(local.cwd / module_name):
-        git('init', module_name)
+    with local.cwd(local.cwd / context.module_name):
+        git('init')
+        git('remote', 'add', 'origin', 'https://github.com/michaeljoseph/test_app.git')
+
 
 def teardown():
     if os.path.exists(context.tmp_file):

@@ -27,5 +27,6 @@ def test_malformed_config_returns_none():
 
 def test_parsed_repo_url():
     assert context.owner == 'michaeljoseph'
+    assert context.repo == 'test_app'
     assert context.github
     assert not context.bitbucket

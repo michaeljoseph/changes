@@ -87,3 +87,4 @@ def generate_changelog(context):
         dry_run=context.dry_run
     )
     log.info('Added content to CHANGELOG.md')
+    context.changelog_content = changelog_content

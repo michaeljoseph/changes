@@ -1,5 +1,57 @@
 # [Changelog](https://github.com/michaeljoseph/changes/releases)
 
+## [0.7.0](https://github.com/michaeljoseph/changes/compare/0.6.0...0.7.0)
+
+* [041da30](https://github.com/michaeljoseph/changes/commit/041da30) Re-order test-runners
+* [aa98503](https://github.com/michaeljoseph/changes/commit/aa98503) Test config
+* [089c710](https://github.com/michaeljoseph/changes/commit/089c710) Use click.prompt
+* [33b5e21](https://github.com/michaeljoseph/changes/commit/33b5e21) Add github releases to publishing
+* [ead077d](https://github.com/michaeljoseph/changes/commit/ead077d) Store initial settings
+* [3487428](https://github.com/michaeljoseph/changes/commit/3487428) Rm dupes
+* [80a31f5](https://github.com/michaeljoseph/changes/commit/80a31f5) Add store_settings
+* [2285f08](https://github.com/michaeljoseph/changes/commit/2285f08) Cleanup and reorganise
+* [f457cf5](https://github.com/michaeljoseph/changes/commit/f457cf5) Store additional context
+* [facba40](https://github.com/michaeljoseph/changes/commit/facba40) Create github releases
+* [1fb7910](https://github.com/michaeljoseph/changes/commit/1fb7910) Return a list of distributions
+* [2a471bf](https://github.com/michaeljoseph/changes/commit/2a471bf) Rename to build_distributions
+* [41f75ee](https://github.com/michaeljoseph/changes/commit/41f75ee) Fix bad partial commit
+* [5c5c5c3](https://github.com/michaeljoseph/changes/commit/5c5c5c3) Update probe tests
+* [23d2176](https://github.com/michaeljoseph/changes/commit/23d2176) Lint
+* [f713e4b](https://github.com/michaeljoseph/changes/commit/f713e4b) Drop github and requirements.txt requirements
+* [779906f](https://github.com/michaeljoseph/changes/commit/779906f) Test parsed git remote
+* [41e7388](https://github.com/michaeljoseph/changes/commit/41e7388) Initialise test repo
+* [eb39606](https://github.com/michaeljoseph/changes/commit/eb39606) Add giturlparse and parse remote
+* [e1828ba](https://github.com/michaeljoseph/changes/commit/e1828ba) -26, +34 on travis
+* [b6d9acd](https://github.com/michaeljoseph/changes/commit/b6d9acd) Future
+* [2c5684b](https://github.com/michaeljoseph/changes/commit/2c5684b) -py26, +py34
+* [94ca0de](https://github.com/michaeljoseph/changes/commit/94ca0de) Rm unittest2 vestiges
+* [ef5c25c](https://github.com/michaeljoseph/changes/commit/ef5c25c) Ping gitter on travis events
+* [71d1fbc](https://github.com/michaeljoseph/changes/commit/71d1fbc) Upgrade click for `click.open_file`
+* [41b9708](https://github.com/michaeljoseph/changes/commit/41b9708) Add and test loading project configuration
+* [8e75c7c](https://github.com/michaeljoseph/changes/commit/8e75c7c) Rename `config.Changes` to `config.CLI`
+* [f7952a7](https://github.com/michaeljoseph/changes/commit/f7952a7) Add codecov badge
+* [eeb206d](https://github.com/michaeljoseph/changes/commit/eeb206d) codecov.io
+* [b003f7d](https://github.com/michaeljoseph/changes/commit/b003f7d) Add landscape.io health badge
+* [32722c1](https://github.com/michaeljoseph/changes/commit/32722c1) Add version option
+* [7b752e0](https://github.com/michaeljoseph/changes/commit/7b752e0) Added Gitter badge
+* [e4e9216](https://github.com/michaeljoseph/changes/commit/e4e9216) Rm spurious vcs quotes
+* [443153c](https://github.com/michaeljoseph/changes/commit/443153c) Ignore errors
+* [af3c840](https://github.com/michaeljoseph/changes/commit/af3c840) Ensure there are no stale dists
+* [6482c6e](https://github.com/michaeljoseph/changes/commit/6482c6e) Pass twine a list of filepaths
+* [da5da35](https://github.com/michaeljoseph/changes/commit/da5da35) Packaging dry run tests
+* [ab06fa4](https://github.com/michaeljoseph/changes/commit/ab06fa4) Correct build_package return bools and dry run logging
+* [8e22273](https://github.com/michaeljoseph/changes/commit/8e22273) Switch to twine for uploading
+* [94598bf](https://github.com/michaeljoseph/changes/commit/94598bf) Explicitly package in the release command
+* [48fada0](https://github.com/michaeljoseph/changes/commit/48fada0) Add a corresponding build cli subcommand
+* [04e1f3f](https://github.com/michaeljoseph/changes/commit/04e1f3f) Extract build_package step
+* [8bc57ff](https://github.com/michaeljoseph/changes/commit/8bc57ff) Twine is a runtime requirement
+* [fe356f1](https://github.com/michaeljoseph/changes/commit/fe356f1) Ignore all coverage files
+* [710a4df](https://github.com/michaeljoseph/changes/commit/710a4df) Add twine
+* [0dfb963](https://github.com/michaeljoseph/changes/commit/0dfb963) Run tests first
+* [3d88ccc](https://github.com/michaeljoseph/changes/commit/3d88ccc) Commit and tag after the package has been built and uploaded
+* [865c089](https://github.com/michaeljoseph/changes/commit/865c089) Break out each check for better output granularity
+* [9e3c804](https://github.com/michaeljoseph/changes/commit/9e3c804) Changelog fix
+
 ## [0.6.0](https://github.com/michaeljoseph/changes/compare/0.5.0...0.6.0)
 
 * [9fbb6fe](https://github.com/michaeljoseph/changes/commit/9fbb6fe) Add wheel

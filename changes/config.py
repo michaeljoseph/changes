@@ -59,22 +59,6 @@ class CLI(object):
         with local.cwd(local.cwd / self.module_name):
             return parse(git('config --get remote.origin.url'.split(' ')))
 
-    @property
-    def repo(self):
-        return self.parsed_repo.repo
-
-    @property
-    def owner(self):
-        return self.parsed_repo.owner
-
-    @property
-    def github(self):
-        return self.parsed_repo.github
-
-    @property
-    def bitbucket(self):
-        return self.parsed_repo.bitbucket
-
 
 def project_config(context):
     config = {}

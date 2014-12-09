@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 
 
 def get_test_runner():
-    test_runners = ['py.test', 'nosetests', 'tox']
+    test_runners = ['tox', 'nosetests', 'py.test']
     test_runner = None
     for runner in test_runners:
         try:

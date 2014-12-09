@@ -28,13 +28,10 @@ def get_new_version(module_name, current_version, no_input,
     if no_input:
         new_version = proposed_new_version
     else:
-        new_version = input(
-            'What is the release version for "%s" '
-            '[Default: %s]: ' % (
-                module_name, proposed_new_version
-            )
-        ) or proposed_new_version
-
+        new_version = click.prompt(
+            'What is the release version for "{0}" '.format(module_name),
+            default=proposed_new_version
+        )
     return new_version.strip()
 
 

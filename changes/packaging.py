@@ -1,34 +1,32 @@
 import logging
 
-import click
 from path import path
-from plumbum.cmd import python
 
-from changes import probe, shell, util, venv, verification
+from changes import shell, util, venv, verification
 
 log = logging.getLogger(__name__)
 
 
-def build_package(context):
+def build_distributions(context):
     """Builds package distributions"""
-
+    packages = None
     path('dist').rmtree(ignore_errors=True)
 
     build_package_command = 'python setup.py clean sdist bdist_wheel'
     result = shell.dry_run(build_package_command, context.dry_run)
-    packages = ', '.join(path('dist').files()) if not context.dry_run else "nothing"
+    packages = path('dist').files() if not context.dry_run else "nothing"
 
     if not result:
         raise Exception('Error building packages: %s' % result)
     else:
-        log.info('Built %s' % packages)
-    return True
+        log.info('Built %s' % ', '.join(packages))
+    return packages
 
 
 def install_package(context):
     """Attempts to install the sdist and wheel."""
 
-    if not context.dry_run and build_package(context):
+    if not context.dry_run and build_distributions(context):
         with util.mktmpdir() as tmp_dir:
             venv.create_venv(tmp_dir=tmp_dir)
             for distribution in path('dist').files():
@@ -47,7 +45,7 @@ def install_package(context):
 def upload_package(context):
     """Uploads your project packages to pypi with twine."""
 
-    if not context.dry_run and build_package(context):
+    if not context.dry_run and build_distributions(context):
         upload_args = 'twine upload '
         upload_args +=  ' '.join(path('dist').files())
         if context.pypi:

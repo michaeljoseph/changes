@@ -45,3 +45,4 @@ def test_replace_sha_with_commit_link():
 
 def test_generate_changelog():
     changelog.generate_changelog(context)
+    assert isinstance(context.changelog_content, list)

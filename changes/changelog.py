@@ -1,11 +1,8 @@
 import logging
+import io
 import re
 
-import click
 from plumbum.cmd import git
-
-from changes import version
-from changes.attributes import extract_attribute
 
 log = logging.getLogger(__name__)
 
@@ -13,7 +10,7 @@ log = logging.getLogger(__name__)
 def write_new_changelog(repo_url, filename, content_lines, dry_run=True):
     heading_and_newline = '# [Changelog](%s/releases)\n' % repo_url
 
-    with click.open_file(filename, 'r+') as f:
+    with io.open(filename, 'r+') as f:
         existing = f.readlines()
 
     output = existing[2:]
@@ -27,7 +24,7 @@ def write_new_changelog(repo_url, filename, content_lines, dry_run=True):
     output = ''.join(output)
 
     if not dry_run:
-        with click.open_file(filename, 'w+') as f:
+        with io.open(filename, 'w+') as f:
             f.write(output)
     else:
         log.info('New changelog:\n%s', ''.join(content_lines))

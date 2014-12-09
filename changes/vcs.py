@@ -1,17 +1,13 @@
-import json
 import io
 import logging
-from pprint import pprint
 
 import click
 
 import magic
-from path import path
-from plumbum.cmd import  git
 import requests
 from uritemplate import expand
 
-from changes import config, shell, packaging
+from changes import shell
 
 log = logging.getLogger(__name__)
 

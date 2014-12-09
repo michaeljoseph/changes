@@ -1,10 +1,8 @@
 import logging
 
-import click
 from path import path
-from plumbum.cmd import python
 
-from changes import probe, shell, util, venv, verification
+from changes import shell, util, venv, verification
 
 log = logging.getLogger(__name__)
 

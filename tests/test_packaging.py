@@ -3,8 +3,8 @@ from changes import packaging
 from . import context, setup, teardown
 
 
-def test_build_package():
-    packaging.build_package(context)
+def test_build_distributions():
+    packaging.build_distributions(context)
 
 def test_install_package():
     packaging.install_package(context)

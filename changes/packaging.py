@@ -9,7 +9,7 @@ from changes import probe, shell, util, venv, verification
 log = logging.getLogger(__name__)
 
 
-def build_package(context):
+def build_distributions(context):
     """Builds package distributions"""
 
     path('dist').rmtree(ignore_errors=True)
@@ -28,7 +28,7 @@ def build_package(context):
 def install_package(context):
     """Attempts to install the sdist and wheel."""
 
-    if not context.dry_run and build_package(context):
+    if not context.dry_run and build_distributions(context):
         with util.mktmpdir() as tmp_dir:
             venv.create_venv(tmp_dir=tmp_dir)
             for distribution in path('dist').files():
@@ -47,7 +47,7 @@ def install_package(context):
 def upload_package(context):
     """Uploads your project packages to pypi with twine."""
 
-    if not context.dry_run and build_package(context):
+    if not context.dry_run and build_distributions(context):
         upload_args = 'twine upload '
         upload_args +=  ' '.join(path('dist').files())
         if context.pypi:

@@ -6,7 +6,7 @@ import changes
 from changes import attributes, config, probe, version
 from changes.changelog import generate_changelog
 from changes.flow import perform_release
-from changes.packaging import build_package, install_package, upload_package, install_from_pypi
+from changes.packaging import build_distributions, install_package, upload_package, install_from_pypi
 from changes.vcs import tag_and_push
 from changes.version import increment_version
 
@@ -71,7 +71,7 @@ def bump_version(context):
 @click.pass_context
 def build(context):
     """Attempts to build the sdist and wheel."""
-    build_package(context.obj)
+    build_distributions(context.obj)
 
 
 @click.command()

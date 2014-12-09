@@ -23,3 +23,9 @@ def test_malformed_config_returns_none():
     with click.open_file('test_app/.changes', 'w') as f:
         f.write('something\n\n-another thing\n')
         assert config.project_config(context) == {}
+
+
+def test_parsed_repo_url():
+    assert context.owner == 'michaeljoseph'
+    assert context.github
+    assert not context.bitbucket

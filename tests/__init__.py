@@ -2,6 +2,9 @@ import os
 import io
 import shutil
 
+from plumbum.cmd import git
+from plumbum import local
+
 from changes.config import CLI
 
 
@@ -28,6 +31,8 @@ def setup():
     with open(context.requirements, 'w') as req_file:
         req_file.write('pytest')
 
+    with local.cwd(local.cwd / module_name):
+        git('init', module_name)
 
 def teardown():
     if os.path.exists(context.tmp_file):

@@ -1,7 +1,9 @@
 from os.path import exists, join
+import io
 
 import click
 from giturlparse import parse
+from path import path
 from plumbum.cmd import git
 from plumbum import local
 import yaml
@@ -60,19 +62,14 @@ class CLI(object):
             return parse(git('config --get remote.origin.url'.split(' ')))
 
 
-def project_config(context):
+def project_config(module_name):
     config = {}
-    config_path = join(context.module_name, CONFIG_FILE)
+    config_path = path(join(module_name, CONFIG_FILE))
 
-    # initialise config with defaults
     if not exists(config_path):
-        config = DEFAULTS.copy()
+        store_settings(module_name, DEFAULTS.copy())
 
-        with click.open_file(config_path, 'w') as f:
-            config_yaml = yaml.dump(config, default_flow_style=False)
-            f.write(config_yaml)
-
-    config = yaml.safe_load(click.open_file(config_path))
+    config = yaml.load(io.open(config_path))
     return config or {}
 
 

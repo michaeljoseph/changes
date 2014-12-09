@@ -11,18 +11,18 @@ log = logging.getLogger(__name__)
 
 def build_distributions(context):
     """Builds package distributions"""
-
+    packages = None
     path('dist').rmtree(ignore_errors=True)
 
     build_package_command = 'python setup.py clean sdist bdist_wheel'
     result = shell.dry_run(build_package_command, context.dry_run)
-    packages = ', '.join(path('dist').files()) if not context.dry_run else "nothing"
+    packages = path('dist').files() if not context.dry_run else "nothing"
 
     if not result:
         raise Exception('Error building packages: %s' % result)
     else:
-        log.info('Built %s' % packages)
-    return True
+        log.info('Built %s' % ', '.join(packages))
+    return packages
 
 
 def install_package(context):

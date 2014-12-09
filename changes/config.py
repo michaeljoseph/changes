@@ -90,3 +90,9 @@ def project_config(context):
 
     config = yaml.safe_load(click.open_file(config_path))
     return config or {}
+
+
+def store_settings(module_name, settings):
+    config_path = path(join(module_name, CONFIG_FILE))
+    with click.open_file(config_path, 'w') as f:
+        f.write(yaml.dump(settings, default_flow_style=False))

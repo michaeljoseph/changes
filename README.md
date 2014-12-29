@@ -9,6 +9,7 @@
 [![codecov.io](https://codecov.io/github/michaeljoseph/changes/coverage.svg?branch=master)](https://codecov.io/github/michaeljoseph/changes?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/michaeljoseph/changes/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/michaeljoseph/changes/?branch=master)
 [![Code Health](https://landscape.io/github/michaeljoseph/changes/master/landscape.png)](https://landscape.io/github/michaeljoseph/changes/master)
+[![Requirements Status](https://requires.io/github/michaeljoseph/changes/requirements.svg?branch=master)](https://requires.io/github/michaeljoseph/changes/requirements/?branch=master)
 
 :musical_note: [Ch-ch-changes](http://www.youtube.com/watch?v=pl3vxEudif8) :musical_note:
 

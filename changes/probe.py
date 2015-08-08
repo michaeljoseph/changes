@@ -75,8 +75,7 @@ def has_readme():
         readme = re.match(r"README($|\.\w{2,})", filename, re.I)
         if readme:
             if readme.group(1) not in README_EXTENSIONS:
-                message += ' with a valid extension '
-                message += '(%s)' % " | ".join(README_EXTENSIONS)
+                message += ' with a valid extension (or none)'
                 readme = None
             break
     return report_and_raise(

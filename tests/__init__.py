@@ -23,12 +23,8 @@ context.initial_init_content = [
 ]
 
 def setup():
-
-    # If previous tests failed, the directory is still alive
-    # and causes problems with tests ('git remote already set')
-    teardown()
-
-    os.mkdir(context.module_name)
+    if not os.path.exists(module_name):
+        os.mkdir(context.module_name)
 
     with open(context.tmp_file, 'w') as init_file:
         init_file.write('\n'.join(context.initial_init_content))

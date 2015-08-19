@@ -72,7 +72,7 @@ def has_readme():
     return report_and_raise(
         'README',
         any([exists('README{0}'.format(ext)) for ext in README_EXTENSIONS]),
-        "Create a (valid) README"
+        'Create a (valid) README'
     )
 
 

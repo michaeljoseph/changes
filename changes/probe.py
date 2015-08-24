@@ -1,4 +1,5 @@
 import logging
+
 from os.path import exists
 
 from plumbum import local
@@ -10,7 +11,16 @@ log = logging.getLogger(__name__)
 
 
 TOOLS = ['git', 'diff', 'python']
+
 TEST_RUNNERS = ['pytest', 'nose', 'tox']
+
+README_EXTENSIONS = [
+    '.md', '.rst',
+    '.txt', ''
+    '.wiki', '.rdoc',
+    '.org', '.pod',
+    '.creole', '.textile'
+]
 
 
 def report_and_raise(probe_name, probe_result, failure_msg):
@@ -58,11 +68,11 @@ def has_changelog():
 
 
 def has_readme():
-    """README.md"""
+    """README"""
     return report_and_raise(
-        'README.md',
-        exists('README.md'),
-        'Create a README.md file'
+        'README',
+        any([exists('README{0}'.format(ext)) for ext in README_EXTENSIONS]),
+        'Create a (valid) README'
     )
 
 
@@ -91,5 +101,3 @@ def probe_project(context):
         has_tools() and has_setup() and has_metadata(context) and
         has_test_runner() and has_readme() and has_changelog()
     )
-
-    return False

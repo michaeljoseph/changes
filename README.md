@@ -32,14 +32,15 @@ An application wanting to use `changes` must meet these requirements:
 * Publically hosted on [GitHub].
 * Has a `setup.py`.
 * Has a `requirements.txt`.
-* Has a `CHANGELOG.md`
+* Has a `CHANGELOG.md`.
+* Has a `README` with a [valid extension](https://github.com/github/.markup#markups)
 * `<app_name>/__init__.py` contains `__version__` and `__url__`.
 * Executing tests with `[py.test]` or `[tox`].
-* `<app_name>` is the package _and_ module name
+* `<app_name>` is the package _and_ module name.
 
 Install `changes`:
 
-    pip install changes
+    $ pip install changes
 
 Run the cli:
 

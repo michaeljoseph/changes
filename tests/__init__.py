@@ -23,7 +23,7 @@ context.initial_init_content = [
 ]
 
 def setup():
-    if not os.path.exists(context.module_name):
+    if not os.path.exists(module_name):
         os.mkdir(context.module_name)
 
     with open(context.tmp_file, 'w') as init_file:
@@ -38,5 +38,5 @@ def setup():
 
 
 def teardown():
-    if os.path.exists(context.tmp_file):
-        shutil.rmtree(module_name)
+    if os.path.exists(context.module_name):
+        shutil.rmtree(context.module_name)

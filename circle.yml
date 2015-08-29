@@ -1,0 +1,11 @@
+machine:
+  post:
+    - pyenv global 2.7.9 3.4.2 pypy-2.4.0
+
+dependencies:
+  override:
+    - pip install tox
+
+test:
+  override:
+    - tox

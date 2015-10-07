@@ -78,7 +78,7 @@ Options:
   --tox                      Use `tox` instead of the default: `nosetests`
   --test-command=<cmd>       Command to use to test the newly installed package
   --version-prefix=<prefix>  Specify a prefix for version number tags
-  --noinput                  To be used in conjuction with one of the version
+  --noinput                  To be used in conjunction with one of the version
                              increment options above, this option stops
                              `changes` from confirming the new version number.
   --module-name=<module>     If your module and package aren't the same

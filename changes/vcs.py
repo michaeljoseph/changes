@@ -7,19 +7,28 @@ import magic
 import requests
 from uritemplate import expand
 
-from changes import shell
+from changes import shell, probe
 
 log = logging.getLogger(__name__)
 
+COMMIT_TEMPLATE = 'git commit --message="%s" %s/__init__.py CHANGELOG.md'
+TAG_TEMPLATE = 'git tag %s %s --message="%s"'
+
 
 def commit_version_change(context):
-    shell.dry_run('git commit -m %s %s/__init__.py CHANGELOG.md' % (context.new_version, context.module_name), context.dry_run)
+    # TODO: signed commits?
+    shell.dry_run(COMMIT_TEMPLATE % (context.new_version, context.module_name), context.dry_run)
     shell.dry_run('git push', context.dry_run)
 
 
 def tag_and_push(context):
     """Tags your git repo with the new version number"""
-    shell.dry_run('git tag -a %s -m %s' % (context.new_version, context.new_version), context.dry_run)
+    tag_option = '--annotate'
+    if probe.has_signing_key(context):
+        tag_option = '--sign'
+
+    shell.dry_run(TAG_TEMPLATE % (tag_option, context.new_version, context.new_version), context.dry_run)
+
     shell.dry_run('git push --tags', context.dry_run)
 
 

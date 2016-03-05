@@ -3,6 +3,7 @@ import logging
 from os.path import exists
 
 from plumbum import local
+from plumbum.cmd import git
 from plumbum.commands import CommandNotFound
 
 from changes import attributes, exceptions
@@ -89,6 +90,10 @@ def has_metadata(context):
         has_metadata,
         'Your %s/__init__.py must contain __version__ and __url__ attributes'
     )
+
+
+def has_signing_key(context):
+    return 'signingkey' in git('config', '-l')
 
 
 def probe_project(context):

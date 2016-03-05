@@ -1,16 +1,31 @@
 import json
 
+from mock import call
 import responses
 
 from changes import packaging, vcs
 from . import context, setup, teardown
 
 
-def test_commit_version_change():
+def test_commit_version_change(mocker):
+    dry_run = mocker.patch('changes.shell.dry_run')
     vcs.commit_version_change(context)
+    dry_run.assert_has_calls([
+        call('git commit --message="0.0.2" test_app/__init__.py CHANGELOG.md', True),
+        call('git push', True)
+    ])
 
-def test_tag_and_push():
+
+def test_tag_and_push(mocker):
+    dry_run = mocker.patch('changes.shell.dry_run')
+    probe = mocker.patch('changes.probe.has_signing_key')
+    probe.return_value = False
+
     vcs.tag_and_push(context)
+    dry_run.assert_has_calls([
+        call('git tag --annotate 0.0.2 --message="0.0.2"', True),
+        call('git push --tags', True)
+    ])
 
 @responses.activate
 def test_github_release():
@@ -45,3 +60,14 @@ def test_upload_release_distributions():
         distributions,
         'http://upload.url.com/',
     )
+
+def test_signed_tag(mocker):
+    dry_run = mocker.patch('changes.shell.dry_run')
+    probe = mocker.patch('changes.probe.has_signing_key')
+    probe.return_value = True
+
+    vcs.tag_and_push(context)
+    dry_run.assert_has_calls([
+        call('git tag --sign 0.0.2 --message="0.0.2"', True),
+        call('git push --tags', True)
+    ])

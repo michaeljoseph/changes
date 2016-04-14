@@ -31,7 +31,7 @@ def replace_attribute(module_name, attribute_name, new_value, dry_run=True):
                 output_file.write(line)
 
     if not dry_run:
-        path(tmp_file).move(init_file)
+        path(tmp_file).copy(init_file)
     else:
         log.info(diff(tmp_file, init_file, retcode=None))
 

@@ -1,7 +1,7 @@
 # changes
 
-[![Travis CI](https://secure.travis-ci.org/michaeljoseph/changes.png)](http://travis-ci.org/michaeljoseph/changes)
-[![Circle CI](https://circleci.com/gh/michaeljoseph/changes.svg?style=svg&circle-token=773a0b46ffcd27626f0ff3bef788ffe96d47e473)](https://circleci.com/gh/michaeljoseph/changes)
+[![Travis CI](https://travis-ci.org/michaeljoseph/changes.svg?branch=master)](https://travis-ci.org/michaeljoseph/changes)
+[![Circle CI](https://circleci.com/gh/michaeljoseph/changes/tree/master.svg?style=svg&circle-token=773a0b46ffcd27626f0ff3bef788ffe96d47e473)](https://circleci.com/gh/michaeljoseph/changes/tree/master)
 
 [![pypi version](https://img.shields.io/pypi/v/changes.svg)](https://pypi.python.org/pypi/changes)
 [![# of downloads](https://img.shields.io/pypi/dw/changes.svg)](https://pypi.python.org/pypi/changes)

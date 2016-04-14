@@ -3,7 +3,6 @@ import logging
 
 import click
 
-import magic
 import requests
 from uritemplate import expand
 
@@ -13,6 +12,11 @@ log = logging.getLogger(__name__)
 
 COMMIT_TEMPLATE = 'git commit --message="%s" %s/__init__.py CHANGELOG.md'
 TAG_TEMPLATE = 'git tag %s %s --message="%s"'
+
+EXT_TO_MIME_TYPE = {
+    '.gz': 'application/x-gzip',
+    '.whl': 'application/zip',
+}
 
 
 def commit_version_change(context):
@@ -64,7 +68,7 @@ def upload_release_distributions(context, gh_token, distributions, upload_url):
             expand(upload_url, dict(name=distribution.name)),
             auth=(gh_token, 'x-oauth-basic'),
             headers={
-                'content-type': magic.from_file(distribution)
+                'content-type': EXT_TO_MIME_TYPE[distribution.ext]
             },
             data=io.open(distribution, mode='rb'),
             verify=False,

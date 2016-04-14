@@ -1,0 +1,31 @@
+environment:
+  matrix:
+    - PYTHON: "C:\\Python27"
+      TOX_ENV: "py27"
+
+    - PYTHON: "C:\\Python33"
+      TOX_ENV: "py33"
+
+    - PYTHON: "C:\\Python34"
+      TOX_ENV: "py34"
+
+    - PYTHON: "C:\\Python35"
+      TOX_ENV: "py35"
+
+
+init:
+  - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
+  - "git config --system http.sslcainfo \"C:\\Program Files\\Git\\mingw64\\ssl\\certs\\ca-bundle.crt\""
+
+install:
+  - "%PYTHON%/Scripts/easy_install -U pip"
+  - "%PYTHON%/Scripts/pip install -r requirements.txt"
+
+build: false
+
+test_script:
+  - "%PYTHON%/Scripts/py.test --durations=10 --cov changes --cov-report term-missing tests"
+
+after_test:
+  - "%PYTHON%/Scripts/coverage combine"
+  - "%PYTHON%/Scripts/codecov"

@@ -16,6 +16,7 @@ TAG_TEMPLATE = 'git tag %s %s --message="%s"'
 EXT_TO_MIME_TYPE = {
     '.gz': 'application/x-gzip',
     '.whl': 'application/zip',
+    '.zip': 'application/zip',
 }
 
 

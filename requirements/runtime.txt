@@ -1,5 +1,5 @@
 PyYAML < 4.0.0
-plumbum < 2.0.0 
+plumbum < 2.0.0
 click < 7.0.0
 giturlparse.py < 0.1.0
 future < 1.0.0

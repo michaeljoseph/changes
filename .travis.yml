@@ -11,7 +11,6 @@ script:
   - py.test --durations=10 --cov changes --cov-report term-missing tests
 after_success:
   - coverage combine
-  - coveralls
   - codecov
   - ocular
 notifications:

@@ -1,10 +1,9 @@
 PyYAML < 4.0.0
-plumbum < 2.0.0 
+plumbum < 2.0.0
 click < 7.0.0
 giturlparse.py < 0.1.0
 future < 1.0.0
 path.py < 9.0.0
-python-magic < 0.5.0
 requests < 3.0.0
 semantic_version < 3.0.0
 uritemplate < 1.0.0

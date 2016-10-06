@@ -28,7 +28,7 @@ def print_version(ctx, param, value):
 @click.option('--requirements', default='requirements.txt', help='Requirements file name')
 @click.option('-p', '--patch', is_flag=True, help='Patch-level version increment.')
 @click.option('-m', '--minor', is_flag=True, help='Minor-level version increment.')
-@click.option('-M', '--major', is_flag=True, help='Minor-level version increment.')
+@click.option('-M', '--major', is_flag=True, help='Major-level version increment.')
 @click.option('--version-prefix', help='Specify a prefix for version number tags.')
 @click.option('--version', is_flag=True, callback=print_version,
               expose_value=False, is_eager=True)

@@ -67,7 +67,7 @@ Options:
   --new-version=<ver>        Specify version.
   -p --patch                 Patch-level version increment.
   -m --minor                 Minor-level version increment.
-  -M --major                 Minor-level version increment.
+  -M --major                 Major-level version increment.
 
   -h --help                  Show this screen.
 

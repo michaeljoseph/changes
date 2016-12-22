@@ -10,6 +10,7 @@
 [![codecov.io](https://codecov.io/github/michaeljoseph/changes/coverage.svg?branch=master)](https://codecov.io/github/michaeljoseph/changes?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/michaeljoseph/changes/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/michaeljoseph/changes/?branch=master)
 [![Code Health](https://landscape.io/github/michaeljoseph/changes/master/landscape.png)](https://landscape.io/github/michaeljoseph/changes/master)
+[![Requirements Status](https://requires.io/github/michaeljoseph/changes/requirements.svg?branch=master)](https://requires.io/github/michaeljoseph/changes/requirements/?branch=master)
 
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/michaeljoseph/changes?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Stories in Ready](https://badge.waffle.io/michaeljoseph/changes.png?label=ready)](https://waffle.io/michaeljoseph/changes)

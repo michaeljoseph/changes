@@ -4,12 +4,11 @@ python:
   - "3.6"
   - "pypy"
 install:
-  - pip install -U pipenv
-  - pipenv install -r requirements.txt
+  - pip install -U -r requirements.txt
 before_success:
   - coverage erase
 script:
-  - pipenv run pytest
+  - pytest
 after_success:
   - coverage combine
   - codecov

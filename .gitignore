@@ -43,3 +43,4 @@ nosetests.xml
 
 # Virtual environments
 env/
+.cache

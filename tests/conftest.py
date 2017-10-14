@@ -31,7 +31,10 @@ FILE_CONTENT = {
     '%s/__init__.py' % PYTHON_MODULE: INIT_CONTENT,
     'setup.py': SETUP_PY,
     'requirements.txt': ['pytest'],
+    'README.md': README_MARKDOWN,
+    'CHANGELOG.md': [''],
 }
+
 
 @pytest.fixture
 def git_repo():
@@ -40,16 +43,21 @@ def git_repo():
         open(readme_path, 'w').write(
             '\n'.join(README_MARKDOWN)
         )
-        git('init')
-        git('remote', 'add', 'origin', 'https://github.com/michaeljoseph/test_app.git')
-        git('add', 'README.md')
-        git('commit', '-m', '"Please README"')
+        git_init([readme_path])
 
         yield
 
 
+def git_init(files_to_add):
+    git('init')
+    git('remote', 'add', 'origin', 'https://github.com/michaeljoseph/test_app.git')
+    for file_to_add in files_to_add:
+        git('add', file_to_add)
+    git('commit', '-m', '"Initial commit"')
+
+
 @pytest.fixture
-def python_module(git_repo):
+def python_module():
     with CliRunner().isolated_filesystem():
         os.mkdir(PYTHON_MODULE)
 
@@ -57,5 +65,7 @@ def python_module(git_repo):
             open(file_path, 'w').write(
                 '\n'.join(content)
             )
+
+        git_init(FILE_CONTENT.keys())
 
         yield

@@ -1,8 +1,7 @@
 import click
 
 from . import __version__
-from . import commands
-
+from changes.commands import init as init_command
 
 VERSION = 'changes {}'.format(__version__)
 
@@ -37,23 +36,16 @@ def print_version(context, param, value):
         help_option_names=[u'-h', u'--help']
     ),
 )
-@click.pass_context
-def main(context, dry_run, verbose):
+def main(dry_run, verbose):
     """Ch-ch-changes"""
     pass
 
 
-# main.add_command(help_command, name='help')
 @click.command()
 def init():
     """
     Detects, prompts and initialises the project.
     """
-    commands.init()
+    init_command.init()
 
 main.add_command(init)
-# main.add_command(status)
-# main.add_command(stage)
-# main.add_command(publish)
-
-

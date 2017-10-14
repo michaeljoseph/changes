@@ -16,3 +16,6 @@ bumpversion
 towncrier
 devpi
 tox
+uritemplate
+requests
+requests-cache

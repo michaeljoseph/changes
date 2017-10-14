@@ -1,4 +1,5 @@
 import click
+import requests_cache
 
 from . import __version__
 from changes.commands import init as init_command
@@ -38,7 +39,11 @@ def print_version(context, param, value):
 )
 def main(dry_run, verbose):
     """Ch-ch-changes"""
-    pass
+    requests_cache.install_cache(
+        cache_name='github_cache',
+        backend='sqlite',
+        expire_after=180000
+    )
 
 
 @click.command()

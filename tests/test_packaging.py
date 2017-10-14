@@ -1,16 +1,25 @@
 from changes import packaging
 
-from . import context, setup, teardown
+from click.testing import CliRunner
+
+from . import context
 
 
 def test_build_distributions():
-    packaging.build_distributions(context)
+    with CliRunner().isolated_filesystem():
+        packaging.build_distributions(context)
+
 
 def test_install_package():
-    packaging.install_package(context)
+    with CliRunner().isolated_filesystem():
+        packaging.install_package(context)
+
 
 def test_upload_package():
-    packaging.upload_package(context)
+    with CliRunner().isolated_filesystem():
+        packaging.upload_package(context)
+
 
 def test_install_from_pypi():
-    packaging.install_from_pypi(context)
+    with CliRunner().isolated_filesystem():
+        packaging.install_from_pypi(context)

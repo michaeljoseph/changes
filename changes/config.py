@@ -1,31 +1,42 @@
-from os.path import exists, join
+from os.path import exists, join, curdir
 import io
 
 import click
-from giturlparse import parse
-from path import path
-from plumbum.cmd import git
-from plumbum import local
-import yaml
+import giturlparse
+from path import Path
 
-CONFIG_FILE = '.changes'
+from plumbum.cmd import git
+import toml
+from invoke import run
+
+CONFIG_FILE = '.changes.toml'
+CONFIG_FILES = [
+    '.changes.toml',
+    'pyproject.toml',
+    'setup.cfg',
+]
+DOCS = [
+    'CHANGELOG.md',
+    'README.md',
+]
 DEFAULTS = {
     'changelog': 'CHANGELOG.md',
     'readme': 'README.md',
-    'gh_token': None,
+    'github_auth_token': None,
 }
 
 
-class CLI(object):
+class Config:
     test_command = None
     pypi = None
     skip_changelog = None
     changelog_content = None
-    parsed_repo = None
+    repo = None
 
     def __init__(self, module_name, dry_run, debug, no_input, requirements,
                  new_version, current_version, repo_url, version_prefix):
         self.module_name = module_name
+        # module_name => project_name => curdir
         self.dry_run = dry_run
         self.debug = debug
         self.no_input = no_input
@@ -36,44 +47,44 @@ class CLI(object):
             else new_version
         )
         self.current_version = current_version
-        self.repo_url = repo_url
 
 
-    @property
-    def repo(self):
-        return self.parsed_repo.repo
+def project_config():
+    """Deprecated"""
+    project_name = curdir
 
-    @property
-    def owner(self):
-        return self.parsed_repo.owner
-
-    @property
-    def github(self):
-        return self.parsed_repo.github
-
-    @property
-    def bitbucket(self):
-        return self.parsed_repo.bitbucket
-
-
-    @property
-    def parsed_repo(self):
-        with local.cwd(local.cwd / self.module_name):
-            return parse(git('config --get remote.origin.url'.split(' ')))
-
-
-def project_config(module_name):
-    config = {}
-    config_path = path(join(module_name, CONFIG_FILE))
+    config_path = Path(join(project_name, CONFIG_FILE))
 
     if not exists(config_path):
-        store_settings(module_name, DEFAULTS.copy())
+        store_settings(DEFAULTS.copy())
+        return DEFAULTS
 
-    config = yaml.load(io.open(config_path))
-    return config or {}
+    return toml.load(io.open(config_path)) or {}
 
 
-def store_settings(module_name, settings):
-    config_path = path(join(module_name, CONFIG_FILE))
+def load_settings():
+    return project_config()
+
+
+def store_settings(settings):
+    config_path = Path(join(curdir, CONFIG_FILE))
+
     with click.open_file(config_path, 'w') as f:
-        f.write(yaml.dump(settings, default_flow_style=False))
+        f.write(toml.dumps(settings))
+
+
+# def bumpversion_settings():
+#     pass
+# def towncrier_settings():
+#     fn = join(curdir, "pyproject.toml")
+#     if not exists(fn):
+#         return None
+#     with open(fn, 'r') as conffile:
+#         config = toml.load(conffile)
+#
+#     if 'tool' not in config or 'package' not in config['tool']['towncrier']:
+#         raise NotConfigured(
+#             'No [tool.towncrier] section or '
+#             "the towncrier section has no required 'package' key."
+#         )
+#     return config['tool']['towncrier']

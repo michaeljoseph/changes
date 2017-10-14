@@ -1,6 +1,6 @@
 import logging
 
-from path import path
+from path import Path
 
 from changes import shell, util, venv, verification
 
@@ -10,11 +10,11 @@ log = logging.getLogger(__name__)
 def build_distributions(context):
     """Builds package distributions"""
     packages = None
-    path('dist').rmtree(ignore_errors=True)
+    Path('dist').rmtree(ignore_errors=True)
 
     build_package_command = 'python setup.py clean sdist bdist_wheel'
     result = shell.dry_run(build_package_command, context.dry_run)
-    packages = path('dist').files() if not context.dry_run else "nothing"
+    packages = Path('dist').files() if not context.dry_run else "nothing"
 
     if not result:
         raise Exception('Error building packages: %s' % result)
@@ -23,13 +23,14 @@ def build_distributions(context):
     return packages
 
 
+# tox
 def install_package(context):
     """Attempts to install the sdist and wheel."""
 
     if not context.dry_run and build_distributions(context):
         with util.mktmpdir() as tmp_dir:
             venv.create_venv(tmp_dir=tmp_dir)
-            for distribution in path('dist').files():
+            for distribution in Path('dist').files():
                 try:
                     venv.install(distribution, tmp_dir)
                     log.info('Successfully installed %s', distribution)
@@ -42,12 +43,13 @@ def install_package(context):
         log.info('Dry run, skipping installation')
 
 
+# twine
 def upload_package(context):
     """Uploads your project packages to pypi with twine."""
 
     if not context.dry_run and build_distributions(context):
         upload_args = 'twine upload '
-        upload_args +=  ' '.join(path('dist').files())
+        upload_args +=  ' '.join(Path('dist').files())
         if context.pypi:
             upload_args += ' -r %s' % context.pypi
 
@@ -63,7 +65,8 @@ def upload_package(context):
 def install_from_pypi(context):
     """Attempts to install your package from pypi."""
 
-    tmp_dir = venv.create_venv()
+    # tmp_dir = venv.create_venv()
+    tmp_dir = '/tmp'
     install_cmd = '%s/bin/pip install %s' % (tmp_dir, context.module_name)
 
     package_index = 'pypi'
@@ -85,4 +88,4 @@ def install_from_pypi(context):
         log.exception(error_msg)
         raise Exception(error_msg, e)
 
-    path(tmp_dir).rmtree(path(tmp_dir))
+    Path(tmp_dir).rmtree(Path(tmp_dir))

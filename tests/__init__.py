@@ -1,15 +1,8 @@
-import os
-import io
-import shutil
-
-from plumbum.cmd import git
-from plumbum import local
-
-from changes.config import CLI
+from changes.config import Config
 
 
 module_name = 'test_app'
-context = CLI(module_name, True, True, True, '%s/requirements.txt' % module_name, '0.0.2', '0.0.1', 'https://github.com/someuser/test_app', None)
+context = Config(module_name, True, True, True, '%s/requirements.txt' % module_name, '0.0.2', '0.0.1', 'https://github.com/someuser/test_app', None)
 context.gh_token = 'foo'
 context.requirements = '%s/requirements.txt' % module_name
 context.tmp_file = '%s/__init__.py' % module_name
@@ -21,22 +14,3 @@ context.initial_init_content = [
     "__author__ = 'Some User'",
     "__email__ = 'someuser@gmail.com'"
 ]
-
-def setup():
-    if not os.path.exists(module_name):
-        os.mkdir(context.module_name)
-
-    with open(context.tmp_file, 'w') as init_file:
-        init_file.write('\n'.join(context.initial_init_content))
-
-    with open(context.requirements, 'w') as req_file:
-        req_file.write('pytest')
-
-    with local.cwd(local.cwd / context.module_name):
-        git('init')
-        git('remote', 'add', 'origin', 'https://github.com/michaeljoseph/test_app.git')
-
-
-def teardown():
-    if os.path.exists(context.module_name):
-        shutil.rmtree(context.module_name)

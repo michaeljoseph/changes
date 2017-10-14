@@ -1,14 +1,15 @@
 language: python
 python:
-  - "2.7"
-  - "3.4"
+  - "3.5"
+  - "3.6"
   - "pypy"
 install:
-  - pip install -U -r requirements.txt
+  - pip install -U pipenv
+  - pipenv install -r requirements.txt
 before_success:
   - coverage erase
 script:
-  - py.test --durations=10 --cov changes --cov-report term-missing tests
+  - pipenv run pytest
 after_success:
   - coverage combine
   - codecov

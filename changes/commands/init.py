@@ -1,6 +1,7 @@
 import os
 import click
 from ..models import GitRepository
+from . import info, note
 
 """
 - init
@@ -16,44 +17,10 @@ from ..models import GitRepository
          - release
            - project name, date, version, (release name, description)
           - changes[]
-            -
 """
 
 
 AUTH_TOKEN_ENVVAR = 'GITHUB_AUTH_TOKEN'
-STYLES = {
-    'info': {
-        'fg': 'green',
-        'bold': True,
-    },
-    'note': {
-        'fg': 'blue',
-        'bold': True,
-    },
-    'error': {
-        'fg': 'red',
-        'bold': True,
-    }
-}
-
-
-def _echo(message, style):
-    click.secho(
-        '{}...'.format(message),
-        **STYLES[style]
-    )
-
-
-def info(message):
-    _echo(message, 'info')
-
-
-def note(message):
-    _echo(message, 'note')
-
-
-def error(message):
-    _echo(message, 'error')
 
 
 def init():
@@ -84,17 +51,5 @@ def init():
             open('.env', 'w').writelines(dot_env)
 
     repository.auth_token = auth_token
-
-    info('Analysing tags')
-    for version in repository.versions:
-        note(version)
-
-    info('Fetching pull requests')
-    # for pull_request in repository.pull_requests:
-    #     note('#{} {} by @{}'.format(
-    #         pull_request.number,
-    #         pull_request.title,
-    #         pull_request.author
-    #     ))
 
     return repository

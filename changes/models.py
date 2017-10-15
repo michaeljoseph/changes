@@ -20,12 +20,16 @@ class PullRequest:
     author = None
     labels = []
 
-    def __init__(self, pr_number, committish, title, description, author):
+    def __init__(self, pr_number, committish, **kwargs):
         self.number = pr_number
         self.committish = committish
-        self.title = title
-        self.description = description
-        self.author = author
+        self.title = kwargs['title']
+        self.description = kwargs['body']
+        self.author = kwargs['user']['login']
+        self.labels = [
+            label['name']
+            for label in kwargs['labels']
+        ]
 
 
 class GitRepository:
@@ -74,20 +78,14 @@ class GitRepository:
             matches = MERGED_PULL_REQUEST.findall(commit_msg)
             if matches:
                 committish, pr_number = matches[0]
-                title = description = author = None
-                if self.auth_token:
-                    pr = self.get_pull_request(pr_number)
-                    title = pr['title']
-                    description = pr['body']
-                    author = pr['user']['login']
+
+                pr = self.get_pull_request(pr_number)
 
                 pull_requests.append(
                     PullRequest(
                         pr_number,
                         committish,
-                        title,
-                        description,
-                        author,
+                        **pr
                     )
                 )
 

@@ -21,6 +21,9 @@ def test_merged_pull_requests(git_repo_with_merge_commit):
             'user': {
                 'login': 'someone'
             },
+            'labels': [
+                {'id': 1, 'name': 'feature'}
+            ],
         },
         status=200,
         content_type='application/json'
@@ -31,6 +34,8 @@ def test_merged_pull_requests(git_repo_with_merge_commit):
 
     first_pull_request = repository.pull_requests[0]
     assert '111' == first_pull_request.number
+    assert ['feature'] == first_pull_request.labels
+
     assert [] == repository.versions
 
     assert Version('0.0.0') == repository.latest_version

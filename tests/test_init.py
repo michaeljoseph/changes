@@ -22,7 +22,10 @@ def test_init_prompts_for_auth_token_and_returns_repo(mocker, git_repo_with_merg
             'body': 'An optional, longer description.',
             'user': {
                 'login': 'someone'
-            }
+            },
+            'labels': [
+                {'id': 1, 'name': 'feature'}
+            ],
         },
         status=200,
         content_type='application/json'

@@ -1,10 +1,10 @@
-from click.testing import CliRunner
-
-from changes import changelog, cli
-from . import context, setup, teardown
+from changes import changelog
+from . import context
 
 
-def test_write_new_changelog():
+def test_write_new_changelog(python_module):
+    import os
+    print(os.path.abspath(os.curdir))
     content = [
         'This is the heading\n\n',
         'This is the first line\n',
@@ -34,6 +34,7 @@ def test_write_new_changelog():
 
     assert ''.join(expected_content) ==  ''.join(open(context.tmp_file).readlines())
 
+
 def test_replace_sha_with_commit_link():
     repo_url = 'http://github.com/michaeljoseph/changes'
     log = 'dde9538 Coverage for all python version runs'
@@ -43,6 +44,8 @@ def test_replace_sha_with_commit_link():
     assert expected_content == changelog.replace_sha_with_commit_link(repo_url, log)
 
 
+import pytest
+@pytest.mark.skip('Towncrier')
 def test_generate_changelog():
     changelog.generate_changelog(context)
     assert isinstance(context.changelog_content, list)

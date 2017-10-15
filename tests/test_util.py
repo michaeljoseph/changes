@@ -1,7 +1,5 @@
 from changes import util
 
-from . import context, setup, teardown
-
 
 def test_extract():
     assert {'a': 1, 'b': 2} == util.extract({'a': 1, 'b': 2, 'c': 3}, ['a', 'b'])

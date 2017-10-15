@@ -1,14 +1,13 @@
 language: python
 python:
-  - "2.7"
-  - "3.4"
-  - "pypy"
+  - "3.5"
+  - "3.6"
 install:
   - pip install -U -r requirements.txt
 before_success:
   - coverage erase
 script:
-  - py.test --durations=10 --cov changes --cov-report term-missing tests
+  - pytest
 after_success:
   - coverage combine
   - codecov

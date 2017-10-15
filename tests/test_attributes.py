@@ -1,13 +1,20 @@
 from changes import attributes
 
-from . import context, setup, teardown
+from . import context
+
+import pytest
 
 
-def test_extract_attribute():
-    assert '0.0.1' == attributes.extract_attribute('test_app', '__version__')
+@pytest.mark.skip('bumpversion')
+def test_extract_attribute(python_module):
+    assert '0.0.1' == attributes.extract_attribute(
+        'test_app',
+        '__version__'
+    )
 
 
-def test_replace_attribute():
+@pytest.mark.skip('bumpversion')
+def test_replace_attribute(python_module):
     attributes.replace_attribute(
         'test_app',
         '__version__',
@@ -19,7 +26,8 @@ def test_replace_attribute():
     assert '\n'.join(expected_content) == ''.join(open(context.tmp_file).readlines())
 
 
-def test_replace_attribute_dry_run():
+@pytest.mark.skip('bumpversion')
+def test_replace_attribute_dry_run(python_module):
     attributes.replace_attribute(
         'test_app',
         '__version__',
@@ -30,5 +38,6 @@ def test_replace_attribute_dry_run():
     assert '\n'.join(expected_content) == ''.join(open(context.tmp_file).readlines())
 
 
-def test_has_attribute():
+@pytest.mark.skip('bumpversion')
+def test_has_attribute(python_module):
     assert attributes.has_attribute(context.module_name, '__version__')

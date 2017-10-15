@@ -3,12 +3,13 @@ import logging
 import tempfile
 
 from plumbum.cmd import diff
-from path import path
+from path import Path
 
 
 log = logging.getLogger(__name__)
 
 
+# TODO: leverage bumpversion
 def extract_attribute(module_name, attribute_name):
     """Extract metatdata property from a module"""
     with open('%s/__init__.py' % module_name) as input_file:
@@ -31,7 +32,7 @@ def replace_attribute(module_name, attribute_name, new_value, dry_run=True):
                 output_file.write(line)
 
     if not dry_run:
-        path(tmp_file).copy(init_file)
+        Path(tmp_file).copy(init_file)
     else:
         log.info(diff(tmp_file, init_file, retcode=None))
 

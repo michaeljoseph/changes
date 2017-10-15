@@ -1,7 +1,7 @@
 import contextlib
 import tempfile
 
-from path import path
+from path import Path
 
 
 def extract(dictionary, keys):
@@ -38,4 +38,4 @@ def mktmpdir():
     try:
         yield tmp_dir
     finally:
-        path(tmp_dir).rmtree(path(tmp_dir))
+        Path(tmp_dir).rmtree(Path(tmp_dir))

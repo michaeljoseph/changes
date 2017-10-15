@@ -1,0 +1,108 @@
+import re
+import shlex
+
+import semantic_version
+import uritemplate
+import requests
+import giturlparse
+from plumbum.cmd import git
+
+MERGED_PULL_REQUEST = re.compile(
+    r'^([0-9a-f]{5,40}) Merge pull request #(\w+)'
+)
+
+PULL_REQUEST_API = 'https://api.github.com/repos{/owner}{/repo}/pulls{/number}'
+
+
+class PullRequest:
+    title = None
+    description = None
+    author = None
+    labels = []
+
+    def __init__(self, pr_number, committish, **kwargs):
+        self.number = pr_number
+        self.committish = committish
+        self.title = kwargs['title']
+        self.description = kwargs['body']
+        self.author = kwargs['user']['login']
+        self.labels = [
+            label['name']
+            for label in kwargs['labels']
+        ]
+
+
+class GitRepository:
+    auth_token = None
+
+    def __init__(self, url=None):
+        self.parsed_repo = url or giturlparse.parse(
+            git(shlex.split('config --get remote.origin.url'))
+        )
+        self.commit_history = git(shlex.split(
+            'log --oneline --merges --no-color'
+        )).split('\n')
+
+        self.tags = git(shlex.split('tag --list')).split('\n')
+
+        self.versions = sorted([
+            semantic_version.Version(tag)
+            for tag in self.tags
+            if tag
+        ])
+
+    @property
+    def latest_version(self):
+        return self.versions[-1] if self.versions else semantic_version.Version('0.0.0')
+
+    def get_pull_request(self, pr_num):
+        return requests.get(
+            uritemplate.expand(
+                PULL_REQUEST_API,
+                dict(
+                    owner=self.owner,
+                    repo=self.repo,
+                    number=pr_num
+                ),
+            ),
+            headers={
+                'Authorization': 'token {}'.format(self.auth_token)
+            },
+        ).json()
+
+    @property
+    def pull_requests(self):
+        pull_requests = []
+
+        for index, commit_msg in enumerate(self.commit_history):
+            matches = MERGED_PULL_REQUEST.findall(commit_msg)
+            if matches:
+                committish, pr_number = matches[0]
+
+                pr = self.get_pull_request(pr_number)
+
+                pull_requests.append(
+                    PullRequest(
+                        pr_number,
+                        committish,
+                        **pr
+                    )
+                )
+
+        return pull_requests
+
+    @property
+    def repo(self):
+        return self.parsed_repo.repo
+
+    @property
+    def owner(self):
+        return self.parsed_repo.owner
+
+    @property
+    def github(self):
+        return self.parsed_repo.github
+
+    @property
+    def bitbucket(self):
+        return self.parsed_repo.bitbucket

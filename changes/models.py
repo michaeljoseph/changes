@@ -1,6 +1,7 @@
 import re
 import shlex
 
+import semantic_version
 import uritemplate
 import requests
 import giturlparse
@@ -39,13 +40,16 @@ class GitRepository:
         )).split('\n')
 
         self.tags = git(shlex.split('tag --list')).split('\n')
-        print(self.tags)
-        import semantic_version
+
         self.versions = sorted([
             semantic_version.Version(tag)
             for tag in self.tags
             if tag
         ])
+
+    @property
+    def latest_version(self):
+        return self.versions[-1] if self.versions else semantic_version.Version('0.0.0')
 
     def get_pull_request(self, pr_num):
         return requests.get(

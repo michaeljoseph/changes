@@ -1,6 +1,8 @@
 import os
 
+from plumbum.cmd import git
 import responses
+from semantic_version import Version
 
 from changes.commands import init
 
@@ -29,7 +31,6 @@ def test_init_prompts_for_auth_token_and_returns_repo(mocker, git_repo_with_merg
     if os.environ.get(init.AUTH_TOKEN_ENVVAR):
         del os.environ[init.AUTH_TOKEN_ENVVAR]
 
-    from plumbum.cmd import git
     git('tag', '0.0.3')
     git('tag', '0.0.1')
     git('tag', '0.0.2')
@@ -48,6 +49,6 @@ def test_init_prompts_for_auth_token_and_returns_repo(mocker, git_repo_with_merg
     assert 'someone' == first_pull_request.author
     assert 'The title of the pull request' == first_pull_request.title
 
-    from semantic_version import Version
     assert [Version('0.0.1'), Version('0.0.2'), Version('0.0.3')] == repository.versions
+
 

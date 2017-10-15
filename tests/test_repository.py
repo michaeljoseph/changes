@@ -1,3 +1,4 @@
+from semantic_version import Version
 from changes import models
 
 
@@ -11,3 +12,6 @@ def test_merged_pull_requests(git_repo_with_merge_commit):
     repository = models.GitRepository()
     assert 1 == len(repository.pull_requests)
     assert '111' == repository.pull_requests[0].number
+    assert [] == repository.versions
+
+    assert Version('0.0.0') == repository.latest_version

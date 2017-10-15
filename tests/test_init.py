@@ -1,21 +1,16 @@
-import json
 import os
 
 import responses
-from plumbum.cmd import git
 
 from changes.commands import init
 
 
 @responses.activate
-def test_init_prompts_for_auth_token_and_returns_repo(mocker, git_repo):
+def test_init_prompts_for_auth_token_and_returns_repo(mocker, git_repo_with_merge_commit):
     _ = mocker.patch('changes.commands.init.click.launch')
 
     prompt = mocker.patch('changes.commands.init.click.prompt')
     prompt.return_value = 'foo'
-
-    github = 'Merge pull request #111 from michaeljoseph/appveyor'
-    git('commit', '--allow-empty', '-m', github)
 
     responses.add(
         responses.GET,
@@ -34,6 +29,10 @@ def test_init_prompts_for_auth_token_and_returns_repo(mocker, git_repo):
     if os.environ.get(init.AUTH_TOKEN_ENVVAR):
         del os.environ[init.AUTH_TOKEN_ENVVAR]
 
+    from plumbum.cmd import git
+    git('tag', '0.0.3')
+    git('tag', '0.0.1')
+    git('tag', '0.0.2')
     repository = init.init()
 
     assert 'test_app' == repository.repo
@@ -44,7 +43,11 @@ def test_init_prompts_for_auth_token_and_returns_repo(mocker, git_repo):
     assert os.path.exists('.env')
     assert '{}=foo'.format(init.AUTH_TOKEN_ENVVAR) == open('.env').read()
 
+    assert 1 == len(repository.pull_requests)
     first_pull_request = repository.pull_requests[0]
     assert 'someone' == first_pull_request.author
     assert 'The title of the pull request' == first_pull_request.title
+
+    from semantic_version import Version
+    assert [Version('0.0.1'), Version('0.0.2'), Version('0.0.3')] == repository.versions
 

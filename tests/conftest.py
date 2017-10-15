@@ -1,7 +1,7 @@
 import os
-from click.testing import CliRunner
-import pytest
 
+import pytest
+from click.testing import CliRunner
 from plumbum.cmd import git
 
 pytest_plugins = 'pytester'
@@ -36,6 +36,23 @@ FILE_CONTENT = {
 }
 
 
+def git_init(files_to_add):
+    git('init')
+    git('remote', 'add', 'origin', 'https://github.com/michaeljoseph/test_app.git')
+    for file_to_add in files_to_add:
+        git('add', file_to_add)
+    git('commit', '-m', 'Initial commit')
+
+
+def github_merge_commit():
+    github = 'Merge pull request #111 from test_app/test-branch'
+    git('checkout', '-b', 'test-branch')
+    git('commit', '--allow-empty', '-m', 'Test branch commit message')
+    git('checkout', 'master')
+    git('merge', '--no-ff', 'test-branch')
+    git('commit', '--allow-empty', '--amend', '-m', github)
+
+
 @pytest.fixture
 def git_repo():
     with CliRunner().isolated_filesystem():
@@ -48,12 +65,9 @@ def git_repo():
         yield
 
 
-def git_init(files_to_add):
-    git('init')
-    git('remote', 'add', 'origin', 'https://github.com/michaeljoseph/test_app.git')
-    for file_to_add in files_to_add:
-        git('add', file_to_add)
-    git('commit', '-m', '"Initial commit"')
+@pytest.fixture
+def git_repo_with_merge_commit(git_repo):
+    github_merge_commit()
 
 
 @pytest.fixture

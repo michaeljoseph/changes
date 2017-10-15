@@ -38,15 +38,24 @@ class GitRepository:
             'log --oneline --merges --no-color'
         )).split('\n')
 
-        self.tags = git(shlex.split('tag --list'))
+        self.tags = git(shlex.split('tag --list')).split('\n')
+        print(self.tags)
+        import semantic_version
+        self.versions = sorted([
+            semantic_version.Version(tag)
+            for tag in self.tags
+            if tag
+        ])
 
     def get_pull_request(self, pr_num):
         return requests.get(
             uritemplate.expand(
                 PULL_REQUEST_API,
-                dict(owner=self.owner,
-                repo=self.repo,
-                number=pr_num),
+                dict(
+                    owner=self.owner,
+                    repo=self.repo,
+                    number=pr_num
+                ),
             ),
             headers={
                 'Authorization': 'token {}'.format(self.auth_token)

@@ -2,6 +2,22 @@ import os
 import click
 from ..models import GitRepository
 
+"""
+- init
+  - dependencies config:
+    - bumpversion
+      - current_version
+      - files to replace = VERSION
+    - towncrier
+      - fragment dir
+      - release version
+      - categories = tags
+      - template / format / target file
+         - release
+           - project name, date, version, (release name, description)
+          - changes[]
+            -
+"""
 
 
 AUTH_TOKEN_ENVVAR = 'GITHUB_AUTH_TOKEN'
@@ -47,7 +63,7 @@ def init():
     info('Indexing repository')
     repository = GitRepository()
 
-    info('Looking for github auth token in the environment')
+    info('Looking for Github auth token in the environment')
     auth_token = os.environ.get(AUTH_TOKEN_ENVVAR)
 
     if not auth_token:
@@ -69,13 +85,16 @@ def init():
 
     repository.auth_token = auth_token
 
+    info('Analysing tags')
+    for version in repository.versions:
+        note(version)
+
     info('Fetching pull requests')
-    for pull_request in repository.pull_requests:
-        note('#{} {} by @{}'.format(
-            pull_request.number,
-            pull_request.title,
-            pull_request.author
-        ))
-    error('Just kidding')
+    # for pull_request in repository.pull_requests:
+    #     note('#{} {} by @{}'.format(
+    #         pull_request.number,
+    #         pull_request.title,
+    #         pull_request.author
+    #     ))
 
     return repository

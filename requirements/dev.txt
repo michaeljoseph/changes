@@ -10,3 +10,4 @@ responses
 scrutinizer-ocular
 sphinx-bootstrap-theme
 sphinxcontrib-httpdomain
+haikunator

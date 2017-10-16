@@ -1,5 +1,5 @@
 import os
-import glob
+
 import pytest
 from click.testing import CliRunner
 
@@ -43,7 +43,5 @@ def test_refuses_readme():
 
 def test_fails_for_missing_readme(python_module):
     with CliRunner().isolated_filesystem():
-    # for i in glob.glob('README*'):
-    #     os.remove(i)
         with pytest.raises(exceptions.ProbeException):
             probe.has_readme()

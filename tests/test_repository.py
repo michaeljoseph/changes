@@ -1,4 +1,4 @@
-import responses
+from plumbum.cmd import git
 from semantic_version import Version
 
 from changes import models
@@ -8,34 +8,38 @@ def test_repository_parses_remote_url(git_repo):
     repository = models.GitRepository()
     assert 'test_app' == repository.repo
     assert 'michaeljoseph' == repository.owner
+    assert repository.github
 
 
-@responses.activate
-def test_merged_pull_requests(git_repo_with_merge_commit):
-    responses.add(
-        responses.GET,
-        'https://api.github.com/repos/michaeljoseph/test_app/pulls/111',
-        json={
-            'title': 'The title of the pull request',
-            'body': 'An optional, longer description.',
-            'user': {
-                'login': 'someone'
-            },
-            'labels': [
-                {'id': 1, 'name': 'feature'}
-            ],
-        },
-        status=200,
-        content_type='application/json'
-    )
+def test_repository_parses_versions(git_repo_with_merge_commit):
+    repository = models.GitRepository()
+
+    v1 = Version('0.0.1')
+
+    assert [v1] == repository.versions
+
+    assert v1 == repository.latest_version
+
+
+def test_latest_version_unreleased(git_repo):
+    repository = models.GitRepository()
+
+    assert 0 == len(repository.versions)
+
+    assert models.GitRepository.VERSION_ZERO == repository.latest_version
+
+
+def test_latest_version(git_repo_with_merge_commit):
+    git('tag', '0.0.2')
+    git('tag', '0.0.3')
 
     repository = models.GitRepository()
-    assert 1 == len(repository.pull_requests)
 
-    first_pull_request = repository.pull_requests[0]
-    assert '111' == first_pull_request.number
-    assert ['feature'] == first_pull_request.labels
+    expected_versions = [
+        Version('0.0.1'),
+        Version('0.0.2'),
+        Version('0.0.3'),
+    ]
+    assert expected_versions == repository.versions
 
-    assert [] == repository.versions
-
-    assert Version('0.0.0') == repository.latest_version
+    assert Version('0.0.3') == repository.latest_version

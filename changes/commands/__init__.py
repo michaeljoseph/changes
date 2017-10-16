@@ -18,17 +18,21 @@ STYLES = {
 
 def _echo(message, style):
     click.secho(
-        '{}...'.format(message),
+        str(message),
         **STYLES[style]
     )
 
 
 def info(message):
-    _echo(message, 'info')
+    _echo('{}...'.format(message), 'info')
 
 
 def note(message):
     _echo(message, 'note')
+
+
+def highlight(message):
+    return click.style(message, fg='cyan', bold=True)
 
 
 def error(message):

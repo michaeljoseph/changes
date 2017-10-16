@@ -142,4 +142,5 @@ def with_auth_token_envvar():
 
     yield
 
-    os.environ[AUTH_TOKEN_ENVVAR] = saved_token
+    if saved_token:
+        os.environ[AUTH_TOKEN_ENVVAR] = saved_token

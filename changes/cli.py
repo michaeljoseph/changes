@@ -79,11 +79,7 @@ def status(repo_directory):
     repo_directory = repo_directory if repo_directory else '.'
 
     with work_in(repo_directory):
-        requests_cache.install_cache(
-            cache_name='github_cache',
-            backend='sqlite',
-            expire_after=180000
-        )
+        requests_cache.configure()
         status_command.status()
 
 main.add_command(status)

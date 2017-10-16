@@ -59,7 +59,7 @@ def status():
             pull_request.number,
             pull_request.title,
             pull_request.author,
-            ' [{}] '.format(
+            ' [{}]'.format(
                 ','.join(pull_request.labels)
             ) if pull_request.labels else '',
         ))

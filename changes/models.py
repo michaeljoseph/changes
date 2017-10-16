@@ -106,15 +106,17 @@ class GitRepository:
 
     # github api
     def get_pull_request(self, pr_num):
-        return requests.get(
-            uritemplate.expand(
-                PULL_REQUEST_API,
-                dict(
-                    owner=self.owner,
-                    repo=self.repo,
-                    number=pr_num
-                ),
+        pull_request_api_url = uritemplate.expand(
+            PULL_REQUEST_API,
+            dict(
+                owner=self.owner,
+                repo=self.repo,
+                number=pr_num
             ),
+        )
+
+        return requests.get(
+            pull_request_api_url,
             headers={
                 'Authorization': 'token {}'.format(self.auth_token)
             },

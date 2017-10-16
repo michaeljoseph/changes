@@ -79,39 +79,25 @@ def git_init(files_to_add):
 @pytest.fixture
 @responses.activate
 def git_repo_with_merge_commit(git_repo):
+    git(shlex.split('tag 0.0.1'))
     pull_request_number = '111'
     github_merge_commit(pull_request_number)
 
-    responses.add(
-        responses.GET,
-        ISSUE_URL.format(pull_request_number),
-        json={
-            'number': int(pull_request_number),
-            'title': 'The title of the pull request',
-            'body': 'An optional, longer description.',
-            'user': {
-                'login': 'someone'
-            },
-            'labels': [
-                {'id': 1, 'name': 'feature'}
-            ],
-        },
-        status=200,
-        content_type='application/json'
-    )
-
 
 def github_merge_commit(pull_request_number):
+    from haikunator import Haikunator
+
+    branch_name = Haikunator().haikunate()
     commands = [
-        'tag 0.0.1',
-        'checkout -b test-branch',
+        'checkout -b {}'.format(branch_name),
         'commit --allow-empty -m "Test branch commit message"',
         'checkout master',
-        'merge --no-ff test-branch',
+        'merge --no-ff {}'.format(branch_name),
 
         'commit --allow-empty --amend -m '
-        '"Merge pull request #{} from test_app/test-branch"'.format(
-            pull_request_number
+        '"Merge pull request #{} from test_app/{}"'.format(
+            pull_request_number,
+            branch_name,
         )
     ]
     for command in commands:
@@ -131,7 +117,8 @@ def with_auth_token_prompt(mocker):
 
     yield
 
-    os.environ[AUTH_TOKEN_ENVVAR] = saved_token
+    if saved_token:
+        os.environ[AUTH_TOKEN_ENVVAR] = saved_token
 
 
 @pytest.fixture

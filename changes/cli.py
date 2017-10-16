@@ -1,10 +1,29 @@
+import contextlib
+import os
+
 import click
 import requests_cache
 
 from . import __version__
 from changes.commands import init as init_command
+from changes.commands import status as status_command
 
 VERSION = 'changes {}'.format(__version__)
+
+
+@contextlib.contextmanager
+def work_in(dirname=None):
+    """
+    Context manager version of os.chdir. When exited, returns to the working
+    directory prior to entering.
+    """
+    curdir = os.getcwd()
+    try:
+        if dirname is not None:
+            os.chdir(dirname)
+        yield
+    finally:
+        os.chdir(curdir)
 
 
 def print_version(context, param, value):
@@ -39,11 +58,6 @@ def print_version(context, param, value):
 )
 def main(dry_run, verbose):
     """Ch-ch-changes"""
-    requests_cache.install_cache(
-        cache_name='github_cache',
-        backend='sqlite',
-        expire_after=180000
-    )
 
 
 @click.command()
@@ -54,3 +68,22 @@ def init():
     init_command.init()
 
 main.add_command(init)
+
+
+@click.command()
+@click.argument('repo_directory', required=False)
+def status(repo_directory):
+    """
+    Shows current project release status.
+    """
+    repo_directory = repo_directory if repo_directory else '.'
+
+    with work_in(repo_directory):
+        requests_cache.install_cache(
+            cache_name='github_cache',
+            backend='sqlite',
+            expire_after=180000
+        )
+        status_command.status()
+
+main.add_command(status)

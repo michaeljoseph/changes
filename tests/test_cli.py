@@ -9,3 +9,33 @@ def test_version():
     result = runner.invoke(main, ['--version'])
     assert result.exit_code == 0
     assert result.output == 'changes %s\n' % changes.__version__
+
+
+def test_init(git_repo_with_merge_commit):
+    result = CliRunner().invoke(
+        main,
+        ['init'],
+        env={'GITHUB_AUTH_TOKEN': 'foo'},
+    )
+    assert result.exit_code == 0
+
+    expected_output = '\n'.join([
+        'Indexing repository...',
+        'Looking for Github auth token in the environment...',
+        '',
+    ])
+    assert expected_output == result.output
+
+
+def test_status(git_repo_with_merge_commit):
+    result = CliRunner().invoke(
+        main,
+        ['status'],
+        env={'GITHUB_AUTH_TOKEN': 'foo'},
+    )
+    assert 0 == result.exit_code
+
+    expected_output = '\n'.join([
+
+    ])
+    assert expected_output == result.output

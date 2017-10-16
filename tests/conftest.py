@@ -1,6 +1,7 @@
 import os
 
 import pytest
+import responses
 from click.testing import CliRunner
 from plumbum.cmd import git
 
@@ -38,6 +39,7 @@ FILE_CONTENT = {
 
 def git_init(files_to_add):
     git('init')
+    # git config --global user.email "you@example.com"
     git('remote', 'add', 'origin', 'https://github.com/michaeljoseph/test_app.git')
     for file_to_add in files_to_add:
         git('add', file_to_add)
@@ -64,11 +66,31 @@ def git_repo():
 
         yield
 
+ISSUE_URL = 'https://api.github.com/repos/michaeljoseph/test_app/issues/{}'
+
 
 @pytest.fixture
+@responses.activate
 def git_repo_with_merge_commit(git_repo):
-    github_merge_commit()
+    github_merge_commit() # issue number
 
+    responses.add(
+        responses.GET,
+        ISSUE_URL.format('111'),
+        json={
+            'number': 111,
+            'title': 'The title of the pull request',
+            'body': 'An optional, longer description.',
+            'user': {
+                'login': 'someone'
+            },
+            'labels': [
+                {'id': 1, 'name': 'feature'}
+            ],
+        },
+        status=200,
+        content_type='application/json'
+    )
 
 @pytest.fixture
 def python_module():

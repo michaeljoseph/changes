@@ -1,11 +1,11 @@
 machine:
   post:
-    - pyenv global 2.7.9 3.4.2 pypy-2.4.0
+    - pyenv global 3.3.6 3.4.2 3.5.1 3.6.2 pypy-2.4.0
 
 dependencies:
   override:
-    - pip install tox
+    - pip install -U -r requirements.txt
 
 test:
   override:
-    - tox
+    - pytest

@@ -3,38 +3,12 @@ import textwrap
 import responses
 from plumbum.cmd import git
 
-from changes.commands import status
+from changes.commands import stage
 from .conftest import github_merge_commit, ISSUE_URL
 
 
-def test_status(
-    capsys,
-    git_repo_with_merge_commit,
-    with_auth_token_envvar
-):
-
-    git('tag', '0.0.2')
-
-    status.status()
-
-    expected_output = textwrap.dedent(
-        """\
-        Indexing repository...
-        Looking for Github Auth Token in the environment...
-        Found Github Auth Token in the environment...
-        Repository: michaeljoseph/test_app...
-        Latest Version...
-        0.0.2
-        Changes...
-        0 changes found since 0.0.2
-        """
-    )
-    out, _ = capsys.readouterr()
-    assert expected_output == out
-
-
 @responses.activate
-def test_status_with_changes(
+def test_stage(
     capsys,
     git_repo_with_merge_commit,
     with_auth_token_envvar
@@ -61,7 +35,7 @@ def test_status_with_changes(
         content_type='application/json'
     )
 
-    status.status()
+    stage.stage()
 
     expected_output = textwrap.dedent(
         """\
@@ -76,6 +50,7 @@ def test_status_with_changes(
         #112 The title of the pull request by @someone [bug]
         Computed release type fix from changes issue tags...
         Proposed version bump 0.0.2 => 0.0.3...
+        Staging [fix] release for version 0.0.3...
         """
     )
     out, _ = capsys.readouterr()

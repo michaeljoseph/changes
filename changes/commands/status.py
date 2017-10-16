@@ -1,5 +1,5 @@
-from changes.commands import info, note, highlight
-from changes.commands.init import init
+from . import info, note, highlight
+from .init import init
 
 
 class Release:
@@ -64,9 +64,12 @@ def status():
             ) if pull_request.labels else '',
         ))
 
+    release_type = proposed_version = None
     if unreleased_changes:
         release_type, proposed_version = changes_to_release_type(repository)
         info('Computed release type {} from changes issue tags'.format(release_type))
         info('Proposed version bump {} => {}'.format(
             repository.latest_version, proposed_version
         ))
+
+    return repository, release_type, proposed_version

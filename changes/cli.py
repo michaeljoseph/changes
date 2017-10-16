@@ -7,6 +7,7 @@ import requests_cache
 from . import __version__
 from changes.commands import init as init_command
 from changes.commands import status as status_command
+from changes.commands import stage as stage_command
 
 VERSION = 'changes {}'.format(__version__)
 
@@ -83,3 +84,14 @@ def status(repo_directory):
         status_command.status()
 
 main.add_command(status)
+
+
+@click.command()
+@click.argument('version', required=False)
+def stage(version):
+    """
+    Stages a release
+    """
+    stage_command.stage(version)
+
+main.add_command(stage)

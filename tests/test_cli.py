@@ -53,3 +53,27 @@ def test_status(git_repo):
         """
     )
     assert expected_output == result.output
+
+
+def test_stage_cli(git_repo):
+    result = CliRunner().invoke(
+       main,
+       ['stage'],
+       env={AUTH_TOKEN_ENVVAR: 'foo'},
+    )
+    assert 0 == result.exit_code
+
+    expected_output = textwrap.dedent(
+        """\
+        Indexing repository...
+        Looking for Github Auth Token in the environment...
+        Found Github Auth Token in the environment...
+        Repository: michaeljoseph/test_app...
+        Latest Version...
+        0.0.0
+        Changes...
+        0 changes found since 0.0.0
+        There aren't any changes to release!
+        """
+    )
+    assert expected_output == result.output

@@ -33,6 +33,8 @@ class PullRequest:
 
 
 class GitRepository:
+    VERSION_ZERO = semantic_version.Version('0.0.0')
+
     auth_token = None
 
     def __init__(self, url=None):
@@ -71,12 +73,9 @@ class GitRepository:
 
     @property
     def latest_version(self) -> semantic_version.Version:
-        return max(self.versions) if self.versions else semantic_version.Version('0.0.0')
+        return max(self.versions) if self.versions else self.VERSION_ZERO
 
     def merges_since(self, version=None):
-        print('merged since')
-        print(version)
-        
         if version == semantic_version.Version('0.0.0'):
             print('not a real version')
         #     version = self.first_commit_sha
@@ -101,9 +100,7 @@ class GitRepository:
 
                 pr = self.get_pull_request(pull_request_number)
                 pull_requests.append(
-                    PullRequest(
-                        **pr
-                    )
+                    PullRequest(**pr)
                 )
         return pull_requests
 

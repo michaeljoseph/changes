@@ -1,3 +1,4 @@
+import textwrap
 import os
 
 from plumbum.cmd import git
@@ -6,27 +7,25 @@ from semantic_version import Version
 from changes.commands import status
 
 
-def test_status(capsys, mocker, git_repo_with_merge_commit):
-    _ = mocker.patch('changes.commands.init.click.launch')
-
-    prompt = mocker.patch('changes.commands.init.click.prompt')
-    prompt.return_value = 'foo'
-
-    if os.environ.get(init.AUTH_TOKEN_ENVVAR):
-        del os.environ[init.AUTH_TOKEN_ENVVAR]
+def test_status(
+    capsys,
+    git_repo_with_merge_commit,
+    with_auth_token_envvar
+):
 
     git('tag', '0.0.2')
-    git('tag', '0.0.3')
 
     status.status()
 
     expected_output = textwrap.dedent(
-        """Indexing repository...
+        """\
+        Indexing repository...
         Looking for Github auth token in the environment...
         Repository: michaeljoseph/test_app...
         Latest Version...
-        0.0.1
+        0.0.2
         Changes...
+        0 changes found since 0.0.2
         """
     )
     out, err = capsys.readouterr()

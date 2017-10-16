@@ -6,18 +6,12 @@ from semantic_version import Version
 from changes.commands import init
 
 
-def test_init_prompts_for_auth_token_and_returns_repo(mocker, git_repo_with_merge_commit):
-    _ = mocker.patch('changes.commands.init.click.launch')
-
-    prompt = mocker.patch('changes.commands.init.click.prompt')
-    prompt.return_value = 'foo'
-
-    if os.environ.get(init.AUTH_TOKEN_ENVVAR):
-        del os.environ[init.AUTH_TOKEN_ENVVAR]
-
-    git('tag', '0.0.3')
-    git('tag', '0.0.1')
+def test_init_prompts_for_auth_token_and_returns_repo(
+    git_repo_with_merge_commit,
+    with_auth_token_prompt
+):
     git('tag', '0.0.2')
+    git('tag', '0.0.3')
     repository = init.init()
 
     assert 'test_app' == repository.repo

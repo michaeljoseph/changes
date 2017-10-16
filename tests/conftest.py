@@ -1,4 +1,5 @@
 import os
+import shlex
 
 import pytest
 import responses
@@ -35,62 +36,9 @@ FILE_CONTENT = {
     'README.md': README_MARKDOWN,
     'CHANGELOG.md': [''],
 }
-
-
-def git_init(files_to_add):
-    git('init')
-    # git config --global user.email "you@example.com"
-    git('remote', 'add', 'origin', 'https://github.com/michaeljoseph/test_app.git')
-    for file_to_add in files_to_add:
-        git('add', file_to_add)
-    git('commit', '-m', 'Initial commit')
-
-
-def github_merge_commit():
-    github = 'Merge pull request #111 from test_app/test-branch'
-    git('checkout', '-b', 'test-branch')
-    git('commit', '--allow-empty', '-m', 'Test branch commit message')
-    git('checkout', 'master')
-    git('merge', '--no-ff', 'test-branch')
-    git('commit', '--allow-empty', '--amend', '-m', github)
-
-
-@pytest.fixture
-def git_repo():
-    with CliRunner().isolated_filesystem():
-        readme_path = 'README.md'
-        open(readme_path, 'w').write(
-            '\n'.join(README_MARKDOWN)
-        )
-        git_init([readme_path])
-
-        yield
-
 ISSUE_URL = 'https://api.github.com/repos/michaeljoseph/test_app/issues/{}'
+AUTH_TOKEN_ENVVAR = 'GITHUB_AUTH_TOKEN'
 
-
-@pytest.fixture
-@responses.activate
-def git_repo_with_merge_commit(git_repo):
-    github_merge_commit() # issue number
-
-    responses.add(
-        responses.GET,
-        ISSUE_URL.format('111'),
-        json={
-            'number': 111,
-            'title': 'The title of the pull request',
-            'body': 'An optional, longer description.',
-            'user': {
-                'login': 'someone'
-            },
-            'labels': [
-                {'id': 1, 'name': 'feature'}
-            ],
-        },
-        status=200,
-        content_type='application/json'
-    )
 
 @pytest.fixture
 def python_module():
@@ -105,3 +53,93 @@ def python_module():
         git_init(FILE_CONTENT.keys())
 
         yield
+
+
+@pytest.fixture
+def git_repo():
+    with CliRunner().isolated_filesystem():
+        readme_path = 'README.md'
+        open(readme_path, 'w').write(
+            '\n'.join(README_MARKDOWN)
+        )
+        git_init([readme_path])
+
+        yield
+
+
+def git_init(files_to_add):
+    git('init')
+    git(shlex.split('config --global user.email "you@example.com"'))
+    git('remote', 'add', 'origin', 'https://github.com/michaeljoseph/test_app.git')
+    for file_to_add in files_to_add:
+        git('add', file_to_add)
+    git('commit', '-m', 'Initial commit')
+
+
+@pytest.fixture
+@responses.activate
+def git_repo_with_merge_commit(git_repo):
+    pull_request_number = '111'
+    github_merge_commit(pull_request_number)
+
+    responses.add(
+        responses.GET,
+        ISSUE_URL.format(pull_request_number),
+        json={
+            'number': int(pull_request_number),
+            'title': 'The title of the pull request',
+            'body': 'An optional, longer description.',
+            'user': {
+                'login': 'someone'
+            },
+            'labels': [
+                {'id': 1, 'name': 'feature'}
+            ],
+        },
+        status=200,
+        content_type='application/json'
+    )
+
+
+def github_merge_commit(pull_request_number):
+    commands = [
+        'tag 0.0.1',
+        'checkout -b test-branch',
+        'commit --allow-empty -m "Test branch commit message"',
+        'checkout master',
+        'merge --no-ff test-branch',
+
+        'commit --allow-empty --amend -m '
+        '"Merge pull request #{} from test_app/test-branch"'.format(
+            pull_request_number
+        )
+    ]
+    for command in commands:
+        git(shlex.split(command))
+
+
+@pytest.fixture
+def with_auth_token_prompt(mocker):
+    _ = mocker.patch('changes.commands.init.click.launch')
+
+    prompt = mocker.patch('changes.commands.init.click.prompt')
+    prompt.return_value = 'foo'
+
+    if os.environ.get(AUTH_TOKEN_ENVVAR):
+        saved_token = os.environ[AUTH_TOKEN_ENVVAR]
+        del os.environ[AUTH_TOKEN_ENVVAR]
+
+    yield
+
+    os.environ[AUTH_TOKEN_ENVVAR] = saved_token
+
+
+@pytest.fixture
+def with_auth_token_envvar():
+    if os.environ.get(AUTH_TOKEN_ENVVAR):
+        saved_token = os.environ[AUTH_TOKEN_ENVVAR]
+        os.environ[AUTH_TOKEN_ENVVAR] = 'foo'
+
+    yield
+
+    os.environ[AUTH_TOKEN_ENVVAR] = saved_token

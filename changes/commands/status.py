@@ -3,9 +3,10 @@ from changes.commands.init import init
 
 
 class Release:
-    BREAKING_CHANGE = 1
-    FEATURE = 2
-    FIX = 3
+    NO_CHANGE = 'nochanges'
+    BREAKING_CHANGE = 'breaking'
+    FEATURE = 'feature'
+    FIX = 'fix'
 
 
 def changes_to_release_type(repository):
@@ -24,9 +25,13 @@ def changes_to_release_type(repository):
     if 'BREAKING CHANGE' in change_descriptions:
         return Release.BREAKING_CHANGE, current_version.next_major()
     elif 'enhancement' in pull_request_labels:
-        return Release.BREAKING_CHANGE, current_version.next_minor()
+        return Release.FEATURE, current_version.next_minor()
     elif 'bug' in pull_request_labels:
-        return Release.BREAKING_CHANGE, current_version.next_patch()
+        return Release.FIX, current_version.next_patch()
+    else:
+        return Release.NO_CHANGE, current_version
+
+    return None
 
 
 def status():
@@ -43,12 +48,13 @@ def status():
     note(repository.latest_version)
 
     info('Changes')
+    unreleased_changes = repository.changes_since_last_version
     note('{} changes found since {}'.format(
-        len(repository.changes_since_last_version),
+        len(unreleased_changes),
         repository.latest_version,
     ))
 
-    for pull_request in repository.changes_since_last_version:
+    for pull_request in unreleased_changes:
         note('#{} {} by @{}{}'.format(
             pull_request.number,
             pull_request.title,
@@ -58,8 +64,9 @@ def status():
             ) if pull_request.labels else '',
         ))
 
-    release_type, proposed_version = changes_to_release_type(repository)
-    info('Computed release type {} from changes issue tags'.format(release_type))
-    info('Proposed version bump {} => {}'.format(
-        repository.latest_version, proposed_version
-    ))
+    if unreleased_changes:
+        release_type, proposed_version = changes_to_release_type(repository)
+        info('Computed release type {} from changes issue tags'.format(release_type))
+        info('Proposed version bump {} => {}'.format(
+            repository.latest_version, proposed_version
+        ))

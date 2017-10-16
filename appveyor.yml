@@ -1,8 +1,5 @@
 environment:
   matrix:
-    - PYTHON: "C:\\Python27"
-      TOX_ENV: "py27"
-
     - PYTHON: "C:\\Python33"
       TOX_ENV: "py33"
 
@@ -24,7 +21,7 @@ install:
 build: false
 
 test_script:
-  - "%PYTHON%/Scripts/py.test --durations=10 --cov changes --cov-report term-missing tests"
+  - "%PYTHON%/Scripts/pytest"
 
 after_test:
   - "%PYTHON%/Scripts/coverage combine"

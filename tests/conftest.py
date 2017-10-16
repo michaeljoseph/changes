@@ -111,6 +111,7 @@ def with_auth_token_prompt(mocker):
     prompt = mocker.patch('changes.commands.init.click.prompt')
     prompt.return_value = 'foo'
 
+    saved_token = None
     if os.environ.get(AUTH_TOKEN_ENVVAR):
         saved_token = os.environ[AUTH_TOKEN_ENVVAR]
         del os.environ[AUTH_TOKEN_ENVVAR]
@@ -123,6 +124,7 @@ def with_auth_token_prompt(mocker):
 
 @pytest.fixture
 def with_auth_token_envvar():
+    saved_token = None
     if os.environ.get(AUTH_TOKEN_ENVVAR):
         saved_token = os.environ[AUTH_TOKEN_ENVVAR]
         os.environ[AUTH_TOKEN_ENVVAR] = 'foo'

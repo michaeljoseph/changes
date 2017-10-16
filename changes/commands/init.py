@@ -30,12 +30,12 @@ def init():
     info('Indexing repository')
     repository = GitRepository()
 
-    info('Looking for Github auth token in the environment')
+    info('Looking for Github Auth Token in the environment')
     auth_token = os.environ.get(AUTH_TOKEN_ENVVAR)
 
     if not auth_token:
         info('No auth token found, asking for it')
-        note('You need a GitHub token for changes to create a release.')
+        note('You need a Github Auth Token for changes to create a release.')
         click.pause('Press [enter] to launch the GitHub "New personal access '
                     'token" page, to create a token for changes.')
         click.launch('https://github.com/settings/tokens/new')
@@ -49,6 +49,8 @@ def init():
             )
             note('Appending {} setting to .env file'.format(AUTH_TOKEN_ENVVAR))
             open('.env', 'w').writelines(dot_env)
+    else:
+        info('Found Github Auth Token in the environment')
 
     repository.auth_token = auth_token
 

@@ -69,7 +69,7 @@ def git_repo():
 
 def git_init(files_to_add):
     git('init')
-    git(shlex.split('config --global user.email "you@example.com"'))
+    git(shlex.split('config --local user.email "you@example.com"'))
     git('remote', 'add', 'origin', 'https://github.com/michaeljoseph/test_app.git')
     for file_to_add in files_to_add:
         git('add', file_to_add)
@@ -80,8 +80,7 @@ def git_init(files_to_add):
 @responses.activate
 def git_repo_with_merge_commit(git_repo):
     git(shlex.split('tag 0.0.1'))
-    pull_request_number = '111'
-    github_merge_commit(pull_request_number)
+    github_merge_commit(111)
 
 
 def github_merge_commit(pull_request_number):
@@ -127,7 +126,8 @@ def with_auth_token_envvar():
     saved_token = None
     if os.environ.get(AUTH_TOKEN_ENVVAR):
         saved_token = os.environ[AUTH_TOKEN_ENVVAR]
-        os.environ[AUTH_TOKEN_ENVVAR] = 'foo'
+
+    os.environ[AUTH_TOKEN_ENVVAR] = 'foo'
 
     yield
 

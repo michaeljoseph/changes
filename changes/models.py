@@ -77,8 +77,7 @@ class GitRepository:
 
     def merges_since(self, version=None):
         if version == semantic_version.Version('0.0.0'):
-            print('not a real version')
-        #     version = self.first_commit_sha
+            version = self.first_commit_sha
 
         revision_range = ' {}..HEAD'.format(version) if version else ''
 

@@ -44,7 +44,7 @@ def load_settings():
     tool_settings = None
     if tool_config_path.exists():
         tool_settings = Changes(
-            **(toml.load(tool_config_path.read_text())['changes'])
+            **(toml.load(tool_config_path.open())['changes'])
         )
 
     if not (tool_settings and tool_settings.auth_token):
@@ -92,6 +92,16 @@ class Project(object):
 
 @attr.s
 class BumpVersion(object):
+    DRAFT_OPTIONS = [
+        '--dry-run', '--verbose',
+        '--no-commit', '--no-tag',
+        '--allow-dirty',
+    ]
+    STAGE_OPTIONS = [
+        '--verbose',
+        '--no-commit', '--no-tag',
+    ]
+
     current_version = attr.ib()
     version_files_to_replace = attr.ib(default=attr.Factory(list))
 
@@ -102,8 +112,9 @@ class BumpVersion(object):
             current_version = {current_version}
 
             """
-        )
-        bumpversion_files = '\n'.join([
+        ).format(**attr.asdict(self))
+
+        bumpversion_files = '\n\n'.join([
             '[bumpversion:file:{}]'.format(file_name)
             for file_name in self.version_files_to_replace
         ])
@@ -118,7 +129,7 @@ def load_project_settings():
     project_settings = None
     if changes_project_config_path.exists():
         project_settings = Project(
-            **(toml.load(changes_project_config_path.read_text())['changes'])
+            **(toml.load(changes_project_config_path.open())['changes'])
         )
 
     if not project_settings:
@@ -143,6 +154,7 @@ def load_project_settings():
     )
 
     # TODO: look in other locations / extract from bumpversion
+    bumpversion = None
     bumpversion_config_path = Path('.bumpversion.cfg')
     if not bumpversion_config_path.exists():
         # list of file paths
@@ -159,6 +171,7 @@ def load_project_settings():
                     readable=True
                 )
             ))
+
             if version_file_path == Path('.'):
                 done = True
             else:

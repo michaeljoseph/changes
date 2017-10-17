@@ -1,5 +1,6 @@
 import os
 import shlex
+from pathlib import Path
 
 import pytest
 import responses
@@ -98,6 +99,16 @@ def github_merge_commit(pull_request_number):
     ]
     for command in commands:
         git(shlex.split(command))
+
+
+@pytest.fixture
+def with_releases_directory_and_bumpversion_file_prompt(mocker):
+    prompt = mocker.patch('changes.config.click.prompt')
+    prompt.side_effect = [
+        'docs/releases',
+        'version.txt',
+        '.'
+    ]
 
 
 @pytest.fixture

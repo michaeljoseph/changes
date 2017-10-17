@@ -1,9 +1,7 @@
-PyYAML
 plumbum
 click
 giturlparse.py
 future
-path.py
 requests
 semantic_version
 uritemplate
@@ -19,3 +17,4 @@ tox
 uritemplate
 requests
 requests-cache
+attrs

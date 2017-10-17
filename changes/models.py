@@ -12,7 +12,11 @@ MERGED_PULL_REQUEST = re.compile(
     r'^([0-9a-f]{5,40}) Merge pull request #(\w+)'
 )
 
-PULL_REQUEST_API = 'https://api.github.com/repos{/owner}{/repo}/issues{/number}'
+GITHUB_PULL_REQUEST_API = (
+    'https://api.github.com/repos{/owner}{/repo}/issues{/number}'
+)
+
+
 def changes_to_release_type(repository):
     pull_request_labels = set()
     changes = repository.changes_since_last_version
@@ -152,16 +156,29 @@ class GitRepository:
             if matches:
                 _, pull_request_number = matches[0]
 
-                pr = self.get_pull_request(pull_request_number)
-                pull_requests.append(
-                    PullRequest(**pr)
-                )
+                pull_requests.append(PullRequest.from_github(
+                    self.github_pull_request(pull_request_number)
+                ))
         return pull_requests
 
-    # github api
-    def get_pull_request(self, pr_num):
+    def github_labels(self):
+        # GET /repos/:owner/:repo/labels
+        """
+        [
+          {
+            "id": 208045946,
+            "url": "https://api.github.com/repos/octocat/Hello-World/labels/bug",
+            "name": "bug",
+            "color": "f29513",
+            "default": true
+          }
+        ]
+        """
+        pass
+
+    def github_pull_request(self, pr_num):
         pull_request_api_url = uritemplate.expand(
-            PULL_REQUEST_API,
+            GITHUB_PULL_REQUEST_API,
             dict(
                 owner=self.owner,
                 repo=self.repo,

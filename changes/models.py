@@ -12,8 +12,45 @@ MERGED_PULL_REQUEST = re.compile(
 )
 
 PULL_REQUEST_API = 'https://api.github.com/repos{/owner}{/repo}/issues{/number}'
+def changes_to_release_type(repository):
+    pull_request_labels = set()
+    changes = repository.changes_since_last_version
+
+    for change in changes:
+        for label in change.labels:
+            pull_request_labels.add(label)
+
+    change_descriptions = [
+        '\n'.join([change.title, change.description]) for change in changes
+    ]
+
+    current_version = repository.latest_version
+    if 'BREAKING CHANGE' in change_descriptions:
+        return 'major', Release.BREAKING_CHANGE, current_version.next_major()
+    elif 'enhancement' in pull_request_labels:
+        return 'minor', Release.FEATURE, current_version.next_minor()
+    elif 'bug' in pull_request_labels:
+        return 'patch', Release.FIX, current_version.next_patch()
+    else:
+        return None, Release.NO_CHANGE, current_version
 
 
+class Release:
+    NO_CHANGE = 'nochanges'
+    BREAKING_CHANGE = 'breaking'
+    FEATURE = 'feature'
+    FIX = 'fix'
+
+    version = '<current_version>'
+    name = None
+    title = "{formatted string}"
+    title_format = ''
+    description = "(optional)Release description"
+    changes = []
+
+    @property
+    def title(self):
+        return
 class PullRequest:
     title = None
     description = None

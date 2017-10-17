@@ -87,11 +87,17 @@ main.add_command(status)
 
 
 @click.command()
-@click.argument('version', required=False)
-def stage(version):
+@click.option(
+    '--draft',
+    help='Enables verbose output.',
+    is_flag=True,
+    default=False,
+)
+def stage(draft):
     """
     Stages a release
     """
-    stage_command.stage(version)
+    requests_cache.configure(expire_after=60*10*10)
+    stage_command.stage(draft)
 
 main.add_command(stage)

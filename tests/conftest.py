@@ -103,12 +103,28 @@ def github_merge_commit(pull_request_number):
 
 @pytest.fixture
 def with_releases_directory_and_bumpversion_file_prompt(mocker):
-    prompt = mocker.patch('changes.config.click.prompt')
+    prompt = mocker.patch(
+        'changes.config.click.prompt',
+        autospec=True
+    )
     prompt.side_effect = [
+        # release_directory
         'docs/releases',
+        # bumpversion files
         'version.txt',
-        '.'
+        # quit prompt
+        '.',
+        # label descriptions
+        # 'Features',
+        # 'Bug Fixes'
     ]
+
+    prompt = mocker.patch(
+        'changes.config.read_user_choices',
+        autospec=True
+    )
+    prompt.return_value = ['enhancement', 'bug']
+
 
 
 @pytest.fixture

@@ -7,6 +7,7 @@ from plumbum.cmd import git
 from changes.commands import init
 from .conftest import AUTH_TOKEN_ENVVAR
 
+
 @pytest.fixture
 def init_prompts(mocker):
     _ = mocker.patch(
@@ -24,6 +25,12 @@ def init_prompts(mocker):
         'test_app/__init__.py',
         '.'
     ]
+
+    prompt = mocker.patch(
+        'changes.config.read_user_choices',
+        autospec=True
+    )
+    prompt.return_value = ['enhancement', 'bug']
 
     saved_token = None
     if os.environ.get(AUTH_TOKEN_ENVVAR):

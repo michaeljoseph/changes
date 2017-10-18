@@ -79,15 +79,22 @@ class Project(object):
     releases_directory = attr.ib()
     repository = attr.ib(default=None)
     bumpversion = attr.ib(default=None)
-    towncrier = attr.ib(default=None)
+    labels = attr.ib(default=attr.Factory(dict))
 
     @property
     def bumpversion_configured(self):
         return isinstance(self.bumpversion, BumpVersion)
 
     @property
-    def towncrier_configured(self):
-        return isinstance(self.towncrier, TownCrier)
+    def labels_selected(self):
+        return len(self.labels) > 0
+
+    @property
+    def labels_have_descriptions(self):
+        return all([
+            'description' in properties and len(properties['description']) > 0
+            for label, properties in self.labels.items()
+        ])
 
 
 @attr.s
@@ -153,17 +160,44 @@ def load_project_settings():
         auth_token=changes.settings.auth_token
     )
 
-    # TODO: look in other locations / extract from bumpversion
+    project_settings.bumpversion = configure_bumpversion(project_settings)
+
+    if not project_settings.labels_selected:
+        # defaults: enhancement, bug
+        project_settings.changelog_worthy_labels = read_user_choices(
+            'labels',
+            [
+                properties['name']
+                for label, properties in project_settings.labels.items()
+            ]
+        )
+
+    # auto generate descriptions, note: to customise .changes.toml
+    if not project_settings.labels_have_descriptions:
+        described_labels = {}
+        for label in project_settings.changelog_worthy_labels:
+            label_properties = project_settings.labels[label]
+            label_properties['description'] = label.title()
+            described_labels[label] = label_properties
+        # FIXME: for label, properties in project_settings.???
+        # FIXME: name from the context of the consumer in `stage`
+        project_settings.xx = described_labels
+
+    return project_settings
+
+
+def configure_bumpversion(project_settings):
+    # TODO: look in other supported bumpversion config locations
     bumpversion = None
     bumpversion_config_path = Path('.bumpversion.cfg')
     if not bumpversion_config_path.exists():
-        # list of file paths
-        ask_user_for_version_files = []
+        user_supplied_versioned_file_paths = []
 
-        done = False
-        while not done:
+        version_file_path = None
+        while not version_file_path == Path('.'):
             version_file_path = Path(click.prompt(
-                'Enter a path to a file that contains a version number',
+                'Enter a path to a file that contains a version number '
+                "(enter a path of '.' when you're done selecting files)",
                 type=click.Path(
                     exists=True,
                     dir_okay=True,
@@ -172,20 +206,19 @@ def load_project_settings():
                 )
             ))
 
-            if version_file_path == Path('.'):
-                done = True
-            else:
-                ask_user_for_version_files.append(version_file_path)
+            if version_file_path != Path('.'):
+                user_supplied_versioned_file_paths.append(version_file_path)
 
         bumpversion = BumpVersion(
             current_version=project_settings.repository.latest_version,
-            version_files_to_replace=ask_user_for_version_files,
+            version_files_to_replace=user_supplied_versioned_file_paths,
         )
         bumpversion.write_to_file(bumpversion_config_path)
+    else:
+        raise NotImplemented('')
 
-    project_settings.bumpversion = bumpversion
+    return bumpversion
 
-    return project_settings
 
 
 DEFAULTS = {

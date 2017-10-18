@@ -1,7 +1,7 @@
 import contextlib
 import tempfile
 
-from path import Path
+from pathlib import Path
 
 
 def extract(dictionary, keys):

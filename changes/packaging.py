@@ -10,7 +10,6 @@ log = logging.getLogger(__name__)
 
 def build_distributions(context):
     """Builds package distributions"""
-    packages = None
     rmtree('dist', ignore_errors=True)
 
     build_package_command = 'python setup.py clean sdist bdist_wheel'
@@ -37,7 +36,7 @@ def install_package(context):
                     log.info('Successfully installed %s', distribution)
                     if context.test_command and verification.run_test_command(context.test_command):
                         log.info('Successfully ran test command: %s',
-                                 test_command)
+                                 context.test_command)
                 except Exception as e:
                     raise Exception('Error installing distribution %s' % distribution, e)
     else:
@@ -66,8 +65,7 @@ def upload_package(context):
 def install_from_pypi(context):
     """Attempts to install your package from pypi."""
 
-    # tmp_dir = venv.create_venv()
-    tmp_dir = '/tmp'
+    tmp_dir = venv.create_venv()
     install_cmd = '%s/bin/pip install %s' % (tmp_dir, context.module_name)
 
     package_index = 'pypi'
@@ -88,5 +86,3 @@ def install_from_pypi(context):
         error_msg = 'Error installing %s from %s' % (context.module_name, package_index)
         log.exception(error_msg)
         raise Exception(error_msg, e)
-
-    Path(tmp_dir).rmtree(Path(tmp_dir))

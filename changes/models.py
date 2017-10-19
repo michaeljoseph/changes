@@ -40,18 +40,18 @@ def changes_to_release_type(repository):
         return None, Release.NO_CHANGE, current_version
 
 
+@attr.s
 class Release:
     NO_CHANGE = 'nochanges'
     BREAKING_CHANGE = 'breaking'
     FEATURE = 'feature'
     FIX = 'fix'
 
-    version = '<current_version>'
-    name = None
-    title = "{formatted string}"
-    title_format = ''
-    description = "(optional)Release description"
-    changes = []
+    name = attr.ib()
+    release_date = attr.ib()
+    version = attr.ib()
+    description = attr.ib()
+    changes = attr.ib(default=attr.Factory(dict))
 
     @property
     def title(self):

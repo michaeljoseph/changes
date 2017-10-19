@@ -123,8 +123,7 @@ def with_releases_directory_and_bumpversion_file_prompt(mocker):
         'changes.config.read_user_choices',
         autospec=True
     )
-    prompt.return_value = ['enhancement', 'bug']
-
+    prompt.return_value = ['bug']
 
 
 @pytest.fixture

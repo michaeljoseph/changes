@@ -1,8 +1,8 @@
 import textwrap
+from datetime import date
 from pathlib import Path
 
 import responses
-from plumbum.cmd import git
 
 from changes.commands import stage
 from .conftest import github_merge_commit, ISSUE_URL
@@ -39,6 +39,8 @@ def test_stage_draft(
 
     stage.stage(draft=True)
 
+    assert Path('.bumpversion.cfg').exists()
+
     expected_output = textwrap.dedent(
         """\
         Found Github Auth Token in the environment...
@@ -53,13 +55,26 @@ def test_stage_draft(
         Proposed version bump 0.0.1 => 0.0.2...
         Staging [fix] release for version 0.0.2...
         Running: bumpversion --dry-run --verbose --no-commit --no-tag --allow-dirty patch...
+        Generating Release...
+        Loading template......
         """
     )
-    out, _ = capsys.readouterr()
-    assert expected_output == out
 
-    assert Path('.bumpversion.cfg').exists()
-    # assert Path('pyproject.toml').exists()
+    expected_release_notes_content = [
+        '# None {} 0.0.2 None'.format(date.today().isoformat()),
+        '',
+        '## Bug',
+        '    ',
+        '* #111 The title of the pull request',
+        '    ',
+        ''
+    ]
+
+    out, _ = capsys.readouterr()
+
+    assert expected_output.splitlines() + expected_release_notes_content == out.splitlines()
+
+    assert not Path('docs/releases/0.0.2.md').exists()
 
 
 @responses.activate
@@ -91,7 +106,7 @@ def test_stage(
         content_type='application/json'
     )
 
-    stage.stage(draft=False)
+    stage.stage(draft=False, release_name='Icarus', release_description='The first flight')
 
     expected_output = textwrap.dedent(
         """\
@@ -107,7 +122,22 @@ def test_stage(
         Proposed version bump 0.0.1 => 0.0.2...
         Staging [fix] release for version 0.0.2...
         Running: bumpversion --verbose --no-commit --no-tag patch...
+        Generating Release...
+        Loading template......
         """
     )
     out, _ = capsys.readouterr()
     assert expected_output == out
+
+    release_notes_path = Path('docs/releases/0.0.2.md')
+    assert release_notes_path.exists()
+    expected_release_notes = [
+        '# Icarus {} 0.0.2 The first flight'.format(date.today().isoformat()),
+        '',
+        '## Bug',
+        '    ',
+        '* #111 The title of the pull request',
+        '    ',
+    ]
+    assert expected_release_notes == release_notes_path.read_text().splitlines()
+

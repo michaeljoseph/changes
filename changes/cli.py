@@ -93,7 +93,9 @@ main.add_command(status)
     is_flag=True,
     default=False,
 )
-def stage(draft):
+@click.argument('release_name', required=False)
+@click.argument('release_description', required=False)
+def stage(draft, release_name, release_description):
     """
     Stages a release
     """

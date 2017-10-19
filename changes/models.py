@@ -57,6 +57,7 @@ class Release:
     def title(self):
         return
 
+
 @attr.s
 class PullRequest:
     number = attr.ib()
@@ -91,14 +92,34 @@ class GitRepository:
     auth_token = attr.ib(default=None)
 
     @property
-    def parsed_repo(self):
-        return giturlparse.parse(self.remote_url)
-
-    @property
     def remote_url(self):
         return git(shlex.split('config --get remote.{}.url'.format(
             self.REMOTE_NAME
         )))
+
+    @property
+    def parsed_repo(self):
+        return giturlparse.parse(self.remote_url)
+
+    @property
+    def repo(self):
+        return self.parsed_repo.repo
+
+    @property
+    def owner(self):
+        return self.parsed_repo.owner
+
+    @property
+    def platform(self):
+        return self.parsed_repo.platform
+
+    @property
+    def is_github(self):
+        return self.parsed_repo.github
+
+    @property
+    def is_bitbucket(self):
+        return self.parsed_repo.bitbucket
 
     @property
     def commit_history(self):
@@ -146,6 +167,7 @@ class GitRepository:
         return merge_commits
 
     # TODO: pull_requests_since(version=None)
+    # TODO: cached_property
     @property
     def changes_since_last_version(self):
         pull_requests = []
@@ -160,21 +182,6 @@ class GitRepository:
                     self.github_pull_request(pull_request_number)
                 ))
         return pull_requests
-
-    def github_labels(self):
-        # GET /repos/:owner/:repo/labels
-        """
-        [
-          {
-            "id": 208045946,
-            "url": "https://api.github.com/repos/octocat/Hello-World/labels/bug",
-            "name": "bug",
-            "color": "f29513",
-            "default": true
-          }
-        ]
-        """
-        pass
 
     def github_pull_request(self, pr_num):
         pull_request_api_url = uritemplate.expand(
@@ -193,18 +200,27 @@ class GitRepository:
             },
         ).json()
 
+    # TODO: cached_property
+    # TODO: move to test fixture
     @property
-    def repo(self):
-        return self.parsed_repo.repo
+    def github_labels(self):
+        # GET /repos/:owner/:repo/labels
+        return {
+            'bug': {
+                "id": 208045946,
+                "url": "https://api.github.com/repos/octocat/Hello-World/labels/bug",
+                "name": "bug",
+                "color": "f29513",
+                "default": True
+            },
+            'enhancement': {
+               "id": 52048165,
+               "url": "https://api.github.com/repos/michaeljoseph/changes/labels/enhancement",
+               "name": "enhancement",
+               "color": "84b6eb",
+               "default": True
+            },
+        }
 
-    @property
-    def owner(self):
-        return self.parsed_repo.owner
 
-    @property
-    def github(self):
-        return self.parsed_repo.github
 
-    @property
-    def bitbucket(self):
-        return self.parsed_repo.bitbucket

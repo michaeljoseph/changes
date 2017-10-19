@@ -8,7 +8,8 @@ def test_repository_parses_remote_url(git_repo):
     repository = models.GitRepository()
     assert 'test_app' == repository.repo
     assert 'michaeljoseph' == repository.owner
-    assert repository.github
+    assert repository.is_github
+    assert repository.platform == 'github'
 
 
 def test_repository_parses_versions(git_repo):

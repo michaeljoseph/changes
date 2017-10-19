@@ -1,4 +1,5 @@
 import textwrap
+from collections import OrderedDict
 from os.path import exists, expanduser, expandvars, join, curdir
 import io
 import os
@@ -89,13 +90,6 @@ class Project(object):
     def labels_selected(self):
         return len(self.labels) > 0
 
-    @property
-    def labels_have_descriptions(self):
-        return all([
-            'description' in properties and len(properties['description']) > 0
-            for label, properties in self.labels.items()
-        ])
-
 
 @attr.s
 class BumpVersion(object):
@@ -131,14 +125,56 @@ class BumpVersion(object):
         )
 
 def load_project_settings():
-    changes_project_config_path = Path(PROJECT_CONFIG_FILE)
+    project_settings = configure_changes()
 
+    info('Indexing repository')
+    project_settings.repository = GitRepository(
+        auth_token=changes.settings.auth_token
+    )
+
+    project_settings.bumpversion = configure_bumpversion(project_settings)
+
+    project_settings.labels = configure_labels(project_settings)
+
+    return project_settings
+
+
+def configure_labels(project_settings):
+    if project_settings.labels_selected:
+        return project_settings.labels
+
+    github_labels = project_settings.repository.github_labels
+
+    # since there are no labels defined
+    # let's ask which github tags they want to track
+    # TODO: streamlined support for github defaults: enhancement, bug
+    changelog_worthy_labels = read_user_choices(
+        'labels',
+        [
+            properties['name']
+            for label, properties in github_labels.items()
+        ]
+    )
+
+    # TODO: if not project_settings.labels_have_descriptions:
+    described_labels = {}
+    # auto-generate label descriptions
+    for label_name in changelog_worthy_labels:
+        label_properties = github_labels[label_name]
+        # Auto-generate description as titlecase label name
+        label_properties['description'] = label_name.title()
+        described_labels[label_name] = label_properties
+
+    return described_labels
+
+
+def configure_changes():
+    changes_project_config_path = Path(PROJECT_CONFIG_FILE)
     project_settings = None
     if changes_project_config_path.exists():
         project_settings = Project(
             **(toml.load(changes_project_config_path.open())['changes'])
         )
-
     if not project_settings:
         project_settings = Project(
             releases_directory=str(Path(click.prompt(
@@ -153,35 +189,6 @@ def load_project_settings():
                 'changes': attr.asdict(project_settings)
             })
         )
-
-    # Initialise environment
-    info('Indexing repository')
-    project_settings.repository = GitRepository(
-        auth_token=changes.settings.auth_token
-    )
-
-    project_settings.bumpversion = configure_bumpversion(project_settings)
-
-    if not project_settings.labels_selected:
-        # defaults: enhancement, bug
-        project_settings.changelog_worthy_labels = read_user_choices(
-            'labels',
-            [
-                properties['name']
-                for label, properties in project_settings.labels.items()
-            ]
-        )
-
-    # auto generate descriptions, note: to customise .changes.toml
-    if not project_settings.labels_have_descriptions:
-        described_labels = {}
-        for label in project_settings.changelog_worthy_labels:
-            label_properties = project_settings.labels[label]
-            label_properties['description'] = label.title()
-            described_labels[label] = label_properties
-        # FIXME: for label, properties in project_settings.???
-        # FIXME: name from the context of the consumer in `stage`
-        project_settings.xx = described_labels
 
     return project_settings
 
@@ -220,6 +227,44 @@ def configure_bumpversion(project_settings):
     return bumpversion
 
 
+def read_user_choices(var_name, options):
+    """Prompt the user to choose from several options for the given variable.
+
+    # cookiecutter/cookiecutter/prompt.py
+    The first item will be returned if no input happens.
+
+    :param str var_name: Variable as specified in the context
+    :param list options: Sequence of options that are available to select from
+    :return: Exactly one item of ``options`` that has been chosen by the user
+    """
+    raise NotImplementedError()
+    #
+
+    # Please see http://click.pocoo.org/4/api/#click.prompt
+    if not isinstance(options, list):
+        raise TypeError
+
+    if not options:
+        raise ValueError
+
+    choice_map = OrderedDict(
+        (u'{}'.format(i), value) for i, value in enumerate(options, 1)
+    )
+    choices = choice_map.keys()
+    default = u'1'
+
+    choice_lines = [u'{} - {}'.format(*c) for c in choice_map.items()]
+    prompt = u'\n'.join((
+        u'Select {}:'.format(var_name),
+        u'\n'.join(choice_lines),
+        u'Choose from {}'.format(u', '.join(choices))
+    ))
+
+    # TODO: multi-select
+    user_choice = click.prompt(
+        prompt, type=click.Choice(choices), default=default
+    )
+    return choice_map[user_choice]
 
 DEFAULTS = {
     'changelog': 'CHANGELOG.md',

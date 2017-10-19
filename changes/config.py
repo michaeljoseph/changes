@@ -124,6 +124,7 @@ class BumpVersion(object):
             bumpversion_cfg + bumpversion_files
         )
 
+
 def load_project_settings():
     project_settings = configure_changes()
 

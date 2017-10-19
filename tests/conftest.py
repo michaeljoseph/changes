@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 import responses
+import sys
 from click.testing import CliRunner
 from plumbum.cmd import git
 
@@ -160,10 +161,12 @@ def with_auth_token_envvar():
 import changes
 @pytest.fixture
 def patch_user_home_to_tmpdir_path(monkeypatch, tmpdir):
+    IS_WINDOWS = 'win32' in str(sys.platform).lower()
+
     changes_config_file = Path(str(tmpdir.join('.changes')))
     monkeypatch.setattr(
         changes.config,
-        'expanduser',
+        'expandvars' if IS_WINDOWS else 'expanduser',
         lambda x: str(changes_config_file)
     )
     assert not changes_config_file.exists()

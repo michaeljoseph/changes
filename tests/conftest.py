@@ -1,8 +1,10 @@
 import os
 import shlex
+from pathlib import Path
 
 import pytest
 import responses
+import sys
 from click.testing import CliRunner
 from plumbum.cmd import git
 
@@ -62,7 +64,10 @@ def git_repo():
         open(readme_path, 'w').write(
             '\n'.join(README_MARKDOWN)
         )
-        git_init([readme_path])
+        version_path = 'version.txt'
+        open(version_path, 'w').write('0.0.1')
+
+        git_init([readme_path, version_path])
 
         yield
 
@@ -74,13 +79,7 @@ def git_init(files_to_add):
     for file_to_add in files_to_add:
         git('add', file_to_add)
     git('commit', '-m', 'Initial commit')
-
-
-@pytest.fixture
-@responses.activate
-def git_repo_with_merge_commit(git_repo):
     git(shlex.split('tag 0.0.1'))
-    github_merge_commit(111)
 
 
 def github_merge_commit(pull_request_number):
@@ -104,10 +103,35 @@ def github_merge_commit(pull_request_number):
 
 
 @pytest.fixture
-def with_auth_token_prompt(mocker):
-    _ = mocker.patch('changes.commands.init.click.launch')
+def with_releases_directory_and_bumpversion_file_prompt(mocker):
+    prompt = mocker.patch(
+        'changes.config.click.prompt',
+        autospec=True
+    )
+    prompt.side_effect = [
+        # release_directory
+        'docs/releases',
+        # bumpversion files
+        'version.txt',
+        # quit prompt
+        '.',
+        # label descriptions
+        # 'Features',
+        # 'Bug Fixes'
+    ]
 
-    prompt = mocker.patch('changes.commands.init.click.prompt')
+    prompt = mocker.patch(
+        'changes.config.read_user_choices',
+        autospec=True
+    )
+    prompt.return_value = ['bug']
+
+
+@pytest.fixture
+def with_auth_token_prompt(mocker):
+    _ = mocker.patch('changes.config.click.launch')
+
+    prompt = mocker.patch('changes.config.click.prompt')
     prompt.return_value = 'foo'
 
     saved_token = None
@@ -133,3 +157,17 @@ def with_auth_token_envvar():
 
     if saved_token:
         os.environ[AUTH_TOKEN_ENVVAR] = saved_token
+
+import changes
+@pytest.fixture
+def patch_user_home_to_tmpdir_path(monkeypatch, tmpdir):
+    IS_WINDOWS = 'win32' in str(sys.platform).lower()
+
+    changes_config_file = Path(str(tmpdir.join('.changes')))
+    monkeypatch.setattr(
+        changes.config,
+        'expandvars' if IS_WINDOWS else 'expanduser',
+        lambda x: str(changes_config_file)
+    )
+    assert not changes_config_file.exists()
+    return changes_config_file

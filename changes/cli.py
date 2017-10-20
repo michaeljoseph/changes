@@ -7,6 +7,7 @@ import requests_cache
 from . import __version__
 from changes.commands import init as init_command
 from changes.commands import status as status_command
+from changes.commands import stage as stage_command
 
 VERSION = 'changes {}'.format(__version__)
 
@@ -83,3 +84,22 @@ def status(repo_directory):
         status_command.status()
 
 main.add_command(status)
+
+
+@click.command()
+@click.option(
+    '--draft',
+    help='Enables verbose output.',
+    is_flag=True,
+    default=False,
+)
+@click.argument('release_name', required=False)
+@click.argument('release_description', required=False)
+def stage(draft, release_name, release_description):
+    """
+    Stages a release
+    """
+    requests_cache.configure(expire_after=60*10*10)
+    stage_command.stage(draft)
+
+main.add_command(stage)

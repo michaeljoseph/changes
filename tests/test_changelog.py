@@ -3,8 +3,6 @@ from . import context
 
 
 def test_write_new_changelog(python_module):
-    import os
-    print(os.path.abspath(os.curdir))
     content = [
         'This is the heading\n\n',
         'This is the first line\n',

@@ -3,7 +3,7 @@ import logging
 import tempfile
 
 from plumbum.cmd import diff
-from path import Path
+from pathlib import Path
 
 
 log = logging.getLogger(__name__)

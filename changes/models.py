@@ -1,6 +1,7 @@
 import re
 import shlex
 
+import attr
 import semantic_version
 import uritemplate
 import requests
@@ -11,44 +12,118 @@ MERGED_PULL_REQUEST = re.compile(
     r'^([0-9a-f]{5,40}) Merge pull request #(\w+)'
 )
 
-PULL_REQUEST_API = 'https://api.github.com/repos{/owner}{/repo}/issues{/number}'
+GITHUB_PULL_REQUEST_API = (
+    'https://api.github.com/repos{/owner}{/repo}/issues{/number}'
+)
 
 
+def changes_to_release_type(repository):
+    pull_request_labels = set()
+    changes = repository.changes_since_last_version
+
+    for change in changes:
+        for label in change.labels:
+            pull_request_labels.add(label)
+
+    change_descriptions = [
+        '\n'.join([change.title, change.description]) for change in changes
+    ]
+
+    current_version = repository.latest_version
+    if 'BREAKING CHANGE' in change_descriptions:
+        return 'major', Release.BREAKING_CHANGE, current_version.next_major()
+    elif 'enhancement' in pull_request_labels:
+        return 'minor', Release.FEATURE, current_version.next_minor()
+    elif 'bug' in pull_request_labels:
+        return 'patch', Release.FIX, current_version.next_patch()
+    else:
+        return None, Release.NO_CHANGE, current_version
+
+
+@attr.s
+class Release:
+    NO_CHANGE = 'nochanges'
+    BREAKING_CHANGE = 'breaking'
+    FEATURE = 'feature'
+    FIX = 'fix'
+
+    name = attr.ib()
+    release_date = attr.ib()
+    version = attr.ib()
+    description = attr.ib()
+    changes = attr.ib(default=attr.Factory(dict))
+
+    @property
+    def title(self):
+        return
+
+
+@attr.s
 class PullRequest:
-    title = None
-    description = None
-    author = None
-    labels = []
+    number = attr.ib()
+    title = attr.ib()
+    description = attr.ib()
+    # default is 'body' key
+    author = attr.ib()
+    labels = attr.ib(default=attr.Factory(list))
 
-    def __init__(self, **kwargs):
-        # github
-        self.number = kwargs['number']
-        self.title = kwargs['title']
-        self.description = kwargs['body']
-        self.author = kwargs['user']['login']
-        self.labels = [
-            label['name']
-            for label in kwargs['labels']
-        ]
+    @classmethod
+    def from_github(cls, api_response):
+        return PullRequest(
+            number = api_response['number'],
+            title = api_response['title'],
+            description = api_response['body'],
+            author = api_response['user']['login'],
+            labels = [
+                label['name']
+                for label in api_response['labels']
+                # label['colour'] => https://gist.github.com/MicahElliott/719710
+            ],
+            # labels need a description => map for default github tags
+        )
 
 
+@attr.s
 class GitRepository:
     VERSION_ZERO = semantic_version.Version('0.0.0')
+    # TODO: handle multiple remotes (cookiecutter [non-owner maintainer])
+    REMOTE_NAME = 'origin'
 
-    auth_token = None
+    auth_token = attr.ib(default=None)
 
-    def __init__(self, url=None):
-        self.parsed_repo = (
-            url or
-            # TODO: handle multiple remotes (cookiecutter [non-owner maintainer])
-            # giturlparse.parse(
-            #     git(shlex.split('config --get remote.upstream.url'))
-            # ) or
-            giturlparse.parse(
-                git(shlex.split('config --get remote.origin.url'))
-            )
-        )
-        self.commit_history = [
+    @property
+    def remote_url(self):
+        return git(shlex.split('config --get remote.{}.url'.format(
+            self.REMOTE_NAME
+        )))
+
+    @property
+    def parsed_repo(self):
+        return giturlparse.parse(self.remote_url)
+
+    @property
+    def repo(self):
+        return self.parsed_repo.repo
+
+    @property
+    def owner(self):
+        return self.parsed_repo.owner
+
+    @property
+    def platform(self):
+        return self.parsed_repo.platform
+
+    @property
+    def is_github(self):
+        return self.parsed_repo.github
+
+    @property
+    def is_bitbucket(self):
+        return self.parsed_repo.bitbucket
+
+    @property
+    def commit_history(self):
+        return [
             commit_message
             for commit_message in git(shlex.split(
                 'log --oneline --no-color'
@@ -56,10 +131,15 @@ class GitRepository:
             if commit_message
         ]
 
-        self.first_commit_sha = git(
+    @property
+    def first_commit_sha(self):
+        return git(
             'rev-list', '--max-parents=0', 'HEAD'
         )
-        self.tags = git(shlex.split('tag --list')).split('\n')
+
+    @property
+    def tags(self):
+        return git(shlex.split('tag --list')).split('\n')
 
     @property
     def versions(self):
@@ -87,6 +167,7 @@ class GitRepository:
         return merge_commits
 
     # TODO: pull_requests_since(version=None)
+    # TODO: cached_property
     @property
     def changes_since_last_version(self):
         pull_requests = []
@@ -97,16 +178,14 @@ class GitRepository:
             if matches:
                 _, pull_request_number = matches[0]
 
-                pr = self.get_pull_request(pull_request_number)
-                pull_requests.append(
-                    PullRequest(**pr)
-                )
+                pull_requests.append(PullRequest.from_github(
+                    self.github_pull_request(pull_request_number)
+                ))
         return pull_requests
 
-    # github api
-    def get_pull_request(self, pr_num):
+    def github_pull_request(self, pr_num):
         pull_request_api_url = uritemplate.expand(
-            PULL_REQUEST_API,
+            GITHUB_PULL_REQUEST_API,
             dict(
                 owner=self.owner,
                 repo=self.repo,
@@ -121,18 +200,27 @@ class GitRepository:
             },
         ).json()
 
+    # TODO: cached_property
+    # TODO: move to test fixture
     @property
-    def repo(self):
-        return self.parsed_repo.repo
+    def github_labels(self):
+        # GET /repos/:owner/:repo/labels
+        return {
+            'bug': {
+                "id": 208045946,
+                "url": "https://api.github.com/repos/octocat/Hello-World/labels/bug",
+                "name": "bug",
+                "color": "f29513",
+                "default": True
+            },
+            'enhancement': {
+               "id": 52048165,
+               "url": "https://api.github.com/repos/michaeljoseph/changes/labels/enhancement",
+               "name": "enhancement",
+               "color": "84b6eb",
+               "default": True
+            },
+        }
 
-    @property
-    def owner(self):
-        return self.parsed_repo.owner
 
-    @property
-    def github(self):
-        return self.parsed_repo.github
 
-    @property
-    def bitbucket(self):
-        return self.parsed_repo.bitbucket

@@ -1,53 +1,100 @@
 import os
 import textwrap
 
+import pytest
 from plumbum.cmd import git
 
 from changes.commands import init
 from .conftest import AUTH_TOKEN_ENVVAR
 
 
-def test_init_prompts_for_auth_token_and_writes_dot_env(
+@pytest.fixture
+def init_prompts(mocker):
+    _ = mocker.patch(
+        'changes.config.click.launch',
+        autospec=True,
+    )
+
+    prompt = mocker.patch(
+        'changes.config.click.prompt',
+        autospec=True,
+    )
+    prompt.side_effect = [
+        'foo',
+        'docs/releases',
+        'test_app/__init__.py',
+        '.'
+    ]
+
+    prompt = mocker.patch(
+        'changes.config.read_user_choices',
+        autospec=True
+    )
+    prompt.return_value = ['enhancement', 'bug']
+
+    saved_token = None
+    if os.environ.get(AUTH_TOKEN_ENVVAR):
+        saved_token = os.environ[AUTH_TOKEN_ENVVAR]
+        del os.environ[AUTH_TOKEN_ENVVAR]
+
+    yield
+
+    if saved_token:
+        os.environ[AUTH_TOKEN_ENVVAR] = saved_token
+
+
+def test_init_prompts_for_auth_token_and_writes_tool_config(
     capsys,
-    git_repo_with_merge_commit,
-    with_auth_token_prompt
+    git_repo,
+    patch_user_home_to_tmpdir_path,
+    init_prompts,
 ):
-    git('tag', '0.0.2')
-    git('tag', '0.0.3')
 
     init.init()
 
+    assert patch_user_home_to_tmpdir_path.exists()
+    expected_config = textwrap.dedent(
+        """\
+        [changes]
+        auth_token = "foo"
+        """
+    )
+    assert expected_config == patch_user_home_to_tmpdir_path.read_text()
+
     expected_output = textwrap.dedent(
         """\
-        Indexing repository...
-        Looking for Github Auth Token in the environment...
         No auth token found, asking for it...
         You need a Github Auth Token for changes to create a release.
-        Appending GITHUB_AUTH_TOKEN setting to .env file
+        Indexing repository...
         """
     )
     out, _ = capsys.readouterr()
     assert expected_output == out
 
-    assert os.path.exists('.env')
-    assert '{}=foo'.format(AUTH_TOKEN_ENVVAR) == open('.env').read()
-
 
 def test_init_finds_auth_token_in_environment(
     capsys,
-    git_repo_with_merge_commit,
-    with_auth_token_envvar
+    git_repo,
+    with_auth_token_envvar,
+    patch_user_home_to_tmpdir_path,
+    with_releases_directory_and_bumpversion_file_prompt,
 ):
-    git('tag', '0.0.2')
-    git('tag', '0.0.3')
 
     init.init()
 
+    assert patch_user_home_to_tmpdir_path.exists()
+    expected_config = textwrap.dedent(
+        """\
+        [changes]
+        auth_token = "foo"
+        """
+    )
+    assert expected_config == patch_user_home_to_tmpdir_path.read_text()
+
     expected_output = textwrap.dedent(
         """\
-        Indexing repository...
-        Looking for Github Auth Token in the environment...
         Found Github Auth Token in the environment...
+        Indexing repository...
         """
     )
     out, _ = capsys.readouterr()

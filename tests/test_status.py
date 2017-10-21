@@ -4,23 +4,39 @@ import responses
 from plumbum.cmd import git
 
 from changes.commands import status
-from .conftest import github_merge_commit, ISSUE_URL
+from .conftest import github_merge_commit, ISSUE_URL, LABEL_URL
 
 
+@responses.activate
 def test_status(
     capsys,
     git_repo,
     with_auth_token_envvar,
-    patch_user_home_to_tmpdir_path,
+    changes_config_in_tmpdir,
     with_releases_directory_and_bumpversion_file_prompt,
 ):
+
+    responses.add(
+        responses.GET,
+        LABEL_URL,
+        json={
+            'bug': {
+                "id": 208045946,
+                "url": "https://api.github.com/repos/michaeljoseph/test_app/labels/bug",
+                "name": "bug",
+                "color": "f29513",
+                "default": True
+            },
+        },
+        status=200,
+        content_type='application/json'
+    )
 
     status.status()
 
     expected_output = textwrap.dedent(
         """\
         Found Github Auth Token in the environment...
-        Indexing repository...
         Repository: michaeljoseph/test_app...
         Latest Version...
         0.0.1
@@ -31,13 +47,15 @@ def test_status(
     out, _ = capsys.readouterr()
     assert expected_output == out
 
+    # TODO:check project config
+
 
 @responses.activate
 def test_status_with_changes(
     capsys,
     git_repo,
     with_auth_token_envvar,
-    patch_user_home_to_tmpdir_path,
+    changes_config_in_tmpdir,
     with_releases_directory_and_bumpversion_file_prompt,
 ):
 
@@ -60,13 +78,27 @@ def test_status_with_changes(
         status=200,
         content_type='application/json'
     )
+    responses.add(
+        responses.GET,
+        LABEL_URL,
+        json={
+            'bug': {
+                "id": 208045946,
+                "url": "https://api.github.com/repos/michaeljoseph/test_app/labels/bug",
+                "name": "bug",
+                "color": "f29513",
+                "default": True
+            },
+        },
+        status=200,
+        content_type='application/json'
+    )
 
     status.status()
 
     expected_output = textwrap.dedent(
         """\
         Found Github Auth Token in the environment...
-        Indexing repository...
         Repository: michaeljoseph/test_app...
         Latest Version...
         0.0.1
@@ -79,3 +111,5 @@ def test_status_with_changes(
     )
     out, _ = capsys.readouterr()
     assert expected_output == out
+
+    # TODO:check project config

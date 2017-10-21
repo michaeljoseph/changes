@@ -34,45 +34,45 @@ DEFAULT_RELEASES_DIRECTORY = 'docs/releases'
 class Changes(object):
     auth_token = attr.ib()
 
+    @classmethod
+    def load(cls):
+        tool_config_path = Path(str(os.environ.get(
+            'CHANGES_CONFIG_FILE',
+            expanduser('~/.changes') if not IS_WINDOWS else
+            expandvars(r'%APPDATA%\\.changes')
+        )))
 
-def load_settings():
-    tool_config_path = Path(str(os.environ.get(
-        'CHANGES_CONFIG_FILE',
-        expanduser('~/.changes') if not IS_WINDOWS else
-        expandvars(r'%APPDATA%\\.changes')
-    )))
+        tool_settings = None
+        if tool_config_path.exists():
+            tool_settings = Changes(
+                **(toml.load(tool_config_path.open())['changes'])
+            )
 
-    tool_settings = None
-    if tool_config_path.exists():
-        tool_settings = Changes(
-            **(toml.load(tool_config_path.open())['changes'])
-        )
-
-    if not (tool_settings and tool_settings.auth_token):
-        # prompt for auth token
+        # envvar takes precedence over config file settings
         auth_token = os.environ.get(AUTH_TOKEN_ENVVAR)
         if auth_token:
             info('Found Github Auth Token in the environment')
-
-        while not auth_token:
-            info('No auth token found, asking for it')
-            # to interact with the Git*H*ub API
-            note('You need a Github Auth Token for changes to create a release.')
-            click.pause('Press [enter] to launch the GitHub "New personal access '
-                        'token" page, to create a token for changes.')
-            click.launch('https://github.com/settings/tokens/new')
-            auth_token = click.prompt('Enter your changes token')
-
-        if not tool_settings:
             tool_settings = Changes(auth_token=auth_token)
+        elif not (tool_settings and tool_settings.auth_token):
+            while not auth_token:
+                info('No auth token found, asking for it')
+                # to interact with the Git*H*ub API
+                note('You need a Github Auth Token for changes to create a release.')
+                click.pause('Press [enter] to launch the GitHub "New personal access '
+                            'token" page, to create a token for changes.')
+                click.launch('https://github.com/settings/tokens/new')
+                auth_token = click.prompt('Enter your changes token')
 
-        tool_config_path.write_text(
-            toml.dumps({
-                'changes': attr.asdict(tool_settings)
-            })
-        )
+            if not tool_settings:
+                tool_settings = Changes(auth_token=auth_token)
 
-    return tool_settings
+            tool_config_path.write_text(
+                toml.dumps({
+                    'changes': attr.asdict(tool_settings)
+                })
+            )
+
+        return tool_settings
 
 
 @attr.s
@@ -82,13 +82,17 @@ class Project(object):
     bumpversion = attr.ib(default=None)
     labels = attr.ib(default=attr.Factory(dict))
 
-    @property
-    def bumpversion_configured(self):
-        return isinstance(self.bumpversion, BumpVersion)
+    @classmethod
+    def load(cls):
+        repository = GitRepository(
+            auth_token=changes.settings.auth_token
+        )
 
-    @property
-    def labels_selected(self):
-        return len(self.labels) > 0
+        project_settings = configure_changes(repository)
+        project_settings.repository = repository
+        project_settings.bumpversion = BumpVersion.load(repository.latest_version)
+
+        return project_settings
 
 
 @attr.s
@@ -105,6 +109,10 @@ class BumpVersion(object):
 
     current_version = attr.ib()
     version_files_to_replace = attr.ib(default=attr.Factory(list))
+
+    @classmethod
+    def load(cls, latest_version):
+        return configure_bumpversion(latest_version)
 
     def write_to_file(self, config_path: Path):
         bumpversion_cfg = textwrap.dedent(
@@ -125,64 +133,26 @@ class BumpVersion(object):
         )
 
 
-def load_project_settings():
-    project_settings = configure_changes()
-
-    info('Indexing repository')
-    project_settings.repository = GitRepository(
-        auth_token=changes.settings.auth_token
-    )
-
-    project_settings.bumpversion = configure_bumpversion(project_settings)
-
-    project_settings.labels = configure_labels(project_settings)
-
-    return project_settings
-
-
-def configure_labels(project_settings):
-    if project_settings.labels_selected:
-        return project_settings.labels
-
-    github_labels = project_settings.repository.github_labels
-
-    # since there are no labels defined
-    # let's ask which github tags they want to track
-    # TODO: streamlined support for github defaults: enhancement, bug
-    changelog_worthy_labels = read_user_choices(
-        'labels',
-        [
-            properties['name']
-            for label, properties in github_labels.items()
-        ]
-    )
-
-    # TODO: if not project_settings.labels_have_descriptions:
-    described_labels = {}
-    # auto-generate label descriptions
-    for label_name in changelog_worthy_labels:
-        label_properties = github_labels[label_name]
-        # Auto-generate description as titlecase label name
-        label_properties['description'] = label_name.title()
-        described_labels[label_name] = label_properties
-
-    return described_labels
-
-
-def configure_changes():
+def configure_changes(repository):
     changes_project_config_path = Path(PROJECT_CONFIG_FILE)
     project_settings = None
     if changes_project_config_path.exists():
+        # releases_directory, labels
         project_settings = Project(
             **(toml.load(changes_project_config_path.open())['changes'])
         )
+
     if not project_settings:
+        releases_directory = Path(click.prompt(
+            'Enter the directory to store your releases notes',
+            DEFAULT_RELEASES_DIRECTORY,
+            type=click.Path(exists=True, dir_okay=True)
+        ))
+
+        # FIXME: GitHub(repository).labels()
         project_settings = Project(
-            releases_directory=str(Path(click.prompt(
-                'Enter the directory to store your releases notes',
-                DEFAULT_RELEASES_DIRECTORY,
-                type=click.Path(exists=True, dir_okay=True)
-            )))
+            releases_directory=releases_directory,
+            labels=configure_labels(repository.github_labels()),
         )
         # write config file
         changes_project_config_path.write_text(
@@ -194,7 +164,7 @@ def configure_changes():
     return project_settings
 
 
-def configure_bumpversion(project_settings):
+def configure_bumpversion(latest_version):
     # TODO: look in other supported bumpversion config locations
     bumpversion = None
     bumpversion_config_path = Path('.bumpversion.cfg')
@@ -218,14 +188,35 @@ def configure_bumpversion(project_settings):
                 user_supplied_versioned_file_paths.append(version_file_path)
 
         bumpversion = BumpVersion(
-            current_version=project_settings.repository.latest_version,
+            current_version=latest_version,
             version_files_to_replace=user_supplied_versioned_file_paths,
         )
         bumpversion.write_to_file(bumpversion_config_path)
-    else:
-        raise NotImplemented('')
 
     return bumpversion
+
+
+def configure_labels(github_labels):
+    # ask which github tags they want to track
+    # TODO: streamlined support for github defaults: enhancement, bug
+    # TODO: apply description transform in labels_prompt function
+    changelog_worthy_labels = read_user_choices(
+        'labels',
+        [
+            properties['name']
+            for label, properties in github_labels.items()
+        ]
+    )
+
+    described_labels = {}
+    # auto-generate label descriptions
+    for label_name in changelog_worthy_labels:
+        label_properties = github_labels[label_name]
+        # Auto-generate description as titlecase label name
+        label_properties['description'] = label_name.title()
+        described_labels[label_name] = label_properties
+
+    return described_labels
 
 
 def read_user_choices(var_name, options):

@@ -5,7 +5,7 @@ from pathlib import Path
 import responses
 
 from changes.commands import stage
-from .conftest import github_merge_commit, ISSUE_URL
+from .conftest import github_merge_commit, ISSUE_URL, LABEL_URL
 
 
 @responses.activate
@@ -13,7 +13,7 @@ def test_stage_draft(
     capsys,
     git_repo,
     with_auth_token_envvar,
-    patch_user_home_to_tmpdir_path,
+    changes_config_in_tmpdir,
     with_releases_directory_and_bumpversion_file_prompt,
 ):
 
@@ -36,15 +36,46 @@ def test_stage_draft(
         status=200,
         content_type='application/json'
     )
+    responses.add(
+        responses.GET,
+        LABEL_URL,
+        json={
+            'bug': {
+                "id": 208045946,
+                "url": "https://api.github.com/repos/michaeljoseph/test_app/labels/bug",
+                "name": "bug",
+                "color": "f29513",
+                "default": True
+            },
+        },
+        status=200,
+        content_type='application/json'
+    )
 
     stage.stage(draft=True)
+
+    assert Path('.changes.toml').exists()
+    # expected_project_settings = textwrap.dedent(
+    #     """\
+    #     [changes]
+    #     releases_directory = docs/releases
+    #
+    #     [changes.labels.bug]
+    #     default = true
+    #     id = 208045946
+    #     url = "https://api.github.com/repos/michaeljoseph/test_app/labels/bug"
+    #     name = "bug"
+    #     description = "Bug"
+    #     color = "f29513"
+    #     """
+    # )
+    # assert expected_project_settings == Path('.changes.toml').read_text()
 
     assert Path('.bumpversion.cfg').exists()
 
     expected_output = textwrap.dedent(
         """\
         Found Github Auth Token in the environment...
-        Indexing repository...
         Repository: michaeljoseph/test_app...
         Latest Version...
         0.0.1
@@ -82,7 +113,7 @@ def test_stage(
     capsys,
     git_repo,
     with_auth_token_envvar,
-    patch_user_home_to_tmpdir_path,
+    changes_config_in_tmpdir,
     with_releases_directory_and_bumpversion_file_prompt,
 ):
 
@@ -105,13 +136,27 @@ def test_stage(
         status=200,
         content_type='application/json'
     )
+    responses.add(
+        responses.GET,
+        LABEL_URL,
+        json={
+            'bug': {
+                "id": 208045946,
+                "url": "https://api.github.com/repos/michaeljoseph/test_app/labels/bug",
+                "name": "bug",
+                "color": "f29513",
+                "default": True
+            },
+        },
+        status=200,
+        content_type='application/json'
+    )
 
     stage.stage(draft=False, release_name='Icarus', release_description='The first flight')
 
     expected_output = textwrap.dedent(
         """\
         Found Github Auth Token in the environment...
-        Indexing repository...
         Repository: michaeljoseph/test_app...
         Latest Version...
         0.0.1

@@ -1,5 +1,5 @@
 import changes
-from ..config import load_settings, load_project_settings
+from ..config import Project, Changes
 
 
 def init():
@@ -9,9 +9,9 @@ def init():
     # Store config and environment in the changes module
 
     # Global changes settings
-    changes.settings = load_settings()
+    changes.settings = Changes.load()
 
     # Project specific settings
-    changes.project_settings = load_project_settings()
+    changes.project_settings = Project.load()
 
     return changes.project_settings.repository

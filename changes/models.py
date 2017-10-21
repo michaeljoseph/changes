@@ -15,6 +15,9 @@ MERGED_PULL_REQUEST = re.compile(
 GITHUB_PULL_REQUEST_API = (
     'https://api.github.com/repos{/owner}{/repo}/issues{/number}'
 )
+GITHUB_LABEL_API = (
+    'https://api.github.com/repos{/owner}{/repo}/labels'
+)
 
 
 def changes_to_release_type(repository):
@@ -202,25 +205,22 @@ class GitRepository:
 
     # TODO: cached_property
     # TODO: move to test fixture
-    @property
     def github_labels(self):
-        # GET /repos/:owner/:repo/labels
-        return {
-            'bug': {
-                "id": 208045946,
-                "url": "https://api.github.com/repos/octocat/Hello-World/labels/bug",
-                "name": "bug",
-                "color": "f29513",
-                "default": True
+
+        labels_api_url = uritemplate.expand(
+            GITHUB_LABEL_API,
+            dict(
+                owner=self.owner,
+                repo=self.repo,
+            ),
+        )
+
+        return requests.get(
+            labels_api_url,
+            headers={
+                'Authorization': 'token {}'.format(self.auth_token)
             },
-            'enhancement': {
-               "id": 52048165,
-               "url": "https://api.github.com/repos/michaeljoseph/changes/labels/enhancement",
-               "name": "enhancement",
-               "color": "84b6eb",
-               "default": True
-            },
-        }
+        ).json()
 
 
 

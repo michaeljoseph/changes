@@ -3,10 +3,11 @@ import shlex
 from pathlib import Path
 
 import pytest
-import responses
 import sys
 from click.testing import CliRunner
 from plumbum.cmd import git
+
+import changes
 
 pytest_plugins = 'pytester'
 
@@ -39,6 +40,7 @@ FILE_CONTENT = {
     'CHANGELOG.md': [''],
 }
 ISSUE_URL = 'https://api.github.com/repos/michaeljoseph/test_app/issues/{}'
+LABEL_URL = 'https://api.github.com/repos/michaeljoseph/test_app/labels'
 AUTH_TOKEN_ENVVAR = 'GITHUB_AUTH_TOKEN'
 
 
@@ -160,7 +162,7 @@ def with_auth_token_envvar():
 
 import changes
 @pytest.fixture
-def patch_user_home_to_tmpdir_path(monkeypatch, tmpdir):
+def changes_config_in_tmpdir(monkeypatch, tmpdir):
     IS_WINDOWS = 'win32' in str(sys.platform).lower()
 
     changes_config_file = Path(str(tmpdir.join('.changes')))

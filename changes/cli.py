@@ -87,12 +87,13 @@ main.add_command(status)
 @click.argument('repo_directory', required=False)
 @click.argument('release_name', required=False)
 @click.argument('release_description', required=False)
-def stage(draft, release_name, release_description):
+def stage(draft, repo_directory, release_name, release_description):
     """
     Stages a release
     """
     with work_in(repo_directory):
         requests_cache.configure(expire_after=60*10*10)
         init_command.init()
+        stage_command.stage(draft, release_name, release_description)
 
 main.add_command(stage)

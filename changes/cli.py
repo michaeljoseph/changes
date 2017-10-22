@@ -62,16 +62,6 @@ def main(dry_run, verbose):
 
 
 @click.command()
-def init():
-    """
-    Detects, prompts and initialises the project.
-    """
-    init_command.init()
-
-main.add_command(init)
-
-
-@click.command()
 @click.argument('repo_directory', required=False)
 def status(repo_directory):
     """
@@ -81,6 +71,7 @@ def status(repo_directory):
 
     with work_in(repo_directory):
         requests_cache.configure()
+        init_command.init()
         status_command.status()
 
 main.add_command(status)
@@ -101,5 +92,6 @@ def stage(draft, release_name, release_description):
     """
     requests_cache.configure(expire_after=60*10*10)
     stage_command.stage(draft)
+        init_command.init()
 
 main.add_command(stage)

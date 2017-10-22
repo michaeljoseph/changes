@@ -34,11 +34,7 @@ def stage(draft, release_name=None, release_description=None):
         ' '.join(bumpversion_arguments)
     ))
 
-    try:
-        bumpversion.main(bumpversion_arguments)
-    except bumpversion.WorkingDirectoryIsDirtyException as err:
-        error(err)
-        raise
+    bumpversion.main(bumpversion_arguments)
 
     info('Generating Release')
     # prepare context for changelog documentation

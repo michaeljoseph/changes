@@ -103,7 +103,7 @@ class BumpVersion(object):
         '--allow-dirty',
     ]
     STAGE_OPTIONS = [
-        '--verbose',
+        '--verbose', '--allow-dirty',
         '--no-commit', '--no-tag',
     ]
 

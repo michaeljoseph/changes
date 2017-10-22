@@ -7,13 +7,13 @@ from jinja2 import Template
 
 import changes
 from changes.config import BumpVersion
-from changes.models import Release
+from changes.models import Release, changes_to_release_type
 from . import info, error, note
-from .status import status
 
 
 def stage(draft, release_name=None, release_description=None):
-    repository, bumpversion_part, release_type, proposed_version = status()
+    repository = changes.project_settings.repository
+    bumpversion_part, release_type, proposed_version = changes_to_release_type(repository)
 
     if not repository.changes_since_last_version:
         error("There aren't any changes to release!")

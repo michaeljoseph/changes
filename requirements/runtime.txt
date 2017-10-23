@@ -1,7 +1,7 @@
 plumbum==1.6.3
 click==6.7
 giturlparse.py==0.0.5
-future
+future==0.16.0
 requests
 semantic_version
 uritemplate

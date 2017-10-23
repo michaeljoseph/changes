@@ -2,7 +2,7 @@
 
 codecov==2.0.9
 flake8==3.5.0
-mock
+mock==2.0.0
 pytest
 pytest-cov
 pytest-mock

@@ -16,5 +16,5 @@ devpi==2.2.0
 tox==2.9.1
 uritemplate==3.0.0
 requests==2.18.4
-requests-cache
+requests-cache==0.4.13
 attrs

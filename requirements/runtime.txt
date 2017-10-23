@@ -1,5 +1,5 @@
 plumbum==1.6.3
-click
+click==6.7
 giturlparse.py
 future
 requests

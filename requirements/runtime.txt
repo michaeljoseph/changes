@@ -10,7 +10,7 @@ wheel==0.30.0
 pkginfo==1.4.1
 toml==0.9.3
 invoke==0.21.0
-bumpversion
+bumpversion==0.5.3
 towncrier
 devpi
 tox

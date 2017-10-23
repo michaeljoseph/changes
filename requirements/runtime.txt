@@ -1,4 +1,4 @@
-plumbum
+plumbum==1.6.3
 click
 giturlparse.py
 future

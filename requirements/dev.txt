@@ -7,7 +7,7 @@ pytest==3.2.3
 pytest-cov==2.5.1
 pytest-mock==1.6.3
 responses==0.8.1
-scrutinizer-ocular
+scrutinizer-ocular==1.0.3
 sphinx-bootstrap-theme
 sphinxcontrib-httpdomain
 haikunator

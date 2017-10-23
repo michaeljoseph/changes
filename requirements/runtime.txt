@@ -1,6 +1,6 @@
 plumbum==1.6.3
 click==6.7
-giturlparse.py
+giturlparse.py==0.0.5
 future
 requests
 semantic_version

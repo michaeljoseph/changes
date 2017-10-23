@@ -1,6 +1,6 @@
 -r runtime.txt
 
-codecov
+codecov==2.0.9
 flake8
 mock
 pytest

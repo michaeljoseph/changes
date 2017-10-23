@@ -4,7 +4,7 @@ giturlparse.py==0.0.5
 future==0.16.0
 requests==2.18.4
 semantic_version==2.6.0
-uritemplate
+uritemplate==3.0.0
 twine
 wheel
 pkginfo
@@ -14,7 +14,7 @@ bumpversion
 towncrier
 devpi
 tox
-uritemplate
+uritemplate==3.0.0
 requests==2.18.4
 requests-cache
 attrs

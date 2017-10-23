@@ -6,7 +6,7 @@ mock==2.0.0
 pytest==3.2.3
 pytest-cov==2.5.1
 pytest-mock==1.6.3
-responses
+responses==0.8.1
 scrutinizer-ocular
 sphinx-bootstrap-theme
 sphinxcontrib-httpdomain

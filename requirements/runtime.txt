@@ -2,7 +2,7 @@ plumbum==1.6.3
 click==6.7
 giturlparse.py==0.0.5
 future==0.16.0
-requests
+requests==2.18.4
 semantic_version
 uritemplate
 twine
@@ -15,6 +15,6 @@ towncrier
 devpi
 tox
 uritemplate
-requests
+requests==2.18.4
 requests-cache
 attrs

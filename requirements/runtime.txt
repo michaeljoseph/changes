@@ -12,7 +12,7 @@ toml==0.9.3
 invoke==0.21.0
 bumpversion==0.5.3
 towncrier==17.8.0
-devpi
+devpi==2.2.0
 tox
 uritemplate==3.0.0
 requests==2.18.4

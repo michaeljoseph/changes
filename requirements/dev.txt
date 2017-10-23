@@ -1,7 +1,7 @@
 -r runtime.txt
 
 codecov==2.0.9
-flake8
+flake8==3.5.0
 mock
 pytest
 pytest-cov

@@ -50,15 +50,11 @@ class Release:
     FEATURE = 'feature'
     FIX = 'fix'
 
-    name = attr.ib()
     release_date = attr.ib()
     version = attr.ib()
     description = attr.ib()
+    name = attr.ib(default=attr.Factory(str))
     changes = attr.ib(default=attr.Factory(dict))
-
-    @property
-    def title(self):
-        return
 
 
 @attr.s

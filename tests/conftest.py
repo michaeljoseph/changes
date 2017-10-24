@@ -1,5 +1,6 @@
 import os
 import shlex
+import textwrap
 from pathlib import Path
 
 import pytest
@@ -159,8 +160,10 @@ def with_auth_token_envvar():
 
     if saved_token:
         os.environ[AUTH_TOKEN_ENVVAR] = saved_token
+    else:
+        del os.environ[AUTH_TOKEN_ENVVAR]
 
-import changes
+
 @pytest.fixture
 def changes_config_in_tmpdir(monkeypatch, tmpdir):
     IS_WINDOWS = 'win32' in str(sys.platform).lower()
@@ -173,3 +176,40 @@ def changes_config_in_tmpdir(monkeypatch, tmpdir):
     )
     assert not changes_config_file.exists()
     return changes_config_file
+
+
+@pytest.fixture
+def configured(git_repo, tmpdir):
+    changes_config_path = Path(str(tmpdir.join('.changes')))
+    changes_config_path.write_text(textwrap.dedent(
+        """\
+        [changes]
+        auth_token = "foo"
+        """
+    ))
+
+    Path('.changes.toml').write_text(textwrap.dedent(
+        """\
+        [changes]
+        releases_directory = "docs/releases"
+
+        [changes.labels.bug]
+        default = true
+        id = 208045946
+        url = "https://api.github.com/repos/michaeljoseph/test_app/labels/bug"
+        name = "bug"
+        description = "Bug"
+        color = "f29513"
+        """
+    ))
+
+    Path('.bumpversion.cfg').write_text(textwrap.dedent(
+        """\
+        [bumpversion]
+        current_version = 0.0.1
+
+        [bumpversion:file:version.txt]
+        """
+    ))
+
+    return str(changes_config_path)

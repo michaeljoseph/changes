@@ -8,10 +8,21 @@ from jinja2 import Template
 import changes
 from changes.config import BumpVersion
 from changes.models import Release, changes_to_release_type
-from . import info, error, note
+from . import info, error, note, debug
 
 
-def stage(draft, release_name=None, release_description=None):
+def stage(draft, discard=False, release_name='', release_description=''):
+    discard = False
+    if discard:
+        info('Discarding currently staged release')
+        # modified_bumpversion_files = changes.project_settings.bumpversion.version_files_to_replace
+        # git_discard_files = modified_bumpversion_files
+        # git(['checkout', '--'] + git_discard_files)
+        # release_notes_path = Path(changes.project_settings.releases_directory).joinpath(
+        #     '{}.md'.format(release.version)
+        # )
+        # release_notes_path.remove()
+
     repository = changes.project_settings.repository
     bumpversion_part, release_type, proposed_version = changes_to_release_type(repository)
 
@@ -33,7 +44,6 @@ def stage(draft, release_name=None, release_description=None):
     info('Running: bumpversion {}'.format(
         ' '.join(bumpversion_arguments)
     ))
-
     bumpversion.main(bumpversion_arguments)
 
     info('Generating Release')
@@ -51,12 +61,11 @@ def stage(draft, release_name=None, release_description=None):
     release = Release(
         name=release_name,
         release_date=date.today().isoformat(),
-        version=proposed_version,
+        version=str(proposed_version),
         description=release_description,
         changes=project_labels,
     )
 
-    info('Loading template...')
     # TODO: if project_settings.release_notes_template is None
     release_notes_template = pkg_resources.resource_string(
         changes.__name__,
@@ -64,15 +73,18 @@ def stage(draft, release_name=None, release_description=None):
     ).decode('utf8')
 
     release_notes = Template(release_notes_template).render(release=release)
-    # TODO: jinja2.exceptions.UndefinedError
-    
+
     releases_directory = Path(changes.project_settings.releases_directory)
     if not releases_directory.exists():
         releases_directory.mkdir(parents=True)
+
     release_notes_path = releases_directory.joinpath(
         '{}.md'.format(release.version)
     )
-    if not draft:
-        release_notes_path.write_text(release_notes)
+
+    if draft:
+        info('Would have created {}:'.format(release_notes_path))
+        debug(release_notes)
     else:
-        note(release_notes)
+        info('Writing release notes to {}'.format(release_notes_path))
+        release_notes_path.write_text(release_notes, encoding='utf-8')

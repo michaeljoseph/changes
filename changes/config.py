@@ -13,7 +13,7 @@ import attr
 
 import changes
 from changes.models import GitRepository
-from .commands import info, note
+from .commands import info, note, debug
 
 
 AUTH_TOKEN_ENVVAR = 'GITHUB_AUTH_TOKEN'
@@ -149,6 +149,11 @@ def configure_changes(repository):
             type=click.Path(exists=True, dir_okay=True)
         ))
 
+        # releases_directory = Path(changes.project_settings.releases_directory)
+        if not releases_directory.exists():
+            debug('Releases directory {} not found, creating it.'.format(releases_directory))
+            releases_directory.mkdir(parents=True)
+
         # FIXME: GitHub(repository).labels()
         project_settings = Project(
             releases_directory=releases_directory,
@@ -171,9 +176,10 @@ def configure_bumpversion(latest_version):
     if not bumpversion_config_path.exists():
         user_supplied_versioned_file_paths = []
 
-        version_file_path = None
-        while not version_file_path == Path('.'):
-            version_file_path = Path(click.prompt(
+        version_file_path_answer = None
+        input_terminator = '.'
+        while not version_file_path_answer == input_terminator:
+            version_file_path_answer = click.prompt(
                 'Enter a path to a file that contains a version number '
                 "(enter a path of '.' when you're done selecting files)",
                 type=click.Path(
@@ -182,10 +188,10 @@ def configure_bumpversion(latest_version):
                     file_okay=True,
                     readable=True
                 )
-            ))
+            )
 
-            if version_file_path != Path('.'):
-                user_supplied_versioned_file_paths.append(version_file_path)
+            if version_file_path_answer != input_terminator:
+                user_supplied_versioned_file_paths.append(version_file_path_answer)
 
         bumpversion = BumpVersion(
             current_version=latest_version,

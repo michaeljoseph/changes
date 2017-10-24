@@ -81,6 +81,7 @@ def test_init_prompts_for_auth_token_and_writes_tool_config(
         """\
         No auth token found, asking for it...
         You need a Github Auth Token for changes to create a release.
+        Releases directory docs/releases not found, creating it....
         """
     )
     out, _ = capsys.readouterr()
@@ -119,6 +120,7 @@ def test_init_finds_auth_token_in_environment(
     expected_output = textwrap.dedent(
         """\
         Found Github Auth Token in the environment...
+        Releases directory docs/releases not found, creating it....
         """
     )
     out, _ = capsys.readouterr()

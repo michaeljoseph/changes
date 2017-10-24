@@ -1,7 +1,6 @@
 import textwrap
 
 import responses
-from plumbum.cmd import git
 
 from changes.commands import status
 from .conftest import github_merge_commit, ISSUE_URL, LABEL_URL
@@ -11,9 +10,7 @@ from .conftest import github_merge_commit, ISSUE_URL, LABEL_URL
 def test_status(
     capsys,
     git_repo,
-    with_auth_token_envvar,
-    changes_config_in_tmpdir,
-    with_releases_directory_and_bumpversion_file_prompt,
+    configured,
 ):
 
     responses.add(
@@ -36,7 +33,6 @@ def test_status(
 
     expected_output = textwrap.dedent(
         """\
-        Found Github Auth Token in the environment...
         Repository: michaeljoseph/test_app...
         Latest Version...
         0.0.1
@@ -54,9 +50,7 @@ def test_status(
 def test_status_with_changes(
     capsys,
     git_repo,
-    with_auth_token_envvar,
-    changes_config_in_tmpdir,
-    with_releases_directory_and_bumpversion_file_prompt,
+    configured,
 ):
 
     github_merge_commit(111)
@@ -98,7 +92,6 @@ def test_status_with_changes(
 
     expected_output = textwrap.dedent(
         """\
-        Found Github Auth Token in the environment...
         Repository: michaeljoseph/test_app...
         Latest Version...
         0.0.1
@@ -111,5 +104,3 @@ def test_status_with_changes(
     )
     out, _ = capsys.readouterr()
     assert expected_output == out
-
-    # TODO:check project config

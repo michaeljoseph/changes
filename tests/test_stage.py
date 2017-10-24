@@ -4,17 +4,14 @@ from pathlib import Path
 
 import responses
 
-from changes.commands import stage
+from changes.commands import init, stage
 from .conftest import github_merge_commit, ISSUE_URL, LABEL_URL
 
 
 @responses.activate
 def test_stage_draft(
     capsys,
-    git_repo,
-    with_auth_token_envvar,
-    changes_config_in_tmpdir,
-    with_releases_directory_and_bumpversion_file_prompt,
+    configured,
 ):
 
     github_merge_commit(111)
@@ -52,53 +49,26 @@ def test_stage_draft(
         content_type='application/json'
     )
 
+    init.init()
     stage.stage(draft=True)
-
-    assert Path('.changes.toml').exists()
-    # expected_project_settings = textwrap.dedent(
-    #     """\
-    #     [changes]
-    #     releases_directory = docs/releases
-    #
-    #     [changes.labels.bug]
-    #     default = true
-    #     id = 208045946
-    #     url = "https://api.github.com/repos/michaeljoseph/test_app/labels/bug"
-    #     name = "bug"
-    #     description = "Bug"
-    #     color = "f29513"
-    #     """
-    # )
-    # assert expected_project_settings == Path('.changes.toml').read_text()
-
-    assert Path('.bumpversion.cfg').exists()
 
     expected_output = textwrap.dedent(
         """\
-        Found Github Auth Token in the environment...
-        Repository: michaeljoseph/test_app...
-        Latest Version...
-        0.0.1
-        Changes...
-        1 changes found since 0.0.1
-        #111 The title of the pull request by @someone [bug]
-        Computed release type fix from changes issue tags...
-        Proposed version bump 0.0.1 => 0.0.2...
         Staging [fix] release for version 0.0.2...
         Running: bumpversion --dry-run --verbose --no-commit --no-tag --allow-dirty patch...
         Generating Release...
-        Loading template......
+        Would have created docs/releases/0.0.2.md:...
         """
     )
 
     expected_release_notes_content = [
-        '# None {} 0.0.2 None'.format(date.today().isoformat()),
+        '# 0.0.2 ({}) '.format(date.today().isoformat()),
         '',
         '## Bug',
         '    ',
         '* #111 The title of the pull request',
         '    ',
-        ''
+        '...'
     ]
 
     out, _ = capsys.readouterr()
@@ -111,10 +81,7 @@ def test_stage_draft(
 @responses.activate
 def test_stage(
     capsys,
-    git_repo,
-    with_auth_token_envvar,
-    changes_config_in_tmpdir,
-    with_releases_directory_and_bumpversion_file_prompt,
+    configured,
 ):
 
     github_merge_commit(111)
@@ -152,23 +119,19 @@ def test_stage(
         content_type='application/json'
     )
 
-    stage.stage(draft=False, release_name='Icarus', release_description='The first flight')
+    init.init()
+    stage.stage(
+        draft=False,
+        release_name='Icarus',
+        release_description='The first flight'
+    )
 
     expected_output = textwrap.dedent(
         """\
-        Found Github Auth Token in the environment...
-        Repository: michaeljoseph/test_app...
-        Latest Version...
-        0.0.1
-        Changes...
-        1 changes found since 0.0.1
-        #111 The title of the pull request by @someone [bug]
-        Computed release type fix from changes issue tags...
-        Proposed version bump 0.0.1 => 0.0.2...
         Staging [fix] release for version 0.0.2...
-        Running: bumpversion --verbose --no-commit --no-tag patch...
+        Running: bumpversion --verbose --allow-dirty --no-commit --no-tag patch...
         Generating Release...
-        Loading template......
+        Writing release notes to docs/releases/0.0.2.md...
         """
     )
     out, _ = capsys.readouterr()
@@ -177,7 +140,7 @@ def test_stage(
     release_notes_path = Path('docs/releases/0.0.2.md')
     assert release_notes_path.exists()
     expected_release_notes = [
-        '# Icarus {} 0.0.2 The first flight'.format(date.today().isoformat()),
+        '# 0.0.2 ({}) Icarus'.format(date.today().isoformat()),
         '',
         '## Bug',
         '    ',

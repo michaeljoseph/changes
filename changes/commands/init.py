@@ -13,5 +13,3 @@ def init():
 
     # Project specific settings
     changes.project_settings = Project.load()
-
-    return changes.project_settings.repository

@@ -101,6 +101,7 @@ def stage(draft, discard, repo_directory, release_name, release_description):
     with work_in(repo_directory):
         requests_cache.configure(expire_after=60*10*10)
         init.init()
+
         if discard:
             stage_command.discard(release_name, release_description)
         else:

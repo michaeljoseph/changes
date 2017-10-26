@@ -11,7 +11,6 @@ from changes.models import Release, changes_to_release_type
 from . import info, error, note, debug
 
 
-def stage(draft, discard=False, release_name='', release_description=''):
     discard = False
     if discard:
         info('Discarding currently staged release')
@@ -22,6 +21,7 @@ def stage(draft, discard=False, release_name='', release_description=''):
         #     '{}.md'.format(release.version)
         # )
         # release_notes_path.remove()
+def stage(draft, release_name='', release_description=''):
 
     repository = changes.project_settings.repository
     bumpversion_part, release_type, proposed_version = changes_to_release_type(repository)
@@ -35,16 +35,19 @@ def stage(draft, discard=False, release_name='', release_description=''):
         proposed_version
     ))
 
-    bumpversion_arguments = (
-        BumpVersion.DRAFT_OPTIONS if draft
-        else BumpVersion.STAGE_OPTIONS
-    )
-    bumpversion_arguments += [bumpversion_part]
+    if BumpVersion.read_from_file(Path('.bumpversion.cfg')).current_version == str(proposed_version):
+        info('Version already bumped to {}'.format(proposed_version))
+    else:
+        bumpversion_arguments = (
+            BumpVersion.DRAFT_OPTIONS if draft
+            else BumpVersion.STAGE_OPTIONS
+        )
+        bumpversion_arguments += [bumpversion_part]
 
-    info('Running: bumpversion {}'.format(
-        ' '.join(bumpversion_arguments)
-    ))
-    bumpversion.main(bumpversion_arguments)
+        info('Running: bumpversion {}'.format(
+            ' '.join(bumpversion_arguments)
+        ))
+        bumpversion.main(bumpversion_arguments)
 
     info('Generating Release')
     # prepare context for changelog documentation

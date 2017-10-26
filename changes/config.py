@@ -114,6 +114,31 @@ class BumpVersion(object):
     def load(cls, latest_version):
         return configure_bumpversion(latest_version)
 
+    @classmethod
+    def read_from_file(cls, config_path: Path):
+        config = RawConfigParser('')
+        config.readfp(config_path.open('rt', encoding='utf-8'))
+
+        current_version = config.get("bumpversion", 'current_version')
+
+        filenames = []
+        for section_name in config.sections():
+
+            section_name_match = re.compile("^bumpversion:(file|part):(.+)").match(section_name)
+
+            if not section_name_match:
+                continue
+
+            section_prefix, section_value = section_name_match.groups()
+
+            if section_prefix == "file":
+                filenames.append(section_value)
+
+        return cls(
+            current_version=current_version,
+            version_files_to_replace=filenames,
+        )
+
     def write_to_file(self, config_path: Path):
         bumpversion_cfg = textwrap.dedent(
             """\

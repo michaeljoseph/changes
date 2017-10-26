@@ -1,14 +1,16 @@
+import difflib
 from datetime import date
 from pathlib import Path
 
 import bumpversion
+import click
 import pkg_resources
 from jinja2 import Template
 
 import changes
 from changes.config import BumpVersion
 from changes.models import Release, changes_to_release_type
-from . import info, error, note, debug
+from . import info, error, note, debug, STYLES
 
 
     discard = False
@@ -90,4 +92,21 @@ def stage(draft, release_name='', release_description=''):
         debug(release_notes)
     else:
         info('Writing release notes to {}'.format(release_notes_path))
-        release_notes_path.write_text(release_notes, encoding='utf-8')
+        if release_notes_path.exists():
+            release_notes_content = release_notes_path.read_text(encoding='utf-8')
+            if release_notes_content != release_notes:
+                info('\n'.join(difflib.unified_diff(
+                    release_notes_content.splitlines(),
+                    release_notes.splitlines(),
+                    fromfile=str(release_notes_path),
+                    tofile=str(release_notes_path)
+                )))
+                if click.confirm(
+                        click.style(
+                            '{} has modified content, overwrite?'.format(release_notes_path),
+                            **STYLES['error']
+                        )
+                ):
+                    release_notes_path.write_text(release_notes, encoding='utf-8')
+        else:
+            release_notes_path.write_text(release_notes, encoding='utf-8')

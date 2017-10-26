@@ -23,25 +23,27 @@ STYLES = {
 }
 
 
-def _echo(message, style):
+def echo(message, style):
     click.secho(
         str(message),
         **STYLES[style]
     )
+
+
 def debug(message):
-    _echo('{}...'.format(message), 'debug')
+    echo('{}...'.format(message), 'debug')
 
 
 def info(message):
-    _echo('{}...'.format(message), 'info')
+    echo('{}...'.format(message), 'info')
 
 
 def note(message):
-    _echo(message, 'note')
+    echo(message, 'note')
 
 
 def note_style(message):
-    return click.Style(message, **STYLES['note'])
+    return click.style(message, **STYLES['note'])
 
 
 def highlight(message):
@@ -49,4 +51,4 @@ def highlight(message):
 
 
 def error(message):
-    _echo(message, 'error')
+    echo(message, 'error')

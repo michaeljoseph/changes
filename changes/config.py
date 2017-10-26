@@ -1,5 +1,7 @@
+import re
 import textwrap
 from collections import OrderedDict
+from configparser import RawConfigParser
 from os.path import exists, expanduser, expandvars, join, curdir
 import io
 import os
@@ -8,13 +10,13 @@ import sys
 import click
 from pathlib import Path
 
+import inflect
 import toml
 import attr
 
 import changes
 from changes.models import GitRepository
-from .commands import info, note, debug
-
+from .commands import info, note, debug, error
 
 AUTH_TOKEN_ENVVAR = 'GITHUB_AUTH_TOKEN'
 
@@ -174,14 +176,13 @@ def configure_changes(repository):
             type=click.Path(exists=True, dir_okay=True)
         ))
 
-        # releases_directory = Path(changes.project_settings.releases_directory)
         if not releases_directory.exists():
             debug('Releases directory {} not found, creating it.'.format(releases_directory))
             releases_directory.mkdir(parents=True)
 
         # FIXME: GitHub(repository).labels()
         project_settings = Project(
-            releases_directory=releases_directory,
+            releases_directory=str(releases_directory),
             labels=configure_labels(repository.github_labels()),
         )
         # write config file
@@ -228,66 +229,85 @@ def configure_bumpversion(latest_version):
 
 
 def configure_labels(github_labels):
-    # ask which github tags they want to track
-    # TODO: streamlined support for github defaults: enhancement, bug
-    # TODO: apply description transform in labels_prompt function
-    changelog_worthy_labels = read_user_choices(
-        'labels',
-        [
-            properties['name']
-            for label, properties in github_labels.items()
-        ]
-    )
+    labels_keyed_by_name = {}
+    for label in github_labels:
+        labels_keyed_by_name[label['name']] = label
 
+    # TODO: streamlined support for github defaults: enhancement, bug
+    changelog_worthy_labels = choose_labels([
+        properties['name']
+        for _, properties in labels_keyed_by_name.items()
+    ])
+
+    # TODO: apply description transform in labels_prompt function
     described_labels = {}
     # auto-generate label descriptions
     for label_name in changelog_worthy_labels:
-        label_properties = github_labels[label_name]
-        # Auto-generate description as titlecase label name
-        label_properties['description'] = label_name.title()
+        label_properties = labels_keyed_by_name[label_name]
+        # Auto-generate description as pluralised titlecase label name
+        label_properties['description'] = inflect.engine().plural(label_name.title())
+
         described_labels[label_name] = label_properties
 
     return described_labels
 
 
-def read_user_choices(var_name, options):
-    """Prompt the user to choose from several options for the given variable.
-
-    # cookiecutter/cookiecutter/prompt.py
-    The first item will be returned if no input happens.
-
-    :param str var_name: Variable as specified in the context
-    :param list options: Sequence of options that are available to select from
-    :return: Exactly one item of ``options`` that has been chosen by the user
+def choose_labels(alternatives):
     """
-    raise NotImplementedError()
-    #
+    Prompt the user select several labels from the provided alternatives.
 
-    # Please see http://click.pocoo.org/4/api/#click.prompt
-    if not isinstance(options, list):
-        raise TypeError
+    At least one label must be selected
 
-    if not options:
+    :param list alternatives: Sequence of options that are available to select from
+    :return: Several selected labels
+    """
+    if not alternatives:
         raise ValueError
 
-    choice_map = OrderedDict(
-        (u'{}'.format(i), value) for i, value in enumerate(options, 1)
-    )
-    choices = choice_map.keys()
-    default = u'1'
+    if not isinstance(alternatives, list):
+        raise TypeError
 
-    choice_lines = [u'{} - {}'.format(*c) for c in choice_map.items()]
-    prompt = u'\n'.join((
-        u'Select {}:'.format(var_name),
-        u'\n'.join(choice_lines),
-        u'Choose from {}'.format(u', '.join(choices))
+    choice_map = OrderedDict(
+      ('{}'.format(i), value) for i, value in enumerate(alternatives, 1)
+    )
+    # prepend a termination option
+    input_terminator = '0'
+    choice_map.update({input_terminator: '<done>'})
+    choice_map.move_to_end('0', last=False)
+
+    choice_indexes = choice_map.keys()
+
+    choice_lines = ['{} - {}'.format(*c) for c in choice_map.items()]
+    prompt = '\n'.join((
+        'Select labels:',
+        '\n'.join(choice_lines),
+        'Choose from {}'.format(', '.join(choice_indexes))
     ))
 
-    # TODO: multi-select
-    user_choice = click.prompt(
-        prompt, type=click.Choice(choices), default=default
-    )
-    return choice_map[user_choice]
+    user_choices = set()
+    user_choice = None
+
+    while not user_choice == input_terminator:
+        if user_choices:
+            note('Selected labels: [{}]'.format(','.join(user_choices)))
+
+        user_choice = click.prompt(
+            prompt,
+            type=click.Choice(choice_indexes),
+            default=input_terminator,
+        )
+        done = user_choice == input_terminator
+        new_selection = user_choice not in user_choices
+        nothing_selected = not user_choices
+
+        if not done and new_selection:
+            user_choices.add(choice_map[user_choice])
+
+        if done and nothing_selected:
+            error('Please select at least one label')
+            user_choice = None
+
+    return user_choices
 
 DEFAULTS = {
     'changelog': 'CHANGELOG.md',

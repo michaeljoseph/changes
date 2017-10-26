@@ -8,6 +8,17 @@ from changes.commands import init
 from .conftest import AUTH_TOKEN_ENVVAR, LABEL_URL
 
 
+BUG_LABEL_JSON = [
+    {
+        'id': 52048163,
+        'url': 'https://api.github.com/repos/michaeljoseph/changes/labels/bug',
+        'name': 'bug',
+        'color': 'fc2929',
+        'default': True
+    }
+]
+
+
 @pytest.fixture
 def answer_prompts(mocker):
     _ = mocker.patch(
@@ -27,7 +38,7 @@ def answer_prompts(mocker):
     ]
 
     prompt = mocker.patch(
-        'changes.config.read_user_choices',
+        'changes.config.choose_labels',
         autospec=True
     )
     prompt.return_value = ['bug']
@@ -53,15 +64,7 @@ def test_init_prompts_for_auth_token_and_writes_tool_config(
     responses.add(
         responses.GET,
         LABEL_URL,
-        json={
-            'bug': {
-                "id": 208045946,
-                "url": "https://api.github.com/repos/michaeljoseph/test_app/labels/bug",
-                "name": "bug",
-                "color": "f29513",
-                "default": True
-            },
-        },
+        json=BUG_LABEL_JSON,
         status=200,
         content_type='application/json'
     )
@@ -99,15 +102,7 @@ def test_init_finds_auth_token_in_environment(
     responses.add(
         responses.GET,
         LABEL_URL,
-        json={
-            'bug': {
-                "id": 208045946,
-                "url": "https://api.github.com/repos/michaeljoseph/test_app/labels/bug",
-                "name": "bug",
-                "color": "f29513",
-                "default": True
-            },
-        },
+        json=BUG_LABEL_JSON,
         status=200,
         content_type='application/json'
     )

@@ -5,7 +5,7 @@ import click
 import requests_cache
 
 from . import __version__
-from changes.commands import init as init_command
+from changes.commands import init
 from changes.commands import status as status_command
 from changes.commands import stage as stage_command
 
@@ -71,7 +71,7 @@ def status(repo_directory):
 
     with work_in(repo_directory):
         requests_cache.configure()
-        init_command.init()
+        init.init()
         status_command.status()
 
 main.add_command(status)
@@ -84,7 +84,7 @@ main.add_command(status)
     is_flag=True,
     default=False,
 )
-@click.argument('repo_directory', required=False)
+@click.argument('repo_directory', default='.', required=False)
 @click.argument('release_name', required=False)
 @click.argument('release_description', required=False)
 def stage(draft, repo_directory, release_name, release_description):
@@ -93,7 +93,7 @@ def stage(draft, repo_directory, release_name, release_description):
     """
     with work_in(repo_directory):
         requests_cache.configure(expire_after=60*10*10)
-        init_command.init()
+        init.init()
         stage_command.stage(draft, release_name, release_description)
 
 main.add_command(stage)

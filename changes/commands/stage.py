@@ -13,16 +13,6 @@ from changes.models import Release, changes_to_release_type
 from . import info, error, note, debug, STYLES
 
 
-    discard = False
-    if discard:
-        info('Discarding currently staged release')
-        # modified_bumpversion_files = changes.project_settings.bumpversion.version_files_to_replace
-        # git_discard_files = modified_bumpversion_files
-        # git(['checkout', '--'] + git_discard_files)
-        # release_notes_path = Path(changes.project_settings.releases_directory).joinpath(
-        #     '{}.md'.format(release.version)
-        # )
-        # release_notes_path.remove()
 def stage(draft, release_name='', release_description=''):
 
     repository = changes.project_settings.repository

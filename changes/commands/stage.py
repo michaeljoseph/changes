@@ -27,7 +27,7 @@ def stage(draft, release_name='', release_description=''):
     bumpversion_part, release_type, proposed_version = changes_to_release_type(repository)
 
     if not repository.changes_since_last_version:
-        error("There aren't any changes to release!")
+        error("There aren't any changes to release since {}".format(proposed_version))
         return
 
     info('Staging [{}] release for version {}'.format(

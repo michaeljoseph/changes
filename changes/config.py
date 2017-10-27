@@ -256,7 +256,7 @@ def choose_labels(alternatives):
     """
     Prompt the user select several labels from the provided alternatives.
 
-    At least one label must be selected
+    At least one label must be selected.
 
     :param list alternatives: Sequence of options that are available to select from
     :return: Several selected labels

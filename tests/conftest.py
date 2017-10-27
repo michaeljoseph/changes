@@ -179,9 +179,8 @@ def changes_config_in_tmpdir(monkeypatch, tmpdir):
 
 
 @pytest.fixture
-def configured(git_repo, tmpdir):
-    changes_config_path = Path(str(tmpdir.join('.changes')))
-    changes_config_path.write_text(textwrap.dedent(
+def configured(git_repo, changes_config_in_tmpdir):
+    changes_config_in_tmpdir.write_text(textwrap.dedent(
         """\
         [changes]
         auth_token = "foo"
@@ -212,4 +211,4 @@ def configured(git_repo, tmpdir):
         """
     ))
 
-    return str(changes_config_path)
+    return str(changes_config_in_tmpdir)

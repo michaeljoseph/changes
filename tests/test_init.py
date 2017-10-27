@@ -1,22 +1,12 @@
 import os
 import textwrap
+from pathlib import Path
 
 import pytest
 import responses
 
 from changes.commands import init
-from .conftest import AUTH_TOKEN_ENVVAR, LABEL_URL
-
-
-BUG_LABEL_JSON = [
-    {
-        'id': 52048163,
-        'url': 'https://api.github.com/repos/michaeljoseph/changes/labels/bug',
-        'name': 'bug',
-        'color': 'fc2929',
-        'default': True
-    }
-]
+from .conftest import AUTH_TOKEN_ENVVAR, LABEL_URL, BUG_LABEL_JSON
 
 
 @pytest.fixture

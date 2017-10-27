@@ -40,29 +40,26 @@ FILE_CONTENT = {
     'README.md': README_MARKDOWN,
     'CHANGELOG.md': [''],
 }
-ISSUE_URL = 'https://api.github.com/repos/michaeljoseph/test_app/issues/{}'
-LABEL_URL = 'https://api.github.com/repos/michaeljoseph/test_app/labels'
+
 AUTH_TOKEN_ENVVAR = 'GITHUB_AUTH_TOKEN'
 
+ISSUE_URL = 'https://api.github.com/repos/michaeljoseph/test_app/issues/{}'
 
-@pytest.fixture
-def python_module():
-    with CliRunner().isolated_filesystem():
-        os.mkdir(PYTHON_MODULE)
-
-        for file_path, content in FILE_CONTENT.items():
-            open(file_path, 'w').write(
-                '\n'.join(content)
-            )
-
-        git_init(FILE_CONTENT.keys())
-
-        yield
+LABEL_URL = 'https://api.github.com/repos/michaeljoseph/test_app/labels'
+BUG_LABEL_JSON = [
+    {
+        'id': 52048163,
+        'url': 'https://api.github.com/repos/michaeljoseph/changes/labels/bug',
+        'name': 'bug',
+        'color': 'fc2929',
+        'default': True
+    }
+]
 
 
 @pytest.fixture
 def git_repo():
-    with CliRunner().isolated_filesystem():
+    with CliRunner().isolated_filesystem() as tempdir:
         readme_path = 'README.md'
         open(readme_path, 'w').write(
             '\n'.join(README_MARKDOWN)
@@ -72,7 +69,21 @@ def git_repo():
 
         git_init([readme_path, version_path])
 
-        yield
+        yield tempdir
+
+
+@pytest.fixture
+def python_module(git_repo):
+    os.mkdir(PYTHON_MODULE)
+
+    for file_path, content in FILE_CONTENT.items():
+        open(file_path, 'w').write(
+            '\n'.join(content)
+        )
+
+    git('add', [file for file in FILE_CONTENT.keys()])
+
+    yield
 
 
 def git_init(files_to_add):

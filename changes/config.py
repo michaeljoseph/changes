@@ -289,7 +289,7 @@ def choose_labels(alternatives):
 
     while not user_choice == input_terminator:
         if user_choices:
-            note('Selected labels: [{}]'.format(','.join(user_choices)))
+            note('Selected labels: [{}]'.format(', '.join(user_choices)))
 
         user_choice = click.prompt(
             prompt,

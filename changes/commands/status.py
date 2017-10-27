@@ -5,8 +5,11 @@ from . import info, note, highlight
 
 
 def status():
-
     repository = changes.project_settings.repository
+    info('Status [{}/{}]'.format(
+        repository.owner,
+        repository.repo,
+    ))
 
     info(
         'Repository: ' +

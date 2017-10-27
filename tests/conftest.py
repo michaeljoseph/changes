@@ -44,6 +44,17 @@ FILE_CONTENT = {
 AUTH_TOKEN_ENVVAR = 'GITHUB_AUTH_TOKEN'
 
 ISSUE_URL = 'https://api.github.com/repos/michaeljoseph/test_app/issues/{}'
+PULL_REQUEST_JSON = {
+    'number': 111,
+    'title': 'The title of the pull request',
+    'body': 'An optional, longer description.',
+    'user': {
+        'login': 'someone'
+    },
+    'labels': [
+        {'id': 1, 'name': 'bug'}
+    ],
+}
 
 LABEL_URL = 'https://api.github.com/repos/michaeljoseph/test_app/labels'
 BUG_LABEL_JSON = [

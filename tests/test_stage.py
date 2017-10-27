@@ -5,7 +5,7 @@ from pathlib import Path
 import responses
 
 from changes.commands import init, stage
-from .conftest import github_merge_commit, ISSUE_URL, LABEL_URL
+from .conftest import github_merge_commit, ISSUE_URL, LABEL_URL, PULL_REQUEST_JSON, BUG_LABEL_JSON
 
 
 @responses.activate
@@ -19,32 +19,14 @@ def test_stage_draft(
     responses.add(
         responses.GET,
         ISSUE_URL.format('111'),
-        json={
-            'number': 111,
-            'title': 'The title of the pull request',
-            'body': 'An optional, longer description.',
-            'user': {
-                'login': 'someone'
-            },
-            'labels': [
-                {'id': 1, 'name': 'bug'}
-            ],
-        },
+        json=PULL_REQUEST_JSON,
         status=200,
         content_type='application/json'
     )
     responses.add(
         responses.GET,
         LABEL_URL,
-        json={
-            'bug': {
-                "id": 208045946,
-                "url": "https://api.github.com/repos/michaeljoseph/test_app/labels/bug",
-                "name": "bug",
-                "color": "f29513",
-                "default": True
-            },
-        },
+        json=BUG_LABEL_JSON,
         status=200,
         content_type='application/json'
     )
@@ -84,37 +66,19 @@ def test_stage(
     configured,
 ):
 
-    github_merge_commit(111)
-
-    responses.add(
-        responses.GET,
-        ISSUE_URL.format('111'),
-        json={
-            'number': 111,
-            'title': 'The title of the pull request',
-            'body': 'An optional, longer description.',
-            'user': {
-                'login': 'someone'
-            },
-            'labels': [
-                {'id': 1, 'name': 'bug'}
-            ],
-        },
-        status=200,
-        content_type='application/json'
-    )
     responses.add(
         responses.GET,
         LABEL_URL,
-        json={
-            'bug': {
-                "id": 208045946,
-                "url": "https://api.github.com/repos/michaeljoseph/test_app/labels/bug",
-                "name": "bug",
-                "color": "f29513",
-                "default": True
-            },
-        },
+        json=BUG_LABEL_JSON,
+        status=200,
+        content_type='application/json'
+    )
+
+    github_merge_commit(111)
+    responses.add(
+        responses.GET,
+        ISSUE_URL.format('111'),
+        json=PULL_REQUEST_JSON,
         status=200,
         content_type='application/json'
     )

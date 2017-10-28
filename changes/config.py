@@ -10,7 +10,7 @@ import sys
 import click
 from pathlib import Path
 
-import inflect
+import inflection
 import toml
 import attr
 
@@ -245,7 +245,9 @@ def configure_labels(github_labels):
     for label_name in changelog_worthy_labels:
         label_properties = labels_keyed_by_name[label_name]
         # Auto-generate description as pluralised titlecase label name
-        label_properties['description'] = inflect.engine().plural(label_name.title())
+        label_properties['description'] = inflection.pluralize(
+            inflection.titleize(label_name)
+        )
 
         described_labels[label_name] = label_properties
 

@@ -8,6 +8,7 @@ from . import __version__
 from changes.commands import init
 from changes.commands import status as status_command
 from changes.commands import stage as stage_command
+from changes.commands import publish as publish_command
 
 VERSION = 'changes {}'.format(__version__)
 
@@ -106,3 +107,17 @@ def stage(draft, discard, repo_directory, release_name, release_description):
             stage_command.stage(draft, release_name, release_description)
 
 main.add_command(stage)
+
+
+@click.command()
+@click.argument('repo_directory', default='.', required=False)
+def publish(repo_directory):
+    """
+    Publishes a release
+    """
+    with work_in(repo_directory):
+        init.init()
+        publish_command.publish()
+
+
+main.add_command(publish)

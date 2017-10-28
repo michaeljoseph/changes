@@ -67,7 +67,6 @@ def test_stage(
     capsys,
     configured,
 ):
-
     responses.add(
         responses.GET,
         LABEL_URL,

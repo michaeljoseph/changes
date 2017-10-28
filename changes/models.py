@@ -52,7 +52,7 @@ class Release:
 
     release_date = attr.ib()
     version = attr.ib()
-    description = attr.ib()
+    description = attr.ib(default=attr.Factory(str))
     name = attr.ib(default=attr.Factory(str))
     changes = attr.ib(default=attr.Factory(dict))
 

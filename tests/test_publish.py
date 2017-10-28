@@ -25,13 +25,16 @@ def answer_prompts(mocker):
     ]
 
 
-def test_publish_no_staged_release(capsys):
+def test_publish_no_staged_release(
+    capsys,
+    configured
+):
     init.init()
     publish.publish()
 
     expected_output = textwrap.dedent(
         """\
-        No staged release found
+        No staged release to publish...
         """
     )
     out, _ = capsys.readouterr()

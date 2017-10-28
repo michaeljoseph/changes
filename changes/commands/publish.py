@@ -1,15 +1,25 @@
 import click
+from datetime import date
+
 import changes
 from changes.commands import error, info
+from changes.models import changes_to_release_type, Release
 
 
 def publish():
+    bumpversion_part, release_type, proposed_version = changes_to_release_type(
+        changes.project_settings.repository
+    )
+    release = Release(
+        release_date=date.today().isoformat(),
+        version=str(proposed_version),
+   )
 
-    release = changes.release
-
-    if not release:
-        error('No staged release found')
+    if release.version == str(changes.project_settings.repository.latest_version):
+        info('No staged release to publish')
         return
+
+
 
     info('Publish release {}'.format(release.version))
     if click.confirm('Happy to release {}'.format(release.version)):

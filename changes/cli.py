@@ -84,16 +84,25 @@ main.add_command(status)
     is_flag=True,
     default=False,
 )
+@click.option(
+    '--discard',
+    help='Discards the changes made to release files',
+    is_flag=True,
+    default=False,
+)
 @click.argument('repo_directory', default='.', required=False)
 @click.argument('release_name', required=False)
 @click.argument('release_description', required=False)
-def stage(draft, repo_directory, release_name, release_description):
+def stage(draft, discard, repo_directory, release_name, release_description):
     """
     Stages a release
     """
     with work_in(repo_directory):
         requests_cache.configure(expire_after=60*10*10)
         init.init()
-        stage_command.stage(draft, release_name, release_description)
+        if discard:
+            stage_command.discard(release_name, release_description)
+        else:
+            stage_command.stage(draft, release_name, release_description)
 
 main.add_command(stage)

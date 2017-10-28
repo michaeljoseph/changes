@@ -33,8 +33,7 @@ def stage(draft, release_name='', release_description=''):
         bumpversion_arguments = (
             BumpVersion.DRAFT_OPTIONS if draft
             else BumpVersion.STAGE_OPTIONS
-        )
-        bumpversion_arguments += [bumpversion_part]
+        ) + [bumpversion_part]
 
         info('Running: bumpversion {}'.format(
             ' '.join(bumpversion_arguments)

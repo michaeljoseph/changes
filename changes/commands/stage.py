@@ -92,10 +92,10 @@ def stage(draft, release_name='', release_description=''):
                     tofile=str(release_notes_path)
                 )))
                 if click.confirm(
-                        click.style(
-                            '{} has modified content, overwrite?'.format(release_notes_path),
-                            **STYLES['error']
-                        )
+                    click.style(
+                        '{} has modified content, overwrite?'.format(release_notes_path),
+                        **STYLES['error']
+                    )
                 ):
                     release_notes_path.write_text(release_notes, encoding='utf-8')
         else:

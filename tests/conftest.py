@@ -70,7 +70,7 @@ BUG_LABEL_JSON = [
 
 @pytest.fixture
 def git_repo():
-    with CliRunner().isolated_filesystem() as tempdir:
+    with CliRunner().isolated_filesystem() as tmpdir:
         readme_path = 'README.md'
         open(readme_path, 'w').write(
             '\n'.join(README_MARKDOWN)
@@ -78,9 +78,22 @@ def git_repo():
         version_path = 'version.txt'
         open(version_path, 'w').write('0.0.1')
 
-        git_init([readme_path, version_path])
+        files_to_add = [
+           readme_path,
+           version_path,
+        ]
 
-        yield tempdir
+        git('init')
+        git(shlex.split('config --local user.email "you@example.com"'))
+        git(shlex.split('remote add origin https://github.com/michaeljoseph/test_app.git'))
+        git(shlex.split('remote set-url --push origin {}'.format(str(tmpdir))))
+
+        for file_to_add in files_to_add:
+            git('add', file_to_add)
+        git('commit', '-m', 'Initial commit')
+        git(shlex.split('tag 0.0.1'))
+
+        yield tmpdir
 
 
 @pytest.fixture
@@ -95,16 +108,6 @@ def python_module(git_repo):
     git('add', [file for file in FILE_CONTENT.keys()])
 
     yield
-
-
-def git_init(files_to_add):
-    git('init')
-    git(shlex.split('config --local user.email "you@example.com"'))
-    git('remote', 'add', 'origin', 'https://github.com/michaeljoseph/test_app.git')
-    for file_to_add in files_to_add:
-        git('add', file_to_add)
-    git('commit', '-m', 'Initial commit')
-    git(shlex.split('tag 0.0.1'))
 
 
 def github_merge_commit(pull_request_number):

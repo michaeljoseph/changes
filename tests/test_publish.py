@@ -1,12 +1,8 @@
-"""
-For testing:
-mkdir /tmp/fake-push-repo
-git init /tmp/fake-push-repo
-git remote set-url --push origin /tmp/fake-push-repo
-"""
+import shlex
 import textwrap
 from pathlib import Path
 
+from plumbum.cmd import git
 import pytest
 import responses
 
@@ -72,16 +68,63 @@ def test_publish(
     )
     publish.publish()
 
-    expected_output = textwrap.dedent(
+    release_notes_path = Path('docs').joinpath('releases').joinpath('0.0.2.md')
+
+    pre = textwrap.dedent(
         """\
         Staging [fix] release for version 0.0.2...
         Running: bumpversion --verbose --allow-dirty --no-commit --no-tag patch...
         Generating Release...
-        Writing release notes to {}...
-        Publish release 0.0.2...
+        Writing release notes to {release_notes_path}...
+        Publishing release 0.0.2...
+        Running: git add version.txt .bumpversion.cfg {release_notes_path}...
+        Running: git commit --message="# 0.0.2 (2017-10-29) Icarus
         """.format(
-            Path('docs').joinpath('releases').joinpath('0.0.2.md')
+            release_notes_path=release_notes_path,
         )
-    )
+    ).splitlines()
+
+    expected_release_notes_content = [
+        'The first flight',
+        '## Bug',
+        '    ',
+        '* #111 The title of the pull request',
+        '    ',
+    ]
+
+    post = textwrap.dedent(
+        """\
+        "...
+        Running: git tag 0.0.2...
+        Running: git push --tags...
+        Creating GitHub Releases...
+        Published release 0.0.2...
+        Verifying release 0.0.2...
+        👍 Release verified...
+        """
+    ).splitlines()
+
     out, _ = capsys.readouterr()
-    assert expected_output == out
+
+    assert pre + expected_release_notes_content + post == out.splitlines()
+
+    last_commit = git(shlex.split('show --name-only'))
+    expected_files = [
+        'version.txt',
+        '.bumpversion.cfg',
+        release_notes_path,
+    ]
+    assert [
+        expected_file
+        for expected_file in expected_files
+        if str(expected_file) in last_commit
+    ]
+
+    # verify tag creation
+    assert '0.0.2' in git(shlex.split('tag --list'))
+
+    # verify remote pushed
+
+
+    # patch releases api call
+    # patch release api verification call

@@ -117,3 +117,98 @@ def test_stage(
     ]
     assert expected_release_notes == release_notes_path.read_text().splitlines()
 
+
+@responses.activate
+def test_stage_discard(
+    capsys,
+    configured,
+):
+
+    responses.add(
+        responses.GET,
+        LABEL_URL,
+        json=BUG_LABEL_JSON,
+        status=200,
+        content_type='application/json'
+    )
+
+    github_merge_commit(111)
+    responses.add(
+        responses.GET,
+        ISSUE_URL.format('111'),
+        json=PULL_REQUEST_JSON,
+        status=200,
+        content_type='application/json'
+    )
+
+    init.init()
+    stage.stage(
+        draft=False,
+        release_name='Icarus',
+        release_description='The first flight'
+    )
+    from plumbum.cmd import git
+    import shlex
+    result = git(shlex.split('-c color.status=false status --short --branch'))
+
+    modified_files = [
+        '## master',
+        ' M .bumpversion.cfg',
+        ' M version.txt',
+        '?? docs/',
+        '',
+    ]
+    assert '\n'.join(modified_files) == result
+
+    stage.discard(
+        release_name='Icarus',
+        release_description='The first flight'
+    )
+
+    expected_output = textwrap.dedent(
+        """\
+        Staging [fix] release for version 0.0.2...
+        Running: bumpversion --verbose --allow-dirty --no-commit --no-tag patch...
+        Generating Release...
+        Writing release notes to {release_notes_path}...
+        Discarding currently staged release 0.0.2...
+        Running: git checkout -- version.txt .bumpversion.cfg...
+        Running: rm {release_notes_path}...
+        """.format(
+            release_notes_path=Path('docs').joinpath('releases').joinpath('0.0.2.md')
+        )
+    )
+    out, _ = capsys.readouterr()
+    assert expected_output == out
+
+    result = git(shlex.split('-c color.status=false status --short --branch'))
+
+    modified_files = [
+        '## master',
+        '',
+    ]
+    assert '\n'.join(modified_files) == result
+
+
+@responses.activate
+def test_stage_discard_nothing_staged(
+    capsys,
+    configured,
+):
+
+    init.init()
+
+    stage.discard(
+        release_name='Icarus',
+        release_description='The first flight'
+    )
+
+    expected_output = textwrap.dedent(
+        """\
+        No staged release to discard...
+        """.format(
+            Path('docs').joinpath('releases').joinpath('0.0.2.md')
+        )
+    )
+    out, _ = capsys.readouterr()
+    assert expected_output == out

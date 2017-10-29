@@ -4,13 +4,57 @@ from pathlib import Path
 
 import bumpversion
 import click
+from plumbum.cmd import git
 import pkg_resources
 from jinja2 import Template
 
 import changes
 from changes.config import BumpVersion
 from changes.models import Release, changes_to_release_type
-from . import info, error, note, debug, STYLES
+from . import info, error, debug, STYLES
+
+
+def discard(release_name='', release_description=''):
+    bumpversion_part, release_type, proposed_version = changes_to_release_type(
+        changes.project_settings.repository
+    )
+    release = Release(
+        name=release_name,
+        release_date=date.today().isoformat(),
+        version=str(proposed_version),
+        description=release_description,
+    )
+
+    if release.version == str(changes.project_settings.repository.latest_version):
+        info('No staged release to discard')
+        return
+
+    info('Discarding currently staged release {}'.format(release.version))
+
+    settings = changes.project_settings
+
+    release_notes_path = Path(settings.releases_directory).joinpath(
+        '{}.md'.format(release.version)
+    )
+
+    modified_bumpversion_files = BumpVersion.read_from_file(Path('.bumpversion.cfg')).version_files_to_replace
+    git_discard_files = (
+        modified_bumpversion_files +
+        [
+            '.bumpversion.cfg',
+        ]
+    )
+
+    info('Running: git {}'.format(' '.join(
+        ['checkout', '--'] + git_discard_files
+    )))
+    git(['checkout', '--'] + git_discard_files)
+
+    if release_notes_path.exists():
+        info('Running: rm {}'.format(
+            release_notes_path,
+        ))
+        release_notes_path.unlink()
 
 
 def stage(draft, release_name='', release_description=''):
@@ -33,8 +77,7 @@ def stage(draft, release_name='', release_description=''):
         bumpversion_arguments = (
             BumpVersion.DRAFT_OPTIONS if draft
             else BumpVersion.STAGE_OPTIONS
-        )
-        bumpversion_arguments += [bumpversion_part]
+        ) + [bumpversion_part]
 
         info('Running: bumpversion {}'.format(
             ' '.join(bumpversion_arguments)

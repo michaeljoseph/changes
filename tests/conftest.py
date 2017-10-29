@@ -233,4 +233,8 @@ def configured(git_repo, changes_config_in_tmpdir):
         """
     ))
 
+    for file_to_add in ['.changes.toml', '.bumpversion.cfg']:
+        git('add', file_to_add)
+    git('commit', '-m', 'Add changes configuration files')
+
     return str(changes_config_in_tmpdir)

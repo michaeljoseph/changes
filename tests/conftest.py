@@ -1,12 +1,14 @@
 import os
 import shlex
+import textwrap
 from pathlib import Path
 
 import pytest
-import responses
 import sys
 from click.testing import CliRunner
 from plumbum.cmd import git
+
+import changes
 
 pytest_plugins = 'pytester'
 
@@ -38,28 +40,37 @@ FILE_CONTENT = {
     'README.md': README_MARKDOWN,
     'CHANGELOG.md': [''],
 }
-ISSUE_URL = 'https://api.github.com/repos/michaeljoseph/test_app/issues/{}'
+
 AUTH_TOKEN_ENVVAR = 'GITHUB_AUTH_TOKEN'
 
+ISSUE_URL = 'https://api.github.com/repos/michaeljoseph/test_app/issues/{}'
+PULL_REQUEST_JSON = {
+    'number': 111,
+    'title': 'The title of the pull request',
+    'body': 'An optional, longer description.',
+    'user': {
+        'login': 'someone'
+    },
+    'labels': [
+        {'id': 1, 'name': 'bug'}
+    ],
+}
 
-@pytest.fixture
-def python_module():
-    with CliRunner().isolated_filesystem():
-        os.mkdir(PYTHON_MODULE)
-
-        for file_path, content in FILE_CONTENT.items():
-            open(file_path, 'w').write(
-                '\n'.join(content)
-            )
-
-        git_init(FILE_CONTENT.keys())
-
-        yield
+LABEL_URL = 'https://api.github.com/repos/michaeljoseph/test_app/labels'
+BUG_LABEL_JSON = [
+    {
+        'id': 52048163,
+        'url': 'https://api.github.com/repos/michaeljoseph/changes/labels/bug',
+        'name': 'bug',
+        'color': 'fc2929',
+        'default': True
+    }
+]
 
 
 @pytest.fixture
 def git_repo():
-    with CliRunner().isolated_filesystem():
+    with CliRunner().isolated_filesystem() as tempdir:
         readme_path = 'README.md'
         open(readme_path, 'w').write(
             '\n'.join(README_MARKDOWN)
@@ -69,7 +80,21 @@ def git_repo():
 
         git_init([readme_path, version_path])
 
-        yield
+        yield tempdir
+
+
+@pytest.fixture
+def python_module(git_repo):
+    os.mkdir(PYTHON_MODULE)
+
+    for file_path, content in FILE_CONTENT.items():
+        open(file_path, 'w').write(
+            '\n'.join(content)
+        )
+
+    git('add', [file for file in FILE_CONTENT.keys()])
+
+    yield
 
 
 def git_init(files_to_add):
@@ -121,7 +146,7 @@ def with_releases_directory_and_bumpversion_file_prompt(mocker):
     ]
 
     prompt = mocker.patch(
-        'changes.config.read_user_choices',
+        'changes.config.choose_labels',
         autospec=True
     )
     prompt.return_value = ['bug']
@@ -157,10 +182,12 @@ def with_auth_token_envvar():
 
     if saved_token:
         os.environ[AUTH_TOKEN_ENVVAR] = saved_token
+    else:
+        del os.environ[AUTH_TOKEN_ENVVAR]
 
-import changes
+
 @pytest.fixture
-def patch_user_home_to_tmpdir_path(monkeypatch, tmpdir):
+def changes_config_in_tmpdir(monkeypatch, tmpdir):
     IS_WINDOWS = 'win32' in str(sys.platform).lower()
 
     changes_config_file = Path(str(tmpdir.join('.changes')))
@@ -171,3 +198,39 @@ def patch_user_home_to_tmpdir_path(monkeypatch, tmpdir):
     )
     assert not changes_config_file.exists()
     return changes_config_file
+
+
+@pytest.fixture
+def configured(git_repo, changes_config_in_tmpdir):
+    changes_config_in_tmpdir.write_text(textwrap.dedent(
+        """\
+        [changes]
+        auth_token = "foo"
+        """
+    ))
+
+    Path('.changes.toml').write_text(textwrap.dedent(
+        """\
+        [changes]
+        releases_directory = "docs/releases"
+
+        [changes.labels.bug]
+        default = true
+        id = 208045946
+        url = "https://api.github.com/repos/michaeljoseph/test_app/labels/bug"
+        name = "bug"
+        description = "Bug"
+        color = "f29513"
+        """
+    ))
+
+    Path('.bumpversion.cfg').write_text(textwrap.dedent(
+        """\
+        [bumpversion]
+        current_version = 0.0.1
+
+        [bumpversion:file:version.txt]
+        """
+    ))
+
+    return str(changes_config_in_tmpdir)

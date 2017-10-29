@@ -1,8 +1,15 @@
 import click
 
 STYLES = {
+    'debug': {
+        'fg': 'blue',
+    },
     'info': {
         'fg': 'green',
+        'bold': True,
+    },
+    'highlight': {
+        'fg': 'cyan',
         'bold': True,
     },
     'note': {
@@ -16,24 +23,32 @@ STYLES = {
 }
 
 
-def _echo(message, style):
+def echo(message, style):
     click.secho(
         str(message),
         **STYLES[style]
     )
 
 
+def debug(message):
+    echo('{}...'.format(message), 'debug')
+
+
 def info(message):
-    _echo('{}...'.format(message), 'info')
+    echo('{}...'.format(message), 'info')
 
 
 def note(message):
-    _echo(message, 'note')
+    echo(message, 'note')
+
+
+def note_style(message):
+    return click.style(message, **STYLES['note'])
 
 
 def highlight(message):
-    return click.style(message, fg='cyan', bold=True)
+    return click.style(message, **STYLES['highlight'])
 
 
 def error(message):
-    _echo(message, 'error')
+    echo(message, 'error')

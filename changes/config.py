@@ -1,5 +1,7 @@
+import re
 import textwrap
 from collections import OrderedDict
+from configparser import RawConfigParser
 from os.path import exists, expanduser, expandvars, join, curdir
 import io
 import os
@@ -8,13 +10,13 @@ import sys
 import click
 from pathlib import Path
 
+import inflection
 import toml
 import attr
 
 import changes
 from changes.models import GitRepository
-from .commands import info, note
-
+from .commands import info, note, debug, error
 
 AUTH_TOKEN_ENVVAR = 'GITHUB_AUTH_TOKEN'
 
@@ -34,45 +36,45 @@ DEFAULT_RELEASES_DIRECTORY = 'docs/releases'
 class Changes(object):
     auth_token = attr.ib()
 
+    @classmethod
+    def load(cls):
+        tool_config_path = Path(str(os.environ.get(
+            'CHANGES_CONFIG_FILE',
+            expanduser('~/.changes') if not IS_WINDOWS else
+            expandvars(r'%APPDATA%\\.changes')
+        )))
 
-def load_settings():
-    tool_config_path = Path(str(os.environ.get(
-        'CHANGES_CONFIG_FILE',
-        expanduser('~/.changes') if not IS_WINDOWS else
-        expandvars(r'%APPDATA%\\.changes')
-    )))
+        tool_settings = None
+        if tool_config_path.exists():
+            tool_settings = Changes(
+                **(toml.load(tool_config_path.open())['changes'])
+            )
 
-    tool_settings = None
-    if tool_config_path.exists():
-        tool_settings = Changes(
-            **(toml.load(tool_config_path.open())['changes'])
-        )
-
-    if not (tool_settings and tool_settings.auth_token):
-        # prompt for auth token
+        # envvar takes precedence over config file settings
         auth_token = os.environ.get(AUTH_TOKEN_ENVVAR)
         if auth_token:
             info('Found Github Auth Token in the environment')
-
-        while not auth_token:
-            info('No auth token found, asking for it')
-            # to interact with the Git*H*ub API
-            note('You need a Github Auth Token for changes to create a release.')
-            click.pause('Press [enter] to launch the GitHub "New personal access '
-                        'token" page, to create a token for changes.')
-            click.launch('https://github.com/settings/tokens/new')
-            auth_token = click.prompt('Enter your changes token')
-
-        if not tool_settings:
             tool_settings = Changes(auth_token=auth_token)
+        elif not (tool_settings and tool_settings.auth_token):
+            while not auth_token:
+                info('No auth token found, asking for it')
+                # to interact with the Git*H*ub API
+                note('You need a Github Auth Token for changes to create a release.')
+                click.pause('Press [enter] to launch the GitHub "New personal access '
+                            'token" page, to create a token for changes.')
+                click.launch('https://github.com/settings/tokens/new')
+                auth_token = click.prompt('Enter your changes token')
 
-        tool_config_path.write_text(
-            toml.dumps({
-                'changes': attr.asdict(tool_settings)
-            })
-        )
+            if not tool_settings:
+                tool_settings = Changes(auth_token=auth_token)
 
-    return tool_settings
+            tool_config_path.write_text(
+                toml.dumps({
+                    'changes': attr.asdict(tool_settings)
+                })
+            )
+
+        return tool_settings
 
 
 @attr.s
@@ -82,13 +84,17 @@ class Project(object):
     bumpversion = attr.ib(default=None)
     labels = attr.ib(default=attr.Factory(dict))
 
-    @property
-    def bumpversion_configured(self):
-        return isinstance(self.bumpversion, BumpVersion)
+    @classmethod
+    def load(cls):
+        repository = GitRepository(
+            auth_token=changes.settings.auth_token
+        )
 
-    @property
-    def labels_selected(self):
-        return len(self.labels) > 0
+        project_settings = configure_changes(repository)
+        project_settings.repository = repository
+        project_settings.bumpversion = BumpVersion.load(repository.latest_version)
+
+        return project_settings
 
 
 @attr.s
@@ -99,12 +105,41 @@ class BumpVersion(object):
         '--allow-dirty',
     ]
     STAGE_OPTIONS = [
-        '--verbose',
+        '--verbose', '--allow-dirty',
         '--no-commit', '--no-tag',
     ]
 
     current_version = attr.ib()
     version_files_to_replace = attr.ib(default=attr.Factory(list))
+
+    @classmethod
+    def load(cls, latest_version):
+        return configure_bumpversion(latest_version)
+
+    @classmethod
+    def read_from_file(cls, config_path: Path):
+        config = RawConfigParser('')
+        config.readfp(config_path.open('rt', encoding='utf-8'))
+
+        current_version = config.get("bumpversion", 'current_version')
+
+        filenames = []
+        for section_name in config.sections():
+
+            section_name_match = re.compile("^bumpversion:(file|part):(.+)").match(section_name)
+
+            if not section_name_match:
+                continue
+
+            section_prefix, section_value = section_name_match.groups()
+
+            if section_prefix == "file":
+                filenames.append(section_value)
+
+        return cls(
+            current_version=current_version,
+            version_files_to_replace=filenames,
+        )
 
     def write_to_file(self, config_path: Path):
         bumpversion_cfg = textwrap.dedent(
@@ -125,64 +160,30 @@ class BumpVersion(object):
         )
 
 
-def load_project_settings():
-    project_settings = configure_changes()
-
-    info('Indexing repository')
-    project_settings.repository = GitRepository(
-        auth_token=changes.settings.auth_token
-    )
-
-    project_settings.bumpversion = configure_bumpversion(project_settings)
-
-    project_settings.labels = configure_labels(project_settings)
-
-    return project_settings
-
-
-def configure_labels(project_settings):
-    if project_settings.labels_selected:
-        return project_settings.labels
-
-    github_labels = project_settings.repository.github_labels
-
-    # since there are no labels defined
-    # let's ask which github tags they want to track
-    # TODO: streamlined support for github defaults: enhancement, bug
-    changelog_worthy_labels = read_user_choices(
-        'labels',
-        [
-            properties['name']
-            for label, properties in github_labels.items()
-        ]
-    )
-
-    # TODO: if not project_settings.labels_have_descriptions:
-    described_labels = {}
-    # auto-generate label descriptions
-    for label_name in changelog_worthy_labels:
-        label_properties = github_labels[label_name]
-        # Auto-generate description as titlecase label name
-        label_properties['description'] = label_name.title()
-        described_labels[label_name] = label_properties
-
-    return described_labels
-
-
-def configure_changes():
+def configure_changes(repository):
     changes_project_config_path = Path(PROJECT_CONFIG_FILE)
     project_settings = None
     if changes_project_config_path.exists():
+        # releases_directory, labels
         project_settings = Project(
             **(toml.load(changes_project_config_path.open())['changes'])
         )
+
     if not project_settings:
+        releases_directory = Path(click.prompt(
+            'Enter the directory to store your releases notes',
+            DEFAULT_RELEASES_DIRECTORY,
+            type=click.Path(exists=True, dir_okay=True)
+        ))
+
+        if not releases_directory.exists():
+            debug('Releases directory {} not found, creating it.'.format(releases_directory))
+            releases_directory.mkdir(parents=True)
+
+        # FIXME: GitHub(repository).labels()
         project_settings = Project(
-            releases_directory=str(Path(click.prompt(
-                'Enter the directory to store your releases notes',
-                DEFAULT_RELEASES_DIRECTORY,
-                type=click.Path(exists=True, dir_okay=True)
-            )))
+            releases_directory=str(releases_directory),
+            labels=configure_labels(repository.github_labels()),
         )
         # write config file
         changes_project_config_path.write_text(
@@ -194,16 +195,17 @@ def configure_changes():
     return project_settings
 
 
-def configure_bumpversion(project_settings):
+def configure_bumpversion(latest_version):
     # TODO: look in other supported bumpversion config locations
     bumpversion = None
     bumpversion_config_path = Path('.bumpversion.cfg')
     if not bumpversion_config_path.exists():
         user_supplied_versioned_file_paths = []
 
-        version_file_path = None
-        while not version_file_path == Path('.'):
-            version_file_path = Path(click.prompt(
+        version_file_path_answer = None
+        input_terminator = '.'
+        while not version_file_path_answer == input_terminator:
+            version_file_path_answer = click.prompt(
                 'Enter a path to a file that contains a version number '
                 "(enter a path of '.' when you're done selecting files)",
                 type=click.Path(
@@ -212,60 +214,102 @@ def configure_bumpversion(project_settings):
                     file_okay=True,
                     readable=True
                 )
-            ))
+            )
 
-            if version_file_path != Path('.'):
-                user_supplied_versioned_file_paths.append(version_file_path)
+            if version_file_path_answer != input_terminator:
+                user_supplied_versioned_file_paths.append(version_file_path_answer)
 
         bumpversion = BumpVersion(
-            current_version=project_settings.repository.latest_version,
+            current_version=latest_version,
             version_files_to_replace=user_supplied_versioned_file_paths,
         )
         bumpversion.write_to_file(bumpversion_config_path)
-    else:
-        raise NotImplemented('')
 
     return bumpversion
 
 
-def read_user_choices(var_name, options):
-    """Prompt the user to choose from several options for the given variable.
+def configure_labels(github_labels):
+    labels_keyed_by_name = {}
+    for label in github_labels:
+        labels_keyed_by_name[label['name']] = label
 
-    # cookiecutter/cookiecutter/prompt.py
-    The first item will be returned if no input happens.
+    # TODO: streamlined support for github defaults: enhancement, bug
+    changelog_worthy_labels = choose_labels([
+        properties['name']
+        for _, properties in labels_keyed_by_name.items()
+    ])
 
-    :param str var_name: Variable as specified in the context
-    :param list options: Sequence of options that are available to select from
-    :return: Exactly one item of ``options`` that has been chosen by the user
+    # TODO: apply description transform in labels_prompt function
+    described_labels = {}
+    # auto-generate label descriptions
+    for label_name in changelog_worthy_labels:
+        label_properties = labels_keyed_by_name[label_name]
+        # Auto-generate description as pluralised titlecase label name
+        label_properties['description'] = inflection.pluralize(
+            inflection.titleize(label_name)
+        )
+
+        described_labels[label_name] = label_properties
+
+    return described_labels
+
+
+def choose_labels(alternatives):
     """
-    raise NotImplementedError()
-    #
+    Prompt the user select several labels from the provided alternatives.
 
-    # Please see http://click.pocoo.org/4/api/#click.prompt
-    if not isinstance(options, list):
-        raise TypeError
+    At least one label must be selected.
 
-    if not options:
+    :param list alternatives: Sequence of options that are available to select from
+    :return: Several selected labels
+    """
+    if not alternatives:
         raise ValueError
 
-    choice_map = OrderedDict(
-        (u'{}'.format(i), value) for i, value in enumerate(options, 1)
-    )
-    choices = choice_map.keys()
-    default = u'1'
+    if not isinstance(alternatives, list):
+        raise TypeError
 
-    choice_lines = [u'{} - {}'.format(*c) for c in choice_map.items()]
-    prompt = u'\n'.join((
-        u'Select {}:'.format(var_name),
-        u'\n'.join(choice_lines),
-        u'Choose from {}'.format(u', '.join(choices))
+    choice_map = OrderedDict(
+      ('{}'.format(i), value) for i, value in enumerate(alternatives, 1)
+    )
+    # prepend a termination option
+    input_terminator = '0'
+    choice_map.update({input_terminator: '<done>'})
+    choice_map.move_to_end('0', last=False)
+
+    choice_indexes = choice_map.keys()
+
+    choice_lines = ['{} - {}'.format(*c) for c in choice_map.items()]
+    prompt = '\n'.join((
+        'Select labels:',
+        '\n'.join(choice_lines),
+        'Choose from {}'.format(', '.join(choice_indexes))
     ))
 
-    # TODO: multi-select
-    user_choice = click.prompt(
-        prompt, type=click.Choice(choices), default=default
-    )
-    return choice_map[user_choice]
+    user_choices = set()
+    user_choice = None
+
+    while not user_choice == input_terminator:
+        if user_choices:
+            note('Selected labels: [{}]'.format(', '.join(user_choices)))
+
+        user_choice = click.prompt(
+            prompt,
+            type=click.Choice(choice_indexes),
+            default=input_terminator,
+        )
+        done = user_choice == input_terminator
+        new_selection = user_choice not in user_choices
+        nothing_selected = not user_choices
+
+        if not done and new_selection:
+            user_choices.add(choice_map[user_choice])
+
+        if done and nothing_selected:
+            error('Please select at least one label')
+            user_choice = None
+
+    return user_choices
 
 DEFAULTS = {
     'changelog': 'CHANGELOG.md',

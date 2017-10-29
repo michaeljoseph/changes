@@ -1,10 +1,15 @@
+import changes
 from changes.models import changes_to_release_type
+
 from . import info, note, highlight
-from .init import init
 
 
 def status():
-    repository = init()
+    repository = changes.project_settings.repository
+    info('Status [{}/{}]'.format(
+        repository.owner,
+        repository.repo,
+    ))
 
     info(
         'Repository: ' +
@@ -39,5 +44,3 @@ def status():
         info('Proposed version bump {} => {}'.format(
             repository.latest_version, proposed_version
         ))
-
-    return repository, bumpversion_part, release_type, proposed_version

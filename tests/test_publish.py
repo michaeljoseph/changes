@@ -1,3 +1,4 @@
+from datetime import date
 import shlex
 import textwrap
 from pathlib import Path
@@ -78,9 +79,10 @@ def test_publish(
         Writing release notes to {release_notes_path}...
         Publishing release 0.0.2...
         Running: git add version.txt .bumpversion.cfg {release_notes_path}...
-        Running: git commit --message="# 0.0.2 (2017-10-29) Icarus
+        Running: git commit --message="# 0.0.2 ({release_date}) Icarus
         """.format(
             release_notes_path=release_notes_path,
+            release_date=date.today().isoformat(),
         )
     ).splitlines()
 

@@ -69,8 +69,8 @@ BUG_LABEL_JSON = [
 
 
 @pytest.fixture
-def git_repo():
-    with CliRunner().isolated_filesystem() as tmpdir:
+def git_repo(tmpdir):
+    with CliRunner().isolated_filesystem() as repo_dir:
         readme_path = 'README.md'
         open(readme_path, 'w').write(
             '\n'.join(README_MARKDOWN)
@@ -86,14 +86,17 @@ def git_repo():
         git('init')
         git(shlex.split('config --local user.email "you@example.com"'))
         git(shlex.split('remote add origin https://github.com/michaeljoseph/test_app.git'))
-        git(shlex.split('remote set-url --push origin {}'.format(str(tmpdir))))
+
+        tmp_push_repo = Path(tmpdir)
+        git('init', '--bare', str(tmp_push_repo))
+        git(shlex.split('remote set-url --push origin {}'.format(tmp_push_repo.as_uri())))
 
         for file_to_add in files_to_add:
             git('add', file_to_add)
         git('commit', '-m', 'Initial commit')
         git(shlex.split('tag 0.0.1'))
 
-        yield tmpdir
+        yield repo_dir
 
 
 @pytest.fixture

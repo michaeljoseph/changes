@@ -87,7 +87,7 @@ def git_repo(tmpdir):
         git(shlex.split('config --local user.email "you@example.com"'))
         git(shlex.split('remote add origin https://github.com/michaeljoseph/test_app.git'))
 
-        tmp_push_repo = Path(tmpdir)
+        tmp_push_repo = Path(str(tmpdir))
         git('init', '--bare', str(tmp_push_repo))
         git(shlex.split('remote set-url --push origin {}'.format(tmp_push_repo.as_uri())))
 

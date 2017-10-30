@@ -37,15 +37,22 @@ def publish():
     info('Running: git add {}'.format(' '.join(files_to_add)))
     GitRepository.add(files_to_add)
 
-        # tag => release format string
+    commit_message = release_notes_path.read_text(encoding='utf-8')
+    info('Running: git commit --message="{}"'.format(commit_message))
+    GitRepository.commit(commit_message)
 
-        # git push --tags
+    info('Running: git tag {}'.format(release.version))
+    GitRepository.tag(release.version)
 
-        # github release [artifacts?]
+    if click.confirm('Happy to publish release {}'.format(release.version)):
+        info('Running: git push --tags')
+        GitRepository.push(tags=True)
 
-    # Release done
+        info('Creating GitHub Releases')
 
-    # Verifying
+        info('Published release {}'.format(release.version))
 
-    # install from release (gh
-    #     verify release
+        info('Verifying release {}'.format(release.version))
+        # install from release (gh
+        #     verify release
+        info('👍 Release verified')

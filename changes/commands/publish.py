@@ -6,6 +6,7 @@ from datetime import date
 import changes
 from changes.commands import error, info
 from changes.config import BumpVersion
+from changes.github import GitHub
 from changes.models import changes_to_release_type, Release, GitRepository
 
 
@@ -48,11 +49,10 @@ def publish():
         info('Running: git push --tags')
         GitRepository.push(tags=True)
 
-        info('Creating GitHub Releases')
+        info('Creating GitHub Release')
+        GitHub(
+            repository=changes.project_settings.repository,
+            release=release,
+        ).create_release()
 
         info('Published release {}'.format(release.version))
-
-        info('Verifying release {}'.format(release.version))
-        # install from release (gh
-        #     verify release
-        info('👍 Release verified')

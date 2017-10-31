@@ -8,7 +8,7 @@ import pytest
 import responses
 
 from changes.commands import init, stage, publish
-from .conftest import github_merge_commit, ISSUE_URL, LABEL_URL, PULL_REQUEST_JSON, BUG_LABEL_JSON
+from .conftest import github_merge_commit, ISSUE_URL, LABEL_URL, PULL_REQUEST_JSON, BUG_LABEL_JSON, RELEASES_URL
 
 
 @pytest.fixture
@@ -60,6 +60,13 @@ def test_publish(
         status=200,
         content_type='application/json'
     )
+    responses.add(
+        responses.POST,
+        RELEASES_URL,
+        json={'upload_url': 'foo'},
+        status=200,
+        content_type='application/json'
+    )
 
     init.init()
     stage.stage(
@@ -99,10 +106,8 @@ def test_publish(
         "...
         Running: git tag 0.0.2...
         Running: git push --tags...
-        Creating GitHub Releases...
+        Creating GitHub Release...
         Published release 0.0.2...
-        Verifying release 0.0.2...
-        👍 Release verified...
         """
     ).splitlines()
 
@@ -122,11 +127,4 @@ def test_publish(
         if str(expected_file) in last_commit
     ]
 
-    # verify tag creation
     assert '0.0.2' in git(shlex.split('tag --list'))
-
-    # verify remote pushed
-
-
-    # patch releases api call
-    # patch release api verification call

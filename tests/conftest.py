@@ -60,13 +60,14 @@ LABEL_URL = 'https://api.github.com/repos/michaeljoseph/test_app/labels'
 BUG_LABEL_JSON = [
     {
         'id': 52048163,
-        'url': 'https://api.github.com/repos/michaeljoseph/changes/labels/bug',
+        'url': 'https://api.github.com/repos/michaeljoseph/test_app/labels/bug',
         'name': 'bug',
         'color': 'fc2929',
         'default': True
     }
 ]
 
+RELEASES_URL = 'https://api.github.com/repos/michaeljoseph/test_app/releases'
 
 @pytest.fixture
 def git_repo(tmpdir):

@@ -52,7 +52,7 @@ class Release:
 
     release_date = attr.ib()
     version = attr.ib()
-    description = attr.ib()
+    description = attr.ib(default=attr.Factory(str))
     name = attr.ib(default=attr.Factory(str))
     changes = attr.ib(default=attr.Factory(dict))
 
@@ -62,23 +62,20 @@ class PullRequest:
     number = attr.ib()
     title = attr.ib()
     description = attr.ib()
-    # default is 'body' key
     author = attr.ib()
     labels = attr.ib(default=attr.Factory(list))
 
     @classmethod
     def from_github(cls, api_response):
-        return PullRequest(
-            number = api_response['number'],
-            title = api_response['title'],
-            description = api_response['body'],
-            author = api_response['user']['login'],
-            labels = [
+        return cls(
+            number=api_response['number'],
+            title=api_response['title'],
+            description=api_response['body'],
+            author=api_response['user']['login'],
+            labels=[
                 label['name']
                 for label in api_response['labels']
-                # label['colour'] => https://gist.github.com/MicahElliott/719710
             ],
-            # labels need a description => map for default github tags
         )
 
 
@@ -164,6 +161,41 @@ class GitRepository:
             'log --oneline --merges --no-color{}'.format(revision_range)
         )).split('\n')
         return merge_commits
+
+    @property
+    def files_modified_in_last_commit(self):
+        return git(shlex.split('diff --name -only --diff -filter=d'))
+
+    @property
+    def dirty_files(self):
+        return [
+            modified_path
+            for modified_path in git(shlex.split('-c color.status=false status --short --branch'))
+            if modified_path.startswith(' M')
+        ]
+
+    @classmethod
+    def add(cls, files_to_add):
+        return git(['add'] + files_to_add)
+
+    @classmethod
+    def commit(cls, message):
+        return git(shlex.split(
+            'commit --message="{}" '.format(message)
+        ))
+
+    @classmethod
+    def tag(cls, version):
+        # TODO: signed tags
+        return git(
+            shlex.split('tag --annotate {version} --message="{version}"'.format(
+                version=version
+            ))
+        )
+
+    @classmethod
+    def push(cls, tags=False):
+        return git(['push'] + ['--tags'] if tags else [])
 
     # TODO: pull_requests_since(version=None)
     # TODO: cached_property

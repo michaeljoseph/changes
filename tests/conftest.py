@@ -60,17 +60,18 @@ LABEL_URL = 'https://api.github.com/repos/michaeljoseph/test_app/labels'
 BUG_LABEL_JSON = [
     {
         'id': 52048163,
-        'url': 'https://api.github.com/repos/michaeljoseph/changes/labels/bug',
+        'url': 'https://api.github.com/repos/michaeljoseph/test_app/labels/bug',
         'name': 'bug',
         'color': 'fc2929',
         'default': True
     }
 ]
 
+RELEASES_URL = 'https://api.github.com/repos/michaeljoseph/test_app/releases'
 
 @pytest.fixture
-def git_repo():
-    with CliRunner().isolated_filesystem() as tempdir:
+def git_repo(tmpdir):
+    with CliRunner().isolated_filesystem() as repo_dir:
         readme_path = 'README.md'
         open(readme_path, 'w').write(
             '\n'.join(README_MARKDOWN)
@@ -78,9 +79,25 @@ def git_repo():
         version_path = 'version.txt'
         open(version_path, 'w').write('0.0.1')
 
-        git_init([readme_path, version_path])
+        files_to_add = [
+           readme_path,
+           version_path,
+        ]
 
-        yield tempdir
+        git('init')
+        git(shlex.split('config --local user.email "you@example.com"'))
+        git(shlex.split('remote add origin https://github.com/michaeljoseph/test_app.git'))
+
+        tmp_push_repo = Path(str(tmpdir))
+        git('init', '--bare', str(tmp_push_repo))
+        git(shlex.split('remote set-url --push origin {}'.format(tmp_push_repo.as_uri())))
+
+        for file_to_add in files_to_add:
+            git('add', file_to_add)
+        git('commit', '-m', 'Initial commit')
+        git(shlex.split('tag 0.0.1'))
+
+        yield repo_dir
 
 
 @pytest.fixture
@@ -95,16 +112,6 @@ def python_module(git_repo):
     git('add', [file for file in FILE_CONTENT.keys()])
 
     yield
-
-
-def git_init(files_to_add):
-    git('init')
-    git(shlex.split('config --local user.email "you@example.com"'))
-    git('remote', 'add', 'origin', 'https://github.com/michaeljoseph/test_app.git')
-    for file_to_add in files_to_add:
-        git('add', file_to_add)
-    git('commit', '-m', 'Initial commit')
-    git(shlex.split('tag 0.0.1'))
 
 
 def github_merge_commit(pull_request_number):

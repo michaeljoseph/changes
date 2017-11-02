@@ -1,7 +1,9 @@
 import textwrap
 from datetime import date
 from pathlib import Path
+import shlex
 
+from plumbum.cmd import git
 import responses
 
 from changes.commands import init, stage
@@ -18,7 +20,7 @@ def test_stage_draft(
 
     responses.add(
         responses.GET,
-        ISSUE_URL.format('111'),
+        ISSUE_URL,
         json=PULL_REQUEST_JSON,
         status=200,
         content_type='application/json'
@@ -78,7 +80,7 @@ def test_stage(
     github_merge_commit(111)
     responses.add(
         responses.GET,
-        ISSUE_URL.format('111'),
+        ISSUE_URL,
         json=PULL_REQUEST_JSON,
         status=200,
         content_type='application/json'
@@ -122,7 +124,6 @@ def test_stage_discard(
     capsys,
     configured,
 ):
-
     responses.add(
         responses.GET,
         LABEL_URL,
@@ -134,7 +135,7 @@ def test_stage_discard(
     github_merge_commit(111)
     responses.add(
         responses.GET,
-        ISSUE_URL.format('111'),
+        ISSUE_URL,
         json=PULL_REQUEST_JSON,
         status=200,
         content_type='application/json'
@@ -146,8 +147,7 @@ def test_stage_discard(
         release_name='Icarus',
         release_description='The first flight'
     )
-    from plumbum.cmd import git
-    import shlex
+
     result = git(shlex.split('-c color.status=false status --short --branch'))
 
     modified_files = [

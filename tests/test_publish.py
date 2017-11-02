@@ -48,7 +48,7 @@ def test_publish(
     github_merge_commit(111)
     responses.add(
         responses.GET,
-        ISSUE_URL.format('111'),
+        ISSUE_URL,
         json=PULL_REQUEST_JSON,
         status=200,
         content_type='application/json'

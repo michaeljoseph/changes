@@ -1,3 +1,4 @@
+from enum import Enum
 import re
 import shlex
 
@@ -8,10 +9,9 @@ import requests
 import giturlparse
 from plumbum.cmd import git
 
-MERGED_PULL_REQUEST = re.compile(
+GITHUB_MERGED_PULL_REQUEST = re.compile(
     r'^([0-9a-f]{5,40}) Merge pull request #(\w+)'
 )
-
 GITHUB_PULL_REQUEST_API = (
     'https://api.github.com/repos{/owner}{/repo}/issues{/number}'
 )
@@ -21,34 +21,48 @@ GITHUB_LABEL_API = (
 
 
 def changes_to_release_type(repository):
-    pull_request_labels = set()
-    changes = repository.changes_since_last_version
+    pull_requests = repository.pull_requests_since_latest_version
 
-    for change in changes:
-        for label in change.labels:
-            pull_request_labels.add(label)
+    labels = set([
+        label_name
+        for pull_request in pull_requests
+        for label_name in pull_request.label_names
+    ])
 
-    change_descriptions = [
-        '\n'.join([change.title, change.description]) for change in changes
+    descriptions = [
+        '\n'.join([
+            pull_request.title, pull_request.description
+        ])
+        for pull_request in pull_requests
     ]
 
-    current_version = repository.latest_version
-    if 'BREAKING CHANGE' in change_descriptions:
-        return 'major', Release.BREAKING_CHANGE, current_version.next_major()
-    elif 'enhancement' in pull_request_labels:
-        return 'minor', Release.FEATURE, current_version.next_minor()
-    elif 'bug' in pull_request_labels:
-        return 'patch', Release.FIX, current_version.next_patch()
+    return determine_release(
+        repository.latest_version,
+        descriptions,
+        labels
+    )
+
+
+def determine_release(latest_version, descriptions, labels):
+    if 'BREAKING CHANGE' in descriptions:
+        return 'major', ReleaseType.BREAKING_CHANGE, latest_version.next_major()
+    elif 'enhancement' in labels:
+        return 'minor', ReleaseType.FEATURE, latest_version.next_minor()
+    elif 'bug' in labels:
+        return 'patch', ReleaseType.FIX, latest_version.next_patch()
     else:
-        return None, Release.NO_CHANGE, current_version
+        return None, ReleaseType.NO_CHANGE, latest_version
 
 
-@attr.s
-class Release:
-    NO_CHANGE = 'nochanges'
+class ReleaseType(str, Enum):
+    NO_CHANGE = 'no-changes'
     BREAKING_CHANGE = 'breaking'
     FEATURE = 'feature'
     FIX = 'fix'
+
+
+@attr.s
+class Release(object):
 
     release_date = attr.ib()
     version = attr.ib()
@@ -56,31 +70,46 @@ class Release:
     name = attr.ib(default=attr.Factory(str))
     changes = attr.ib(default=attr.Factory(dict))
 
+    @property
+    def title(self):
+        return '{version} ({release_date})'.format(
+            version=self.version,
+            release_date=self.release_date
+        ) + (' ' + self.name) if self.name else ''
+
 
 @attr.s
-class PullRequest:
+class PullRequest(object):
     number = attr.ib()
     title = attr.ib()
     description = attr.ib()
     author = attr.ib()
+    body = attr.ib()
+    user = attr.ib()
     labels = attr.ib(default=attr.Factory(list))
+
+    @property
+    def description(self):
+        return self.body
+
+    @property
+    def author(self):
+        return self.user['login']
+
+    @property
+    def label_names(self):
+        return [
+            label['name']
+            for label in self.labels
+        ]
 
     @classmethod
     def from_github(cls, api_response):
-        return cls(
-            number=api_response['number'],
-            title=api_response['title'],
-            description=api_response['body'],
-            author=api_response['user']['login'],
-            labels=[
-                label['name']
-                for label in api_response['labels']
-            ],
-        )
+        return cls(**api_response)
 
 
 @attr.s
-class GitRepository:
+class GitRepository(object):
     VERSION_ZERO = semantic_version.Version('0.0.0')
     # TODO: handle multiple remotes (cookiecutter [non-owner maintainer])
     REMOTE_NAME = 'origin'
@@ -163,6 +192,10 @@ class GitRepository:
         return merge_commits
 
     @property
+    def merges_since_latest_version(self):
+        return self.merges_since(self.latest_version)
+
+    @property
     def files_modified_in_last_commit(self):
         return git(shlex.split('diff --name -only --diff -filter=d'))
 
@@ -197,22 +230,27 @@ class GitRepository:
     def push(cls, tags=False):
         return git(['push'] + ['--tags'] if tags else [])
 
-    # TODO: pull_requests_since(version=None)
     # TODO: cached_property
     @property
-    def changes_since_last_version(self):
-        pull_requests = []
+    def pull_requests_since_latest_version(self):
+        return [
+            PullRequest.from_github(self.github_pull_request(pull_request_number))
+            for pull_request_number in self.pull_request_numbers_since_latest_version
+        ]
 
-        for index, commit_msg in enumerate(self.merges_since(self.latest_version)):
-            matches = MERGED_PULL_REQUEST.findall(commit_msg)
+    @property
+    def pull_request_numbers_since_latest_version(self):
+        pull_request_numbers = []
+
+        for commit_msg in self.merges_since(self.latest_version):
+
+            matches = GITHUB_MERGED_PULL_REQUEST.findall(commit_msg)
 
             if matches:
                 _, pull_request_number = matches[0]
+                pull_request_numbers.append(pull_request_number)
 
-                pull_requests.append(PullRequest.from_github(
-                    self.github_pull_request(pull_request_number)
-                ))
-        return pull_requests
+        return pull_request_numbers
 
     def github_pull_request(self, pr_num):
         pull_request_api_url = uritemplate.expand(
@@ -249,6 +287,4 @@ class GitRepository:
                 'Authorization': 'token {}'.format(self.auth_token)
             },
         ).json()
-
-
 

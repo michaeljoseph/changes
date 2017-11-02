@@ -10,13 +10,16 @@ from jinja2 import Template
 
 import changes
 from changes.config import BumpVersion
+
 from changes.models import Release, changes_to_release_type
 from . import info, error, debug, STYLES
 
 
 def discard(release_name='', release_description=''):
+    repository = changes.project_settings.repository
+
     bumpversion_part, release_type, proposed_version = changes_to_release_type(
-        changes.project_settings.repository
+        repository
     )
     release = Release(
         name=release_name,
@@ -25,7 +28,7 @@ def discard(release_name='', release_description=''):
         description=release_description,
     )
 
-    if release.version == str(changes.project_settings.repository.latest_version):
+    if release.version == str(repository.latest_version):
         info('No staged release to discard')
         return
 
@@ -37,10 +40,11 @@ def discard(release_name='', release_description=''):
         '{}.md'.format(release.version)
     )
 
-    modified_bumpversion_files = BumpVersion.read_from_file(Path('.bumpversion.cfg')).version_files_to_replace
+    bumpversion = BumpVersion.read_from_file(Path('.bumpversion.cfg'))
     git_discard_files = (
-        modified_bumpversion_files +
+        bumpversion.version_files_to_replace +
         [
+            # 'CHANGELOG.md',
             '.bumpversion.cfg',
         ]
     )
@@ -58,11 +62,19 @@ def discard(release_name='', release_description=''):
 
 
 def stage(draft, release_name='', release_description=''):
-
     repository = changes.project_settings.repository
-    bumpversion_part, release_type, proposed_version = changes_to_release_type(repository)
 
-    if not repository.changes_since_last_version:
+    bumpversion_part, release_type, proposed_version = changes_to_release_type(
+        repository
+    )
+    release = Release(
+        name=release_name,
+        release_date=date.today().isoformat(),
+        version=str(proposed_version),
+        description=release_description,
+    )
+
+    if not repository.pull_requests_since_latest_version:
         error("There aren't any changes to release since {}".format(proposed_version))
         return
 
@@ -85,24 +97,17 @@ def stage(draft, release_name='', release_description=''):
         bumpversion.main(bumpversion_arguments)
 
     info('Generating Release')
-    # prepare context for changelog documentation
     project_labels = changes.project_settings.labels
     for label, properties in project_labels.items():
         pull_requests_with_label = [
             pull_request
-            for pull_request in repository.changes_since_last_version
-            if label in pull_request.labels
+            for pull_request in repository.pull_requests_since_latest_version
+            if label in pull_request.label_names
         ]
 
         project_labels[label]['pull_requests'] = pull_requests_with_label
 
-    release = Release(
-        name=release_name,
-        release_date=date.today().isoformat(),
-        version=str(proposed_version),
-        description=release_description,
-        changes=project_labels,
-    )
+    release.changes = project_labels
 
     # TODO: if project_settings.release_notes_template is None
     release_notes_template = pkg_resources.resource_string(

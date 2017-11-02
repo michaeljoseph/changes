@@ -11,7 +11,7 @@ from changes.models import changes_to_release_type, Release, GitRepository
 
 
 def publish():
-    bumpversion_part, release_type, proposed_version = changes_to_release_type(
+    _, _, proposed_version = changes_to_release_type(
         changes.project_settings.repository
     )
     release = Release(

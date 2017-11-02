@@ -10,4 +10,3 @@ from .cli import main  # noqa
 
 settings = None
 project_settings = None
-environment = None

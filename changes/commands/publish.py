@@ -7,7 +7,8 @@ import changes
 from changes.commands import error, info
 from changes.config import BumpVersion
 from changes.github import GitHub
-from changes.models import changes_to_release_type, Release, GitRepository
+from changes.models import changes_to_release_type, Release
+from changes.models.repository import GitRepository
 
 
 def publish():

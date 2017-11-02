@@ -15,7 +15,7 @@ import toml
 import attr
 
 import changes
-from changes.models import GitRepository
+from changes.models.repository import GitRepository
 from .commands import info, note, debug, error
 
 AUTH_TOKEN_ENVVAR = 'GITHUB_AUTH_TOKEN'

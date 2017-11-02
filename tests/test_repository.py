@@ -1,11 +1,11 @@
 from plumbum.cmd import git
 from semantic_version import Version
 
-from changes import models
+from changes.models.repository import GitRepository
 
 
 def test_repository_parses_remote_url(git_repo):
-    repository = models.GitRepository()
+    repository = GitRepository()
     assert 'test_app' == repository.repo
     assert 'michaeljoseph' == repository.owner
     assert repository.is_github
@@ -13,7 +13,7 @@ def test_repository_parses_remote_url(git_repo):
 
 
 def test_repository_parses_versions(git_repo):
-    repository = models.GitRepository()
+    repository = GitRepository()
 
     v1 = Version('0.0.1')
 
@@ -34,7 +34,7 @@ def test_latest_version(git_repo):
     git('tag', '0.0.2')
     git('tag', '0.0.3')
 
-    repository = models.GitRepository()
+    repository = GitRepository()
 
     expected_versions = [
         Version('0.0.1'),

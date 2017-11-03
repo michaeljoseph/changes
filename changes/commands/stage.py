@@ -33,9 +33,8 @@ def discard(release_name='', release_description=''):
 
     info('Discarding currently staged release {}'.format(release.version))
 
-    settings = changes.project_settings
-
-    release_notes_path = Path(settings.releases_directory).joinpath(
+    releases_directory = changes.project_settings.releases_directory
+    release_notes_path = Path(releases_directory).joinpath(
         '{}.md'.format(release.version)
     )
 

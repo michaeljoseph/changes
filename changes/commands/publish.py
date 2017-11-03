@@ -10,22 +10,25 @@ from changes.models import changes_to_release_type, Release
 
 
 def publish():
+    repository = changes.project_settings.repository
+
     _, _, proposed_version = changes_to_release_type(
-        changes.project_settings.repository
+        repository
     )
     release = Release(
         release_date=date.today().isoformat(),
         version=str(proposed_version),
     )
 
-    if release.version == str(changes.project_settings.repository.latest_version):
+    if release.version == str(repository.latest_version):
         info('No staged release to publish')
         return
 
     info('Publishing release {}'.format(release.version))
 
+    releases_directory = changes.project_settings.releases_directory
     files_to_add = BumpVersion.read_from_file(Path('.bumpversion.cfg')).version_files_to_replace
-    release_notes_path = Path(changes.project_settings.releases_directory).joinpath(
+    release_notes_path = Path(releases_directory).joinpath(
         '{}.md'.format(release.version)
     )
 

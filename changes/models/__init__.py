@@ -46,7 +46,6 @@ class ReleaseType(str, Enum):
 
 @attr.s
 class Release(object):
-
     release_date = attr.ib()
     version = attr.ib()
     description = attr.ib(default=attr.Factory(str))

@@ -4,7 +4,6 @@ from pathlib import Path
 
 import bumpversion
 import click
-from plumbum.cmd import git
 import pkg_resources
 from jinja2 import Template
 
@@ -52,7 +51,7 @@ def discard(release_name='', release_description=''):
     info('Running: git {}'.format(' '.join(
         ['checkout', '--'] + git_discard_files
     )))
-    git(['checkout', '--'] + git_discard_files)
+    repository.discard(git_discard_files)
 
     if release_notes_path.exists():
         info('Running: rm {}'.format(

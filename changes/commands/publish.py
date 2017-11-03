@@ -4,11 +4,9 @@ import click
 from datetime import date
 
 import changes
-from changes.commands import error, info
+from changes.commands import info
 from changes.config import BumpVersion
-from changes.github import GitHub
 from changes.models import changes_to_release_type, Release
-from changes.models.repository import GitRepository
 
 
 def publish():
@@ -37,23 +35,20 @@ def publish():
     ]
 
     info('Running: git add {}'.format(' '.join(files_to_add)))
-    GitRepository.add(files_to_add)
+    repository.add(files_to_add)
 
     commit_message = release_notes_path.read_text(encoding='utf-8')
     info('Running: git commit --message="{}"'.format(commit_message))
-    GitRepository.commit(commit_message)
+    repository.commit(commit_message)
 
     info('Running: git tag {}'.format(release.version))
-    GitRepository.tag(release.version)
+    repository.tag(release.version)
 
     if click.confirm('Happy to publish release {}'.format(release.version)):
         info('Running: git push --tags')
-        GitRepository.push(tags=True)
+        repository.push()
 
         info('Creating GitHub Release')
-        GitHub(
-            repository=changes.project_settings.repository,
-            release=release,
-        ).create_release()
+        repository.create_release(release)
 
         info('Published release {}'.format(release.version))

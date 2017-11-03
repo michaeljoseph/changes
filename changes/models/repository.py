@@ -3,22 +3,20 @@ import re
 import attr
 import semantic_version
 import shlex
-import uritemplate
-import requests
 import giturlparse
 from plumbum.cmd import git
 
+from changes.github import GitHubApi
 from . import PullRequest
 
 GITHUB_MERGED_PULL_REQUEST = re.compile(
     r'^([0-9a-f]{5,40}) Merge pull request #(\w+)'
 )
-GITHUB_PULL_REQUEST_API = (
-    'https://api.github.com/repos{/owner}{/repo}/issues{/number}'
-)
-GITHUB_LABEL_API = (
-    'https://api.github.com/repos{/owner}{/repo}/labels'
-)
+
+# def gitx(args):
+#     if changes.debug:
+#         print('git {}'.format(args))
+#     return git(shlex.split(args))
 
 
 @attr.s
@@ -120,18 +118,22 @@ class GitRepository(object):
             if modified_path.startswith(' M')
         ]
 
-    @classmethod
-    def add(cls, files_to_add):
+    @staticmethod
+    def add(files_to_add):
         return git(['add'] + files_to_add)
 
-    @classmethod
-    def commit(cls, message):
+    @staticmethod
+    def commit(message):
         return git(shlex.split(
             'commit --message="{}" '.format(message)
         ))
 
-    @classmethod
-    def tag(cls, version):
+    @staticmethod
+    def discard(file_paths):
+        git(['checkout', '--'] + file_paths)
+
+    @staticmethod
+    def tag(version):
         # TODO: signed tags
         return git(
             shlex.split('tag --annotate {version} --message="{version}"'.format(
@@ -139,15 +141,28 @@ class GitRepository(object):
             ))
         )
 
-    @classmethod
-    def push(cls, tags=False):
-        return git(['push'] + ['--tags'] if tags else [])
+    @staticmethod
+    def push():
+        return git(shlex.split('push --tags'))
+
+
+@attr.s
+class GitHubRepository(GitRepository):
+    api = attr.ib(default=None)
+
+    def __attrs_post_init__(self):
+        self.api = GitHubApi(self)
+
+    # TODO: cached_property
+    @property
+    def labels(self):
+        return self.api.labels()
 
     # TODO: cached_property
     @property
     def pull_requests_since_latest_version(self):
         return [
-            PullRequest.from_github(self.github_pull_request(pull_request_number))
+            PullRequest.from_github(self.api.pull_request(pull_request_number))
             for pull_request_number in self.pull_request_numbers_since_latest_version
         ]
 
@@ -165,38 +180,6 @@ class GitRepository(object):
 
         return pull_request_numbers
 
-    def github_pull_request(self, pr_num):
-        pull_request_api_url = uritemplate.expand(
-            GITHUB_PULL_REQUEST_API,
-            dict(
-                owner=self.owner,
-                repo=self.repo,
-                number=pr_num
-            ),
-        )
+    def create_release(self, release):
+        return self.api.create_release(release)
 
-        return requests.get(
-            pull_request_api_url,
-            headers={
-                'Authorization': 'token {}'.format(self.auth_token)
-            },
-        ).json()
-
-    # TODO: cached_property
-    # TODO: move to test fixture
-    def github_labels(self):
-
-        labels_api_url = uritemplate.expand(
-            GITHUB_LABEL_API,
-            dict(
-                owner=self.owner,
-                repo=self.repo,
-            ),
-        )
-
-        return requests.get(
-            labels_api_url,
-            headers={
-                'Authorization': 'token {}'.format(self.auth_token)
-            },
-        ).json()

@@ -12,7 +12,7 @@ EXT_TO_MIME_TYPE = {
 
 
 @attr.s
-class GitHub(object):
+class GitHubApi(object):
     ISSUE_ENDPOINT = (
         'https://api.github.com/repos{/owner}{/repo}/issues{/number}'
     )
@@ -24,7 +24,6 @@ class GitHub(object):
     )
 
     repository = attr.ib()
-    release = attr.ib()
 
     @property
     def owner(self):
@@ -71,11 +70,11 @@ class GitHub(object):
             },
         ).json()
 
-    def create_release(self, uploads=None):
+    def create_release(self, release, uploads=None):
         params = {
-            'tag_name': self.release.version,
-            'name': self.release.name,
-            'body': self.release.description,
+            'tag_name': release.version,
+            'name': release.name,
+            'body': release.description,
             # 'prerelease': True,
         }
 

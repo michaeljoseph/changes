@@ -85,147 +85,42 @@ class Project(object):
     labels = attr.ib(default=attr.Factory(dict))
 
     @classmethod
-    def load(cls):
-        repository = GitRepository(
-            auth_token=changes.settings.auth_token
-        )
+    def load(cls, repository):
+        changes_project_config_path = Path(PROJECT_CONFIG_FILE)
+        project_settings = None
 
-        project_settings = configure_changes(repository)
+        if changes_project_config_path.exists():
+            # releases_directory, labels
+            project_settings = Project(
+                **(toml.load(changes_project_config_path.open())['changes'])
+            )
+
+        if not project_settings:
+            releases_directory = Path(click.prompt(
+                'Enter the directory to store your releases notes',
+                DEFAULT_RELEASES_DIRECTORY,
+                type=click.Path(exists=True, dir_okay=True)
+            ))
+
+            if not releases_directory.exists():
+                debug('Releases directory {} not found, creating it.'.format(releases_directory))
+                releases_directory.mkdir(parents=True)
+
+            project_settings = Project(
+                releases_directory=str(releases_directory),
+                labels=configure_labels(repository.labels),
+            )
+            # write config file
+            changes_project_config_path.write_text(
+                toml.dumps({
+                    'changes': attr.asdict(project_settings)
+                })
+            )
+
         project_settings.repository = repository
         project_settings.bumpversion = BumpVersion.load(repository.latest_version)
 
         return project_settings
-
-
-@attr.s
-class BumpVersion(object):
-    DRAFT_OPTIONS = [
-        '--dry-run', '--verbose',
-        '--no-commit', '--no-tag',
-        '--allow-dirty',
-    ]
-    STAGE_OPTIONS = [
-        '--verbose', '--allow-dirty',
-        '--no-commit', '--no-tag',
-    ]
-
-    current_version = attr.ib()
-    version_files_to_replace = attr.ib(default=attr.Factory(list))
-
-    @classmethod
-    def load(cls, latest_version):
-        return configure_bumpversion(latest_version)
-
-    @classmethod
-    def read_from_file(cls, config_path: Path):
-        config = RawConfigParser('')
-        config.readfp(config_path.open('rt', encoding='utf-8'))
-
-        current_version = config.get("bumpversion", 'current_version')
-
-        filenames = []
-        for section_name in config.sections():
-
-            section_name_match = re.compile("^bumpversion:(file|part):(.+)").match(section_name)
-
-            if not section_name_match:
-                continue
-
-            section_prefix, section_value = section_name_match.groups()
-
-            if section_prefix == "file":
-                filenames.append(section_value)
-
-        return cls(
-            current_version=current_version,
-            version_files_to_replace=filenames,
-        )
-
-    def write_to_file(self, config_path: Path):
-        bumpversion_cfg = textwrap.dedent(
-            """\
-            [bumpversion]
-            current_version = {current_version}
-
-            """
-        ).format(**attr.asdict(self))
-
-        bumpversion_files = '\n\n'.join([
-            '[bumpversion:file:{}]'.format(file_name)
-            for file_name in self.version_files_to_replace
-        ])
-
-        config_path.write_text(
-            bumpversion_cfg + bumpversion_files
-        )
-
-
-def configure_changes(repository):
-    changes_project_config_path = Path(PROJECT_CONFIG_FILE)
-    project_settings = None
-    if changes_project_config_path.exists():
-        # releases_directory, labels
-        project_settings = Project(
-            **(toml.load(changes_project_config_path.open())['changes'])
-        )
-
-    if not project_settings:
-        releases_directory = Path(click.prompt(
-            'Enter the directory to store your releases notes',
-            DEFAULT_RELEASES_DIRECTORY,
-            type=click.Path(exists=True, dir_okay=True)
-        ))
-
-        if not releases_directory.exists():
-            debug('Releases directory {} not found, creating it.'.format(releases_directory))
-            releases_directory.mkdir(parents=True)
-
-        # FIXME: GitHub(repository).labels()
-        project_settings = Project(
-            releases_directory=str(releases_directory),
-            labels=configure_labels(repository.github_labels()),
-        )
-        # write config file
-        changes_project_config_path.write_text(
-            toml.dumps({
-                'changes': attr.asdict(project_settings)
-            })
-        )
-
-    return project_settings
-
-
-def configure_bumpversion(latest_version):
-    # TODO: look in other supported bumpversion config locations
-    bumpversion = None
-    bumpversion_config_path = Path('.bumpversion.cfg')
-    if not bumpversion_config_path.exists():
-        user_supplied_versioned_file_paths = []
-
-        version_file_path_answer = None
-        input_terminator = '.'
-        while not version_file_path_answer == input_terminator:
-            version_file_path_answer = click.prompt(
-                'Enter a path to a file that contains a version number '
-                "(enter a path of '.' when you're done selecting files)",
-                type=click.Path(
-                    exists=True,
-                    dir_okay=True,
-                    file_okay=True,
-                    readable=True
-                )
-            )
-
-            if version_file_path_answer != input_terminator:
-                user_supplied_versioned_file_paths.append(version_file_path_answer)
-
-        bumpversion = BumpVersion(
-            current_version=latest_version,
-            version_files_to_replace=user_supplied_versioned_file_paths,
-        )
-        bumpversion.write_to_file(bumpversion_config_path)
-
-    return bumpversion
 
 
 def configure_labels(github_labels):
@@ -311,6 +206,107 @@ def choose_labels(alternatives):
 
     return user_choices
 
+
+@attr.s
+class BumpVersion(object):
+    DRAFT_OPTIONS = [
+        '--dry-run', '--verbose',
+        '--no-commit', '--no-tag',
+        '--allow-dirty',
+    ]
+    STAGE_OPTIONS = [
+        '--verbose', '--allow-dirty',
+        '--no-commit', '--no-tag',
+    ]
+
+    current_version = attr.ib()
+    version_files_to_replace = attr.ib(default=attr.Factory(list))
+
+    @classmethod
+    def load(cls, latest_version):
+        return configure_bumpversion(latest_version)
+
+    @classmethod
+    def read_from_file(cls, config_path: Path):
+        config = RawConfigParser('')
+        config.readfp(config_path.open('rt', encoding='utf-8'))
+
+        current_version = config.get("bumpversion", 'current_version')
+
+        filenames = []
+        for section_name in config.sections():
+
+            section_name_match = re.compile("^bumpversion:(file|part):(.+)").match(section_name)
+
+            if not section_name_match:
+                continue
+
+            section_prefix, section_value = section_name_match.groups()
+
+            if section_prefix == "file":
+                filenames.append(section_value)
+
+        return cls(
+            current_version=current_version,
+            version_files_to_replace=filenames,
+        )
+
+    def write_to_file(self, config_path: Path):
+        bumpversion_cfg = textwrap.dedent(
+            """\
+            [bumpversion]
+            current_version = {current_version}
+
+            """
+        ).format(**attr.asdict(self))
+
+        bumpversion_files = '\n\n'.join([
+            '[bumpversion:file:{}]'.format(file_name)
+            for file_name in self.version_files_to_replace
+        ])
+
+        config_path.write_text(
+            bumpversion_cfg + bumpversion_files
+        )
+
+
+
+def configure_bumpversion(latest_version):
+    # TODO: look in other supported bumpversion config locations
+    bumpversion = None
+    bumpversion_config_path = Path('.bumpversion.cfg')
+    if not bumpversion_config_path.exists():
+        user_supplied_versioned_file_paths = []
+
+        version_file_path_answer = None
+        input_terminator = '.'
+        while not version_file_path_answer == input_terminator:
+            version_file_path_answer = click.prompt(
+                'Enter a path to a file that contains a version number '
+                "(enter a path of '.' when you're done selecting files)",
+                type=click.Path(
+                    exists=True,
+                    dir_okay=True,
+                    file_okay=True,
+                    readable=True
+                )
+            )
+
+            if version_file_path_answer != input_terminator:
+                user_supplied_versioned_file_paths.append(version_file_path_answer)
+
+        bumpversion = BumpVersion(
+            current_version=latest_version,
+            version_files_to_replace=user_supplied_versioned_file_paths,
+        )
+        bumpversion.write_to_file(bumpversion_config_path)
+
+    return bumpversion
+
+
+
+
+
 DEFAULTS = {
     'changelog': 'CHANGELOG.md',
     'readme': 'README.md',
@@ -319,6 +315,7 @@ DEFAULTS = {
 
 
 class Config:
+    """Deprecated"""
     test_command = None
     pypi = None
     skip_changelog = None

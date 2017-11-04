@@ -7,6 +7,7 @@ from plumbum.cmd import git
 import pytest
 import responses
 
+import changes
 from changes.commands import init, stage, publish
 from .conftest import github_merge_commit, ISSUE_URL, LABEL_URL, PULL_REQUEST_JSON, BUG_LABEL_JSON, RELEASES_URL
 
@@ -26,7 +27,7 @@ def test_publish_no_staged_release(
     capsys,
     configured
 ):
-    init.init()
+    changes.initialise()
     publish.publish()
 
     expected_output = textwrap.dedent(
@@ -68,7 +69,7 @@ def test_publish(
         content_type='application/json'
     )
 
-    init.init()
+    changes.initialise()
     stage.stage(
         draft=False,
         release_name='Icarus',

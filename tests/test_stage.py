@@ -6,6 +6,7 @@ import shlex
 from plumbum.cmd import git
 import responses
 
+import changes
 from changes.commands import init, stage
 from .conftest import github_merge_commit, ISSUE_URL, LABEL_URL, PULL_REQUEST_JSON, BUG_LABEL_JSON
 
@@ -33,7 +34,7 @@ def test_stage_draft(
         content_type='application/json'
     )
 
-    init.init()
+    changes.initialise()
     stage.stage(draft=True)
 
     expected_output = textwrap.dedent(
@@ -86,7 +87,7 @@ def test_stage(
         content_type='application/json'
     )
 
-    init.init()
+    changes.initialise()
     stage.stage(
         draft=False,
         release_name='Icarus',
@@ -141,7 +142,7 @@ def test_stage_discard(
         content_type='application/json'
     )
 
-    init.init()
+    changes.initialise()
     stage.stage(
         draft=False,
         release_name='Icarus',
@@ -195,7 +196,7 @@ def test_stage_discard_nothing_staged(
     configured,
 ):
 
-    init.init()
+    changes.initialise()
 
     stage.discard(
         release_name='Icarus',

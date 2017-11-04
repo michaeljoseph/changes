@@ -163,7 +163,7 @@ def with_releases_directory_and_bumpversion_file_prompt(mocker):
     ]
 
     prompt = mocker.patch(
-        'changes.config.choose_labels',
+        'changes.config.prompt.choose_labels',
         autospec=True
     )
     prompt.return_value = ['bug']

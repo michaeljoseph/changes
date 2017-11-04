@@ -6,7 +6,7 @@ from datetime import date
 import changes
 from changes.commands import info
 from changes.config import BumpVersion
-from changes.models import changes_to_release_type, Release
+from changes.models import changes_to_release_type, Release, BumpVersion
 
 
 def publish():

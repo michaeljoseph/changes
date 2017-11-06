@@ -8,7 +8,6 @@ import pkg_resources
 from jinja2 import Template
 
 import changes
-from changes.config import BumpVersion
 
 from changes.models import Release, changes_to_release_type, BumpVersion
 from . import info, error, debug, STYLES

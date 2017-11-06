@@ -55,7 +55,7 @@ class Release(object):
     version = attr.ib()
     description = attr.ib(default=attr.Factory(str))
     name = attr.ib(default=attr.Factory(str))
-    changes = attr.ib(default=attr.Factory(dict))
+    notes = attr.ib(default=attr.Factory(dict))
 
     @property
     def title(self):
@@ -65,14 +65,29 @@ class Release(object):
         ) + (' ' + self.name) if self.name else ''
 
     @property
+    def release_note_filename(self):
+        return self.version
+        # print(attr.asdict(self))
+        # x = '{version}-{release_date}'.format(
+        #     version=self.version,
+        #     release_date=self.release_date
+        # ) + ('-' + self.name) if self.name else ''
+        # print(x)
+        # # return 'FOO'
+        # return x
 
     @classmethod
-    def from_github(cls, api_response):
-        return cls(**api_response)
+    def generate_notes(cls, project_labels, pull_requests_since_latest_version):
+        for label, properties in project_labels.items():
+            pull_requests_with_label = [
+                pull_request
+                for pull_request in pull_requests_since_latest_version
+                if label in pull_request.label_names
+            ]
 
-    @classmethod
-    def from_number(cls, number):
-        pass
+            project_labels[label]['pull_requests'] = pull_requests_with_label
+
+        return project_labels
 
 
 @attr.s
@@ -92,7 +107,36 @@ class BumpVersion(object):
 
     @classmethod
     def load(cls, latest_version):
-        return configure_bumpversion(latest_version)
+        # TODO: look in other supported bumpversion config locations
+        bumpversion = None
+        bumpversion_config_path = Path('.bumpversion.cfg')
+        if not bumpversion_config_path.exists():
+            user_supplied_versioned_file_paths = []
+
+            version_file_path_answer = None
+            input_terminator = '.'
+            while not version_file_path_answer == input_terminator:
+                version_file_path_answer = click.prompt(
+                    'Enter a path to a file that contains a version number '
+                    "(enter a path of '.' when you're done selecting files)",
+                    type=click.Path(
+                        exists=True,
+                        dir_okay=True,
+                        file_okay=True,
+                        readable=True
+                    )
+                )
+
+                if version_file_path_answer != input_terminator:
+                    user_supplied_versioned_file_paths.append(version_file_path_answer)
+
+            bumpversion = cls(
+                current_version=latest_version,
+                version_files_to_replace=user_supplied_versioned_file_paths,
+            )
+            bumpversion.write_to_file(bumpversion_config_path)
+
+        return bumpversion
 
     @classmethod
     def read_from_file(cls, config_path: Path):
@@ -136,36 +180,3 @@ class BumpVersion(object):
         config_path.write_text(
             bumpversion_cfg + bumpversion_files
         )
-
-
-def configure_bumpversion(latest_version):
-    # TODO: look in other supported bumpversion config locations
-    bumpversion = None
-    bumpversion_config_path = Path('.bumpversion.cfg')
-    if not bumpversion_config_path.exists():
-        user_supplied_versioned_file_paths = []
-
-        version_file_path_answer = None
-        input_terminator = '.'
-        while not version_file_path_answer == input_terminator:
-            version_file_path_answer = click.prompt(
-                'Enter a path to a file that contains a version number '
-                "(enter a path of '.' when you're done selecting files)",
-                type=click.Path(
-                    exists=True,
-                    dir_okay=True,
-                    file_okay=True,
-                    readable=True
-                )
-            )
-
-            if version_file_path_answer != input_terminator:
-                user_supplied_versioned_file_paths.append(version_file_path_answer)
-
-        bumpversion = BumpVersion(
-            current_version=latest_version,
-            version_files_to_replace=user_supplied_versioned_file_paths,
-        )
-        bumpversion.write_to_file(bumpversion_config_path)
-
-    return bumpversion

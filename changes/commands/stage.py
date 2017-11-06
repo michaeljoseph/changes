@@ -81,6 +81,7 @@ def stage(draft, release_name='', release_description=''):
         proposed_version
     ))
 
+    ## Bumping versions
     if BumpVersion.read_from_file(Path('.bumpversion.cfg')).current_version == str(proposed_version):
         info('Version already bumped to {}'.format(proposed_version))
     else:
@@ -94,18 +95,12 @@ def stage(draft, release_name='', release_description=''):
         ))
         bumpversion.main(bumpversion_arguments)
 
+    ## Release notes generation
     info('Generating Release')
-    project_labels = changes.project_settings.labels
-    for label, properties in project_labels.items():
-        pull_requests_with_label = [
-            pull_request
-            for pull_request in repository.pull_requests_since_latest_version
-            if label in pull_request.label_names
-        ]
-
-        project_labels[label]['pull_requests'] = pull_requests_with_label
-
-    release.changes = project_labels
+    release.notes = Release.generate_notes(
+        changes.project_settings.labels,
+        repository.pull_requests_since_latest_version,
+    )
 
     # TODO: if project_settings.release_notes_template is None
     release_notes_template = pkg_resources.resource_string(

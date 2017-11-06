@@ -64,31 +64,7 @@ class Release(object):
             release_date=self.release_date
         ) + (' ' + self.name) if self.name else ''
 
-
-@attr.s
-class PullRequest(object):
-    number = attr.ib()
-    title = attr.ib()
-    description = attr.ib()
-    author = attr.ib()
-    body = attr.ib()
-    user = attr.ib()
-    labels = attr.ib(default=attr.Factory(list))
-
     @property
-    def description(self):
-        return self.body
-
-    @property
-    def author(self):
-        return self.user['login']
-
-    @property
-    def label_names(self):
-        return [
-            label['name']
-            for label in self.labels
-        ]
 
     @classmethod
     def from_github(cls, api_response):

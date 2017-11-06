@@ -7,7 +7,6 @@ import giturlparse
 from plumbum.cmd import git
 
 from changes.github import GitHubApi
-from . import PullRequest
 
 GITHUB_MERGED_PULL_REQUEST = re.compile(
     r'^([0-9a-f]{5,40}) Merge pull request #(\w+)'
@@ -183,3 +182,36 @@ class GitHubRepository(GitRepository):
     def create_release(self, release):
         return self.api.create_release(release)
 
+
+@attr.s
+class PullRequest(object):
+    number = attr.ib()
+    title = attr.ib()
+    description = attr.ib()
+    author = attr.ib()
+    body = attr.ib()
+    user = attr.ib()
+    labels = attr.ib(default=attr.Factory(list))
+
+    @property
+    def description(self):
+        return self.body
+
+    @property
+    def author(self):
+        return self.user['login']
+
+    @property
+    def label_names(self):
+        return [
+            label['name']
+            for label in self.labels
+        ]
+
+    @classmethod
+    def from_github(cls, api_response):
+        return cls(**api_response)
+
+    @classmethod
+    def from_number(cls, number):
+        pass

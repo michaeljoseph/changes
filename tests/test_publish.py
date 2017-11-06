@@ -75,9 +75,11 @@ def test_publish(
         release_name='Icarus',
         release_description='The first flight'
     )
-    publish.publish()
 
     release_notes_path = Path('docs').joinpath('releases').joinpath('0.0.2-2017-11-06-Icarus.md')
+    assert release_notes_path.exists()
+    
+    publish.publish()
 
     pre = textwrap.dedent(
         """\

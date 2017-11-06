@@ -1,11 +1,13 @@
 import changes
-from changes.models import changes_to_release_type
 
 from . import info, note, highlight
 
 
 def status():
     repository = changes.project_settings.repository
+
+    release = changes.release_from_pull_requests()
+
     info('Status [{}/{}]'.format(
         repository.owner,
         repository.repo,
@@ -38,9 +40,8 @@ def status():
             ) if pull_request.label_names else '',
         ))
 
-    bumpversion_part, release_type, proposed_version = changes_to_release_type(repository)
     if unreleased_changes:
-        info('Computed release type {} from changes issue tags'.format(release_type))
+        info('Computed release type {} from changes issue tags'.format(release.release_type))
         info('Proposed version bump {} => {}'.format(
-            repository.latest_version, proposed_version
+            repository.latest_version, release.version
         ))

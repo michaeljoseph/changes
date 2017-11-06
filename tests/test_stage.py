@@ -164,6 +164,9 @@ def test_stage_discard(
         release_description='The first flight'
     )
 
+    release_notes_path = Path('docs').joinpath('releases').joinpath('0.0.2-2017-11-06-Icarus.md')
+    assert release_notes_path.exists()
+
     result = git(shlex.split('-c color.status=false status --short --branch'))
 
     modified_files = [

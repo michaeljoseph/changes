@@ -1,5 +1,4 @@
 import difflib
-from datetime import date
 from pathlib import Path
 
 import bumpversion
@@ -9,33 +8,19 @@ from jinja2 import Template
 
 import changes
 
-from changes.models import Release, changes_to_release_type, BumpVersion
+from changes.models import Release, BumpVersion
 from . import info, error, debug, STYLES
 
 
 def discard(release_name='', release_description=''):
     repository = changes.project_settings.repository
 
-    bumpversion_part, release_type, proposed_version = changes_to_release_type(
-        repository
-    )
-    release = Release(
-        name=release_name,
-        release_date=date.today().isoformat(),
-        version=str(proposed_version),
-        description=release_description,
-    )
-
+    release = changes.release_from_pull_requests()
     if release.version == str(repository.latest_version):
         info('No staged release to discard')
         return
 
     info('Discarding currently staged release {}'.format(release.version))
-
-    releases_directory = changes.project_settings.releases_directory
-    release_notes_path = Path(releases_directory).joinpath(
-        '{}.md'.format(release.release_note_filename)
-    )
 
     bumpversion = BumpVersion.read_from_file(Path('.bumpversion.cfg'))
     git_discard_files = (
@@ -51,43 +36,37 @@ def discard(release_name='', release_description=''):
     )))
     repository.discard(git_discard_files)
 
-    if release_notes_path.exists():
+    if release.release_file_path.exists():
         info('Running: rm {}'.format(
-            release_notes_path,
+            release.release_file_path,
         ))
-        release_notes_path.unlink()
+        release.release_file_path.unlink()
 
 
 def stage(draft, release_name='', release_description=''):
     repository = changes.project_settings.repository
 
-    bumpversion_part, release_type, proposed_version = changes_to_release_type(
-        repository
-    )
-    release = Release(
-        name=release_name,
-        release_date=date.today().isoformat(),
-        version=str(proposed_version),
-        description=release_description,
-    )
+    release = changes.release_from_pull_requests()
+    release.name = release_name
+    release.description = release_description
 
     if not repository.pull_requests_since_latest_version:
-        error("There aren't any changes to release since {}".format(proposed_version))
+        error("There aren't any changes to release since {}".format(release.version))
         return
 
     info('Staging [{}] release for version {}'.format(
-        release_type,
-        proposed_version
+        release.release_type,
+        release.version
     ))
 
     ## Bumping versions
-    if BumpVersion.read_from_file(Path('.bumpversion.cfg')).current_version == str(proposed_version):
-        info('Version already bumped to {}'.format(proposed_version))
+    if BumpVersion.read_from_file(Path('.bumpversion.cfg')).current_version == str(release.version):
+        info('Version already bumped to {}'.format(release.version))
     else:
         bumpversion_arguments = (
             BumpVersion.DRAFT_OPTIONS if draft
             else BumpVersion.STAGE_OPTIONS
-        ) + [bumpversion_part]
+        ) + [release.bumpversion_part]
 
         info('Running: bumpversion {}'.format(
             ' '.join(bumpversion_arguments)

@@ -8,40 +8,6 @@ import attr
 import click
 
 
-def changes_to_release_type(repository):
-    pull_requests = repository.pull_requests_since_latest_version
-
-    labels = set([
-        label_name
-        for pull_request in pull_requests
-        for label_name in pull_request.label_names
-    ])
-
-    descriptions = [
-        '\n'.join([
-            pull_request.title, pull_request.description
-        ])
-        for pull_request in pull_requests
-    ]
-
-    return determine_release(
-        repository.latest_version,
-        descriptions,
-        labels
-    )
-
-
-def determine_release(latest_version, descriptions, labels):
-    if 'BREAKING CHANGE' in descriptions:
-        return 'major', ReleaseType.BREAKING_CHANGE, latest_version.next_major()
-    elif 'enhancement' in labels:
-        return 'minor', ReleaseType.FEATURE, latest_version.next_minor()
-    elif 'bug' in labels:
-        return 'patch', ReleaseType.FIX, latest_version.next_patch()
-    else:
-        return None, ReleaseType.NO_CHANGE, latest_version
-
-
 class ReleaseType(str, Enum):
     NO_CHANGE = 'no-changes'
     BREAKING_CHANGE = 'breaking'
@@ -56,6 +22,10 @@ class Release(object):
     description = attr.ib(default=attr.Factory(str))
     name = attr.ib(default=attr.Factory(str))
     notes = attr.ib(default=attr.Factory(dict))
+    release_file_path = attr.ib(default='')
+
+    bumpversion_part = attr.ib(default=None)
+    release_type = attr.ib(default=None)
 
     @property
     def title(self):

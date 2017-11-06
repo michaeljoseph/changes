@@ -8,7 +8,7 @@ import pytest
 import responses
 
 import changes
-from changes.commands import init, stage, publish
+from changes.commands import stage, publish
 from .conftest import github_merge_commit, ISSUE_URL, LABEL_URL, PULL_REQUEST_JSON, BUG_LABEL_JSON, RELEASES_URL
 
 
@@ -77,7 +77,7 @@ def test_publish(
     )
     publish.publish()
 
-    release_notes_path = Path('docs').joinpath('releases').joinpath('0.0.2.md')
+    release_notes_path = Path('docs').joinpath('releases').joinpath('0.0.2-2017-11-06-Icarus.md')
 
     pre = textwrap.dedent(
         """\
@@ -129,3 +129,14 @@ def test_publish(
     ]
 
     assert '0.0.2' in git(shlex.split('tag --list'))
+
+    assert release_notes_path.exists()
+    expected_release_notes = [
+        '# 0.0.2 ({}) Icarus'.format(date.today().isoformat()),
+        'The first flight',
+        '## Bug',
+        '    ',
+        '* #111 The title of the pull request',
+        '    ',
+    ]
+    assert expected_release_notes == release_notes_path.read_text().splitlines()

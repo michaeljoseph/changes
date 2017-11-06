@@ -34,7 +34,7 @@ def discard(release_name='', release_description=''):
 
     releases_directory = changes.project_settings.releases_directory
     release_notes_path = Path(releases_directory).joinpath(
-        '{}.md'.format(release.version)
+        '{}.md'.format(release.release_note_filename)
     )
 
     bumpversion = BumpVersion.read_from_file(Path('.bumpversion.cfg'))
@@ -114,7 +114,7 @@ def stage(draft, release_name='', release_description=''):
         releases_directory.mkdir(parents=True)
 
     release_notes_path = releases_directory.joinpath(
-        '{}.md'.format(release.version)
+        '{}.md'.format(release.release_note_filename)
     )
 
     if draft:

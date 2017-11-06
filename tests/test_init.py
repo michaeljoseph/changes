@@ -6,7 +6,6 @@ import pytest
 import responses
 
 import changes
-from changes.commands import init
 from .conftest import AUTH_TOKEN_ENVVAR, LABEL_URL, BUG_LABEL_JSON
 
 

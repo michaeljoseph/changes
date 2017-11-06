@@ -3,7 +3,7 @@ import textwrap
 import responses
 
 import changes
-from changes.commands import init, status
+from changes.commands import status
 from .conftest import github_merge_commit, ISSUE_URL, LABEL_URL, BUG_LABEL_JSON, PULL_REQUEST_JSON
 
 

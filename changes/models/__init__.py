@@ -62,19 +62,14 @@ class Release(object):
         return '{version} ({release_date})'.format(
             version=self.version,
             release_date=self.release_date
-        ) + (' ' + self.name) if self.name else ''
+        ) + ((' ' + self.name) if self.name else '')
 
     @property
     def release_note_filename(self):
-        return self.version
-        # print(attr.asdict(self))
-        # x = '{version}-{release_date}'.format(
-        #     version=self.version,
-        #     release_date=self.release_date
-        # ) + ('-' + self.name) if self.name else ''
-        # print(x)
-        # # return 'FOO'
-        # return x
+        return '{version}-{release_date}'.format(
+            version=self.version,
+            release_date=self.release_date
+        ) + (('-' + self.name) if self.name else '')
 
     @classmethod
     def generate_notes(cls, project_labels, pull_requests_since_latest_version):

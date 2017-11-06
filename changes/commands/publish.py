@@ -28,7 +28,7 @@ def publish():
     releases_directory = changes.project_settings.releases_directory
     files_to_add = BumpVersion.read_from_file(Path('.bumpversion.cfg')).version_files_to_replace
     release_notes_path = Path(releases_directory).joinpath(
-        '{}.md'.format(release.version)
+        '{}.md'.format(release.release_note_filename)
     )
 
     files_to_add += [

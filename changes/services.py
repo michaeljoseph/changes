@@ -12,7 +12,7 @@ EXT_TO_MIME_TYPE = {
 
 
 @attr.s
-class GitHubApi(object):
+class GitHub(object):
     ISSUE_ENDPOINT = (
         'https://api.github.com/repos{/owner}{/repo}/issues{/number}'
     )

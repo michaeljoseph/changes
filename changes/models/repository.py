@@ -6,7 +6,7 @@ import shlex
 import giturlparse
 from plumbum.cmd import git
 
-from changes.github import GitHubApi
+from changes import services
 
 GITHUB_MERGED_PULL_REQUEST = re.compile(
     r'^([0-9a-f]{5,40}) Merge pull request #(\w+)'
@@ -150,7 +150,7 @@ class GitHubRepository(GitRepository):
     api = attr.ib(default=None)
 
     def __attrs_post_init__(self):
-        self.api = GitHubApi(self)
+        self.api = services.GitHub(self)
 
     # TODO: cached_property
     @property

@@ -21,7 +21,7 @@ def choose_labels(alternatives):
         raise TypeError
 
     choice_map = OrderedDict(
-      ('{}'.format(i), value) for i, value in enumerate(alternatives, 1)
+        ('{}'.format(i), value) for i, value in enumerate(alternatives, 1)
     )
     # prepend a termination option
     input_terminator = '0'

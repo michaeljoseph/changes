@@ -45,10 +45,10 @@ def release_from_pull_requests():
     pull_requests = repository.pull_requests_since_latest_version
 
     labels = set([
-         label_name
-         for pull_request in pull_requests
-         for label_name in pull_request.label_names
-     ])
+        label_name
+        for pull_request in pull_requests
+        for label_name in pull_request.label_names
+    ])
 
     descriptions = [
         '\n'.join([
@@ -74,10 +74,12 @@ def release_from_pull_requests():
         release_type=release_type,
     )
 
-    release_files = [release_file for release_file in releases_directory.glob('*.md')]
+    release_files = [
+        release_file for release_file in releases_directory.glob('*.md')]
     if release_files:
         release_file = release_files[0]
-        release.release_file_path = Path(project_settings.releases_directory).joinpath(release_file.name)
+        release.release_file_path = Path(
+            project_settings.releases_directory).joinpath(release_file.name)
         release.description = release_file.read_text()
 
     return release

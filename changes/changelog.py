@@ -68,7 +68,8 @@ def generate_changelog(context):
         log.warn('Error diffing previous version, initial release')
         git_log_content = git(git_log)
 
-    git_log_content = replace_sha_with_commit_link(context.repo_url, git_log_content)
+    git_log_content = replace_sha_with_commit_link(
+        context.repo_url, git_log_content)
     # turn change log entries into markdown bullet points
     if git_log_content:
         [

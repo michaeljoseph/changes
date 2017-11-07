@@ -98,7 +98,8 @@ class Project(object):
             ))
 
             if not releases_directory.exists():
-                debug('Releases directory {} not found, creating it.'.format(releases_directory))
+                debug('Releases directory {} not found, creating it.'.format(
+                    releases_directory))
                 releases_directory.mkdir(parents=True)
 
             project_settings = Project(
@@ -113,7 +114,8 @@ class Project(object):
             )
 
         project_settings.repository = repository
-        project_settings.bumpversion = BumpVersion.load(repository.latest_version)
+        project_settings.bumpversion = BumpVersion.load(
+            repository.latest_version)
 
         return project_settings
 
@@ -191,4 +193,3 @@ def project_config():
 
 def store_settings(settings):
     pass
-

@@ -38,7 +38,8 @@ def install_package(context):
                         log.info('Successfully ran test command: %s',
                                  context.test_command)
                 except Exception as e:
-                    raise Exception('Error installing distribution %s' % distribution, e)
+                    raise Exception(
+                        'Error installing distribution %s' % distribution, e)
     else:
         log.info('Dry run, skipping installation')
 
@@ -49,7 +50,7 @@ def upload_package(context):
 
     if not context.dry_run and build_distributions(context):
         upload_args = 'twine upload '
-        upload_args +=  ' '.join(Path('dist').files())
+        upload_args += ' '.join(Path('dist').files())
         if context.pypi:
             upload_args += ' -r %s' % context.pypi
 
@@ -57,7 +58,8 @@ def upload_package(context):
         if not context.dry_run and not upload_result:
             raise Exception('Error uploading: %s' % upload_result)
         else:
-            log.info('Successfully uploaded %s:%s', context.module_name, context.new_version)
+            log.info('Successfully uploaded %s:%s',
+                     context.module_name, context.new_version)
     else:
         log.info('Dry run, skipping package upload')
 
@@ -83,6 +85,7 @@ def install_from_pypi(context):
                      context.module_name, package_index)
 
     except Exception as e:
-        error_msg = 'Error installing %s from %s' % (context.module_name, package_index)
+        error_msg = 'Error installing %s from %s' % (
+            context.module_name, package_index)
         log.exception(error_msg)
         raise Exception(error_msg, e)

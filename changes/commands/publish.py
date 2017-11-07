@@ -18,7 +18,8 @@ def publish():
 
     info('Publishing release {}'.format(release.version))
 
-    files_to_add = BumpVersion.read_from_file(Path('.bumpversion.cfg')).version_files_to_replace
+    files_to_add = BumpVersion.read_from_file(
+        Path('.bumpversion.cfg')).version_files_to_replace
     files_to_add += [
         '.bumpversion.cfg',
         str(release.release_file_path)

@@ -41,7 +41,8 @@ def status():
         ))
 
     if unreleased_changes:
-        info('Computed release type {} from changes issue tags'.format(release.release_type))
+        info('Computed release type {} from changes issue tags'.format(
+            release.release_type))
         info('Proposed version bump {} => {}'.format(
             repository.latest_version, release.version
         ))

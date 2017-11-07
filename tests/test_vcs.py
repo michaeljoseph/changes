@@ -32,12 +32,15 @@ def test_tag_and_push(mocker):
 
 
 import pytest
+
+
 @pytest.mark.skip('requires changelog')
 @responses.activate
 def test_github_release():
     with CliRunner().isolated_filesystem():
         git('init')
-        git('remote', 'add', 'origin', 'https://github.com/michaeljoseph/test_app.git')
+        git('remote', 'add', 'origin',
+            'https://github.com/michaeljoseph/test_app.git')
 
         responses.add(
             responses.POST,
@@ -49,9 +52,9 @@ def test_github_release():
             status=201,
             content_type='application/json'
         )
-        upload_url = vcs.create_github_release(context, 'gh-token', 'Description')
+        upload_url = vcs.create_github_release(
+            context, 'gh-token', 'Description')
         assert upload_url == 'http://upload.url.com/'
-
 
 
 @pytest.mark.skip('requires changelog')

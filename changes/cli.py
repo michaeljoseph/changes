@@ -24,7 +24,7 @@ def work_in(dirname=None):
         if dirname is not None:
             os.chdir(dirname)
 
-        requests_cache.configure(expire_after=60*10*10)
+        requests_cache.configure(expire_after=60 * 10 * 10)
         changes.initialise()
 
         yield
@@ -78,6 +78,7 @@ def status(repo_directory):
     with work_in(repo_directory):
         status_command.status()
 
+
 main.add_command(status)
 
 
@@ -106,6 +107,7 @@ def stage(draft, discard, repo_directory, release_name, release_description):
             stage_command.discard(release_name, release_description)
         else:
             stage_command.stage(draft, release_name, release_description)
+
 
 main.add_command(stage)
 

@@ -59,7 +59,7 @@ def stage(draft, release_name='', release_description=''):
         release.version
     ))
 
-    ## Bumping versions
+    # Bumping versions
     if BumpVersion.read_from_file(Path('.bumpversion.cfg')).current_version == str(release.version):
         info('Version already bumped to {}'.format(release.version))
     else:
@@ -73,7 +73,7 @@ def stage(draft, release_name='', release_description=''):
         ))
         bumpversion.main(bumpversion_arguments)
 
-    ## Release notes generation
+    # Release notes generation
     info('Generating Release')
     release.notes = Release.generate_notes(
         changes.project_settings.labels,
@@ -102,7 +102,8 @@ def stage(draft, release_name='', release_description=''):
     else:
         info('Writing release notes to {}'.format(release_notes_path))
         if release_notes_path.exists():
-            release_notes_content = release_notes_path.read_text(encoding='utf-8')
+            release_notes_content = release_notes_path.read_text(
+                encoding='utf-8')
             if release_notes_content != release_notes:
                 info('\n'.join(difflib.unified_diff(
                     release_notes_content.splitlines(),
@@ -112,10 +113,12 @@ def stage(draft, release_name='', release_description=''):
                 )))
                 if click.confirm(
                     click.style(
-                        '{} has modified content, overwrite?'.format(release_notes_path),
+                        '{} has modified content, overwrite?'.format(
+                            release_notes_path),
                         **STYLES['error']
                     )
                 ):
-                    release_notes_path.write_text(release_notes, encoding='utf-8')
+                    release_notes_path.write_text(
+                        release_notes, encoding='utf-8')
         else:
             release_notes_path.write_text(release_notes, encoding='utf-8')

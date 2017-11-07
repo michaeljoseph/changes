@@ -93,7 +93,8 @@ class BumpVersion(object):
                 )
 
                 if version_file_path_answer != input_terminator:
-                    user_supplied_versioned_file_paths.append(version_file_path_answer)
+                    user_supplied_versioned_file_paths.append(
+                        version_file_path_answer)
 
             bumpversion = cls(
                 current_version=latest_version,
@@ -113,7 +114,8 @@ class BumpVersion(object):
         filenames = []
         for section_name in config.sections():
 
-            section_name_match = re.compile("^bumpversion:(file|part):(.+)").match(section_name)
+            section_name_match = re.compile(
+                "^bumpversion:(file|part):(.+)").match(section_name)
 
             if not section_name_match:
                 continue

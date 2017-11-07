@@ -37,6 +37,11 @@ def test_stage_draft(
     changes.initialise()
     stage.stage(draft=True)
 
+    release_notes_path = Path(
+        'docs/releases/0.0.2-{}.md'.format(
+            date.today().isoformat()
+        )
+    )
     expected_output = textwrap.dedent(
         """\
         Staging [fix] release for version 0.0.2...
@@ -44,7 +49,7 @@ def test_stage_draft(
         Generating Release...
         Would have created {}:...
         """.format(
-            Path('docs').joinpath('releases').joinpath('0.0.2-2017-11-06.md')
+            release_notes_path
         )
     )
 
@@ -62,7 +67,7 @@ def test_stage_draft(
 
     assert expected_output.splitlines() + expected_release_notes_content == out.splitlines()
 
-    assert not Path('docs/releases/0.0.2.md').exists()
+    assert not release_notes_path.exists()
 
 
 @responses.activate
@@ -94,7 +99,11 @@ def test_stage(
         release_description='The first flight'
     )
 
-    release_notes_path = Path('docs/releases/0.0.2-2017-11-06-Icarus.md')
+    release_notes_path = Path(
+        'docs/releases/0.0.2-{}-Icarus.md'.format(
+            date.today().isoformat()
+        )
+    )
     expected_output = textwrap.dedent(
         """\
         Staging [fix] release for version 0.0.2...
@@ -164,7 +173,11 @@ def test_stage_discard(
         release_description='The first flight'
     )
 
-    release_notes_path = Path('docs').joinpath('releases').joinpath('0.0.2-2017-11-06-Icarus.md')
+    release_notes_path = Path(
+        'docs/releases/0.0.2-{}-Icarus.md'.format(
+            date.today().isoformat()
+        )
+    )
     assert release_notes_path.exists()
 
     result = git(shlex.split('-c color.status=false status --short --branch'))
@@ -194,7 +207,7 @@ def test_stage_discard(
         Running: git checkout -- version.txt .bumpversion.cfg...
         Running: rm {release_notes_path}...
         """.format(
-            release_notes_path=Path('docs').joinpath('releases').joinpath('0.0.2-2017-11-06-Icarus.md')
+            release_notes_path=release_notes_path
         )
     )
     out, _ = capsys.readouterr()
@@ -225,9 +238,7 @@ def test_stage_discard_nothing_staged(
     expected_output = textwrap.dedent(
         """\
         No staged release to discard...
-        """.format(
-            Path('docs').joinpath('releases').joinpath('0.0.2.md')
-        )
+        """
     )
     out, _ = capsys.readouterr()
     assert expected_output == out

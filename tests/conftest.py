@@ -68,6 +68,7 @@ PULL_REQUEST_JSON = {
     'labels': [
         {'id': 1, 'name': 'bug'}
     ],
+    'url': 'https://api.github.com/repos/michaeljoseph/test_app/issues/111'
 }
 
 LABEL_URL = 'https://api.github.com/repos/michaeljoseph/test_app/labels'

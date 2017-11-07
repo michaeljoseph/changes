@@ -210,7 +210,10 @@ class PullRequest(object):
 
     @classmethod
     def from_github(cls, api_response):
-        return cls(**api_response)
+        return cls(**{
+            k.name: api_response[k.name]
+            for k in attr.fields(cls)
+        })
 
     @classmethod
     def from_number(cls, number):

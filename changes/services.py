@@ -37,6 +37,13 @@ class GitHub(object):
     def auth_token(self):
         return self.repository.auth_token
 
+    @property
+    def headers(self):
+        # TODO: requests.Session
+        return {
+            'Authorization': 'token {}'.format(self.auth_token)
+        }
+
     def pull_request(self, pr_num):
         pull_request_api_url = uritemplate.expand(
             self.ISSUE_ENDPOINT,
@@ -49,9 +56,7 @@ class GitHub(object):
 
         return requests.get(
             pull_request_api_url,
-            headers={
-                'Authorization': 'token {}'.format(self.auth_token)
-            },
+            headers=self.headers,
         ).json()
 
     def labels(self):
@@ -65,9 +70,7 @@ class GitHub(object):
 
         return requests.get(
             labels_api_url,
-            headers={
-                'Authorization': 'token {}'.format(self.auth_token)
-            },
+            headers=self.headers,
         ).json()
 
     def create_release(self, release, uploads=None):
@@ -88,10 +91,7 @@ class GitHub(object):
 
         response = requests.post(
             releases_api_url,
-            headers={
-                'Authorization': 'token {}'.format(self.auth_token)
-            },
-            # auth=(self.auth_token, 'x-oauth-basic'),
+            headers=self.headers,
             json=params,
         ).json()
 
@@ -108,12 +108,11 @@ class GitHub(object):
         requests.post(
             uritemplate.expand(
                 upload_url,
-                { 'name': upload_path.name },
+                {'name': upload_path.name},
             ),
-            headers={
-                'authorization': 'token {}'.format(self.auth_token),
+            headers=dict(**self.headers, **{
                 'content-type': EXT_TO_MIME_TYPE[upload_path.ext],
-            },
+            }),
             data=upload_path.read_bytes(),
             verify=False,
         )

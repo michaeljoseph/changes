@@ -4,6 +4,7 @@ import attr
 import semantic_version
 import shlex
 import giturlparse
+from cached_property import cached_property
 from plumbum.cmd import git
 
 from changes import services
@@ -152,13 +153,11 @@ class GitHubRepository(GitRepository):
     def __attrs_post_init__(self):
         self.api = services.GitHub(self)
 
-    # TODO: cached_property
-    @property
+    @cached_property
     def labels(self):
         return self.api.labels()
 
-    # TODO: cached_property
-    @property
+    @cached_property
     def pull_requests_since_latest_version(self):
         return [
             PullRequest.from_github(self.api.pull_request(pull_request_number))

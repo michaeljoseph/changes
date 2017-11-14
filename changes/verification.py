@@ -30,6 +30,7 @@ def run_tests():
 
     return None
 
+
 def run_test_command(test_command):
     if test_command:
         result = shell.dry_run(test_command, context.dry_run)

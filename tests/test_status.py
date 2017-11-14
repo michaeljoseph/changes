@@ -2,6 +2,7 @@ import textwrap
 
 import responses
 
+import changes
 from changes.commands import status
 from .conftest import github_merge_commit, ISSUE_URL, LABEL_URL, BUG_LABEL_JSON, PULL_REQUEST_JSON
 
@@ -57,12 +58,13 @@ def test_status_with_changes(
     github_merge_commit(111)
     responses.add(
         responses.GET,
-        ISSUE_URL.format('111'),
+        ISSUE_URL,
         json=PULL_REQUEST_JSON,
         status=200,
         content_type='application/json'
     )
 
+    changes.initialise()
     status.status()
 
     expected_output = textwrap.dedent(
@@ -73,7 +75,7 @@ def test_status_with_changes(
         0.0.1
         Changes...
         1 changes found since 0.0.1
-        #111 The title of the pull request by @someone [bug]
+        #111 The title of the pull request by @michaeljoseph [bug]
         Computed release type fix from changes issue tags...
         Proposed version bump 0.0.1 => 0.0.2...
         """

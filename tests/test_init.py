@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 import responses
 
-from changes.commands import init
+import changes
 from .conftest import AUTH_TOKEN_ENVVAR, LABEL_URL, BUG_LABEL_JSON
 
 
@@ -28,7 +28,7 @@ def answer_prompts(mocker):
     ]
 
     prompt = mocker.patch(
-        'changes.config.choose_labels',
+        'changes.config.prompt.choose_labels',
         autospec=True
     )
     prompt.return_value = ['bug']
@@ -59,7 +59,7 @@ def test_init_prompts_for_auth_token_and_writes_tool_config(
         content_type='application/json'
     )
 
-    init.init()
+    changes.initialise()
 
     assert changes_config_in_tmpdir.exists()
     expected_config = textwrap.dedent(
@@ -99,7 +99,7 @@ def test_init_finds_auth_token_in_environment(
         content_type='application/json'
     )
 
-    init.init()
+    changes.initialise()
 
     # envvar setting is not written to the config file
     assert not changes_config_in_tmpdir.exists()

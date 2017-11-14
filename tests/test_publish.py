@@ -7,7 +7,8 @@ from plumbum.cmd import git
 import pytest
 import responses
 
-from changes.commands import init, stage, publish
+import changes
+from changes.commands import stage, publish
 from .conftest import github_merge_commit, ISSUE_URL, LABEL_URL, PULL_REQUEST_JSON, BUG_LABEL_JSON, RELEASES_URL
 
 
@@ -26,7 +27,7 @@ def test_publish_no_staged_release(
     capsys,
     configured
 ):
-    init.init()
+    changes.initialise()
     publish.publish()
 
     expected_output = textwrap.dedent(
@@ -48,7 +49,7 @@ def test_publish(
     github_merge_commit(111)
     responses.add(
         responses.GET,
-        ISSUE_URL.format('111'),
+        ISSUE_URL,
         json=PULL_REQUEST_JSON,
         status=200,
         content_type='application/json'
@@ -68,15 +69,21 @@ def test_publish(
         content_type='application/json'
     )
 
-    init.init()
+    changes.initialise()
     stage.stage(
         draft=False,
         release_name='Icarus',
         release_description='The first flight'
     )
-    publish.publish()
 
-    release_notes_path = Path('docs').joinpath('releases').joinpath('0.0.2.md')
+    release_notes_path = Path(
+        'docs/releases/0.0.2-{}-Icarus.md'.format(
+            date.today().isoformat()
+        )
+    )
+    assert release_notes_path.exists()
+
+    publish.publish()
 
     pre = textwrap.dedent(
         """\
@@ -128,3 +135,14 @@ def test_publish(
     ]
 
     assert '0.0.2' in git(shlex.split('tag --list'))
+
+    assert release_notes_path.exists()
+    expected_release_notes = [
+        '# 0.0.2 ({}) Icarus'.format(date.today().isoformat()),
+        'The first flight',
+        '## Bug',
+        '    ',
+        '* #111 The title of the pull request',
+        '    ',
+    ]
+    assert expected_release_notes == release_notes_path.read_text().splitlines()

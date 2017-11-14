@@ -1,10 +1,13 @@
 import textwrap
 from datetime import date
 from pathlib import Path
+import shlex
 
+from plumbum.cmd import git
 import responses
 
-from changes.commands import init, stage
+import changes
+from changes.commands import stage
 from .conftest import github_merge_commit, ISSUE_URL, LABEL_URL, PULL_REQUEST_JSON, BUG_LABEL_JSON
 
 
@@ -18,7 +21,7 @@ def test_stage_draft(
 
     responses.add(
         responses.GET,
-        ISSUE_URL.format('111'),
+        ISSUE_URL,
         json=PULL_REQUEST_JSON,
         status=200,
         content_type='application/json'
@@ -31,9 +34,14 @@ def test_stage_draft(
         content_type='application/json'
     )
 
-    init.init()
+    changes.initialise()
     stage.stage(draft=True)
 
+    release_notes_path = Path(
+        'docs/releases/0.0.2-{}.md'.format(
+            date.today().isoformat()
+        )
+    )
     expected_output = textwrap.dedent(
         """\
         Staging [fix] release for version 0.0.2...
@@ -41,12 +49,12 @@ def test_stage_draft(
         Generating Release...
         Would have created {}:...
         """.format(
-            Path('docs').joinpath('releases').joinpath('0.0.2.md')
+            release_notes_path
         )
     )
 
     expected_release_notes_content = [
-        '# 0.0.2 ({}) '.format(date.today().isoformat()),
+        '# 0.0.2 ({})'.format(date.today().isoformat()),
         '',
         '## Bug',
         '    ',
@@ -59,7 +67,7 @@ def test_stage_draft(
 
     assert expected_output.splitlines() + expected_release_notes_content == out.splitlines()
 
-    assert not Path('docs/releases/0.0.2.md').exists()
+    assert not release_notes_path.exists()
 
 
 @responses.activate
@@ -78,19 +86,24 @@ def test_stage(
     github_merge_commit(111)
     responses.add(
         responses.GET,
-        ISSUE_URL.format('111'),
+        ISSUE_URL,
         json=PULL_REQUEST_JSON,
         status=200,
         content_type='application/json'
     )
 
-    init.init()
+    changes.initialise()
     stage.stage(
         draft=False,
         release_name='Icarus',
         release_description='The first flight'
     )
 
+    release_notes_path = Path(
+        'docs/releases/0.0.2-{}-Icarus.md'.format(
+            date.today().isoformat()
+        )
+    )
     expected_output = textwrap.dedent(
         """\
         Staging [fix] release for version 0.0.2...
@@ -98,13 +111,12 @@ def test_stage(
         Generating Release...
         Writing release notes to {}...
         """.format(
-            Path('docs').joinpath('releases').joinpath('0.0.2.md')
+            release_notes_path
         )
     )
     out, _ = capsys.readouterr()
     assert expected_output == out
 
-    release_notes_path = Path('docs/releases/0.0.2.md')
     assert release_notes_path.exists()
     expected_release_notes = [
         '# 0.0.2 ({}) Icarus'.format(date.today().isoformat()),
@@ -116,13 +128,27 @@ def test_stage(
     ]
     assert expected_release_notes == release_notes_path.read_text().splitlines()
 
+    # changelog_path = Path('CHANGELOG.md')
+    # expected_changelog = [
+    #     '# Changelog',
+    #     '',
+    #     '<!-- insert changes release notes here -->',
+    #     # FIXME:
+    #     '# Changelog# 0.0.2 ({}) Icarus'.format(date.today().isoformat()),
+    #     'The first flight',
+    #     '## Bug',
+    #     '    ',
+    #     '* #111 The title of the pull request',
+    #     '    ',
+    # ]
+    # assert expected_changelog == changelog_path.read_text().splitlines()
+
 
 @responses.activate
 def test_stage_discard(
     capsys,
     configured,
 ):
-
     responses.add(
         responses.GET,
         LABEL_URL,
@@ -134,25 +160,32 @@ def test_stage_discard(
     github_merge_commit(111)
     responses.add(
         responses.GET,
-        ISSUE_URL.format('111'),
+        ISSUE_URL,
         json=PULL_REQUEST_JSON,
         status=200,
         content_type='application/json'
     )
 
-    init.init()
+    changes.initialise()
     stage.stage(
         draft=False,
         release_name='Icarus',
         release_description='The first flight'
     )
-    from plumbum.cmd import git
-    import shlex
+
+    release_notes_path = Path(
+        'docs/releases/0.0.2-{}-Icarus.md'.format(
+            date.today().isoformat()
+        )
+    )
+    assert release_notes_path.exists()
+
     result = git(shlex.split('-c color.status=false status --short --branch'))
 
     modified_files = [
         '## master',
         ' M .bumpversion.cfg',
+        # ' M CHANGELOG.md',
         ' M version.txt',
         '?? docs/',
         '',
@@ -174,7 +207,7 @@ def test_stage_discard(
         Running: git checkout -- version.txt .bumpversion.cfg...
         Running: rm {release_notes_path}...
         """.format(
-            release_notes_path=Path('docs').joinpath('releases').joinpath('0.0.2.md')
+            release_notes_path=release_notes_path
         )
     )
     out, _ = capsys.readouterr()
@@ -195,7 +228,7 @@ def test_stage_discard_nothing_staged(
     configured,
 ):
 
-    init.init()
+    changes.initialise()
 
     stage.discard(
         release_name='Icarus',
@@ -205,9 +238,7 @@ def test_stage_discard_nothing_staged(
     expected_output = textwrap.dedent(
         """\
         No staged release to discard...
-        """.format(
-            Path('docs').joinpath('releases').joinpath('0.0.2.md')
-        )
+        """
     )
     out, _ = capsys.readouterr()
     assert expected_output == out

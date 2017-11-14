@@ -67,4 +67,5 @@ def increment_version(context):
         '__version__',
         context.new_version,
         dry_run=context.dry_run)
-    log.info('Bumped version from %s to %s' % (context.current_version, context.new_version))
+    log.info('Bumped version from %s to %s' %
+             (context.current_version, context.new_version))

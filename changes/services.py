@@ -24,7 +24,6 @@ class GitHub(object):
     )
 
     repository = attr.ib()
-    release = attr.ib()
 
     @property
     def owner(self):
@@ -38,6 +37,13 @@ class GitHub(object):
     def auth_token(self):
         return self.repository.auth_token
 
+    @property
+    def headers(self):
+        # TODO: requests.Session
+        return {
+            'Authorization': 'token {}'.format(self.auth_token)
+        }
+
     def pull_request(self, pr_num):
         pull_request_api_url = uritemplate.expand(
             self.ISSUE_ENDPOINT,
@@ -50,9 +56,7 @@ class GitHub(object):
 
         return requests.get(
             pull_request_api_url,
-            headers={
-                'Authorization': 'token {}'.format(self.auth_token)
-            },
+            headers=self.headers,
         ).json()
 
     def labels(self):
@@ -66,16 +70,14 @@ class GitHub(object):
 
         return requests.get(
             labels_api_url,
-            headers={
-                'Authorization': 'token {}'.format(self.auth_token)
-            },
+            headers=self.headers,
         ).json()
 
-    def create_release(self, uploads=None):
+    def create_release(self, release, uploads=None):
         params = {
-            'tag_name': self.release.version,
-            'name': self.release.name,
-            'body': self.release.description,
+            'tag_name': release.version,
+            'name': release.name,
+            'body': release.description,
             # 'prerelease': True,
         }
 
@@ -87,31 +89,30 @@ class GitHub(object):
             )
         )
 
-        return requests.post(
+        response = requests.post(
             releases_api_url,
-            headers={
-                'Authorization': 'token {}'.format(self.auth_token)
-            },
-            # auth=(self.auth_token, 'x-oauth-basic'),
+            headers=self.headers,
             json=params,
         ).json()
 
-        upload_responses = []
         upload_url = response['upload_url']
-        for upload in uploads:
-            upload = Path(upload)
-            upload_responses.append(requests.post(
-                uritemplate.expand(
-                    upload_url,
-                    dict(name=upload.name)
-                ),
-                # auth=(gh_token, 'x-oauth-basic'),
-                headers={
-                    'authorization': 'token {}'.format(self.auth_token),
-                    'content-type': EXT_TO_MIME_TYPE[distribution.ext],
-                },
-                data=upload.read_bytes(),
-                verify=False,
-            ))
+        upload_responses = (
+            [self.create_upload(upload_url, Path(upload)) for upload in uploads]
+            if uploads
+            else []
+        )
 
         return response, upload_responses
+
+    def create_upload(self, upload_url, upload_path):
+        requests.post(
+            uritemplate.expand(
+                upload_url,
+                {'name': upload_path.name},
+            ),
+            headers=dict(**self.headers, **{
+                'content-type': EXT_TO_MIME_TYPE[upload_path.ext],
+            }),
+            data=upload_path.read_bytes(),
+            verify=False,
+        )

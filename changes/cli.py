@@ -4,8 +4,8 @@ import os
 import click
 import requests_cache
 
+import changes
 from . import __version__
-from changes.commands import init
 from changes.commands import status as status_command
 from changes.commands import stage as stage_command
 from changes.commands import publish as publish_command
@@ -23,7 +23,12 @@ def work_in(dirname=None):
     try:
         if dirname is not None:
             os.chdir(dirname)
+
+        requests_cache.configure(expire_after=60 * 10 * 10)
+        changes.initialise()
+
         yield
+
     finally:
         os.chdir(curdir)
 
@@ -71,9 +76,8 @@ def status(repo_directory):
     repo_directory = repo_directory if repo_directory else '.'
 
     with work_in(repo_directory):
-        requests_cache.configure()
-        init.init()
         status_command.status()
+
 
 main.add_command(status)
 
@@ -99,12 +103,11 @@ def stage(draft, discard, repo_directory, release_name, release_description):
     Stages a release
     """
     with work_in(repo_directory):
-        requests_cache.configure(expire_after=60*10*10)
-        init.init()
         if discard:
             stage_command.discard(release_name, release_description)
         else:
             stage_command.stage(draft, release_name, release_description)
+
 
 main.add_command(stage)
 
@@ -116,7 +119,6 @@ def publish(repo_directory):
     Publishes a release
     """
     with work_in(repo_directory):
-        init.init()
         publish_command.publish()
 
 

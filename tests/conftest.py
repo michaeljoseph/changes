@@ -33,27 +33,42 @@ README_MARKDOWN = [
 
 PYTHON_MODULE = 'test_app'
 
-FILE_CONTENT = {
+PYTHON_PROJECT_CONTENT = {
     '%s/__init__.py' % PYTHON_MODULE: INIT_CONTENT,
     'setup.py': SETUP_PY,
     'requirements.txt': ['pytest'],
+}
+
+FILE_CONTENT = {
+    'version.txt': ['0.0.1'],
     'README.md': README_MARKDOWN,
     'CHANGELOG.md': [''],
 }
 
 AUTH_TOKEN_ENVVAR = 'GITHUB_AUTH_TOKEN'
 
-ISSUE_URL = 'https://api.github.com/repos/michaeljoseph/test_app/issues/{}'
+BUG_LABEL_JSON = [
+    {
+        'id': 52048163,
+        'url': 'https://api.github.com/repos/michaeljoseph/changes/labels/bug',
+        'name': 'bug',
+        'color': 'fc2929',
+        'default': True
+    }
+]
+
+ISSUE_URL = 'https://api.github.com/repos/michaeljoseph/test_app/issues/111'
 PULL_REQUEST_JSON = {
     'number': 111,
     'title': 'The title of the pull request',
     'body': 'An optional, longer description.',
     'user': {
-        'login': 'someone'
+        'login': 'michaeljoseph'
     },
     'labels': [
         {'id': 1, 'name': 'bug'}
     ],
+    'url': 'https://api.github.com/repos/michaeljoseph/test_app/issues/111'
 }
 
 LABEL_URL = 'https://api.github.com/repos/michaeljoseph/test_app/labels'
@@ -69,20 +84,14 @@ BUG_LABEL_JSON = [
 
 RELEASES_URL = 'https://api.github.com/repos/michaeljoseph/test_app/releases'
 
+
 @pytest.fixture
 def git_repo(tmpdir):
     with CliRunner().isolated_filesystem() as repo_dir:
-        readme_path = 'README.md'
-        open(readme_path, 'w').write(
-            '\n'.join(README_MARKDOWN)
-        )
-        version_path = 'version.txt'
-        open(version_path, 'w').write('0.0.1')
-
-        files_to_add = [
-           readme_path,
-           version_path,
-        ]
+        for file_path, content in FILE_CONTENT.items():
+            open(file_path, 'w').write(
+                '\n'.join(content)
+            )
 
         git('init')
         git(shlex.split('config --local user.email "you@example.com"'))
@@ -92,8 +101,8 @@ def git_repo(tmpdir):
         git('init', '--bare', str(tmp_push_repo))
         git(shlex.split('remote set-url --push origin {}'.format(tmp_push_repo.as_uri())))
 
-        for file_to_add in files_to_add:
-            git('add', file_to_add)
+        git('add', [file for file in FILE_CONTENT.keys()])
+
         git('commit', '-m', 'Initial commit')
         git(shlex.split('tag 0.0.1'))
 
@@ -104,12 +113,13 @@ def git_repo(tmpdir):
 def python_module(git_repo):
     os.mkdir(PYTHON_MODULE)
 
-    for file_path, content in FILE_CONTENT.items():
+    for file_path, content in PYTHON_PROJECT_CONTENT.items():
         open(file_path, 'w').write(
             '\n'.join(content)
         )
 
-    git('add', [file for file in FILE_CONTENT.keys()])
+    git('add', [file for file in PYTHON_PROJECT_CONTENT.keys()])
+    git('commit', '-m', 'Python project initialisation')
 
     yield
 
@@ -134,6 +144,7 @@ def github_merge_commit(pull_request_number):
         git(shlex.split(command))
 
 
+# prompts_for_tool_configuration
 @pytest.fixture
 def with_releases_directory_and_bumpversion_file_prompt(mocker):
     prompt = mocker.patch(
@@ -153,7 +164,7 @@ def with_releases_directory_and_bumpversion_file_prompt(mocker):
     ]
 
     prompt = mocker.patch(
-        'changes.config.choose_labels',
+        'changes.config.prompt.choose_labels',
         autospec=True
     )
     prompt.return_value = ['bug']

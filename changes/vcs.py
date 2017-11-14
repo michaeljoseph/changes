@@ -22,7 +22,8 @@ EXT_TO_MIME_TYPE = {
 
 def commit_version_change(context):
     # TODO: signed commits?
-    shell.dry_run(COMMIT_TEMPLATE % (context.new_version, context.module_name), context.dry_run)
+    shell.dry_run(COMMIT_TEMPLATE % (context.new_version,
+                                     context.module_name), context.dry_run)
     shell.dry_run('git push', context.dry_run)
 
 
@@ -32,7 +33,8 @@ def tag_and_push(context):
     if probe.has_signing_key(context):
         tag_option = '--sign'
 
-    shell.dry_run(TAG_TEMPLATE % (tag_option, context.new_version, context.new_version), context.dry_run)
+    shell.dry_run(TAG_TEMPLATE % (tag_option, context.new_version,
+                                  context.new_version), context.dry_run)
 
     shell.dry_run('git push --tags', context.dry_run)
 

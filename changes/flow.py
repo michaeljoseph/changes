@@ -20,16 +20,19 @@ def publish(context):
         # github token
         project_settings = project_config(context.module_name)
         if not project_settings['gh_token']:
-            click.echo('You need a GitHub token for changes to create a release.')
+            click.echo(
+                'You need a GitHub token for changes to create a release.')
             click.pause('Press [enter] to launch the GitHub "New personal access '
                         'token" page, to create a token for changes.')
             click.launch('https://github.com/settings/tokens/new')
-            project_settings['gh_token'] = click.prompt('Enter your changes token')
+            project_settings['gh_token'] = click.prompt(
+                'Enter your changes token')
 
             store_settings(context.module_name, project_settings)
         description = click.prompt('Describe this release')
 
-        upload_url = create_github_release(context, project_settings['gh_token'], description)
+        upload_url = create_github_release(
+            context, project_settings['gh_token'], description)
 
         upload_release_distributions(
             context,
@@ -39,7 +42,8 @@ def publish(context):
         )
 
         click.pause('Press [enter] to review and update your new release')
-        click.launch('{0}/releases/tag/{1}'.format(context.repo_url, context.new_version))
+        click.launch(
+            '{0}/releases/tag/{1}'.format(context.repo_url, context.new_version))
     else:
         tag_and_push(context)
 

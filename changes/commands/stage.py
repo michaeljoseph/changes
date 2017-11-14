@@ -1,46 +1,32 @@
 import difflib
-from datetime import date
 from pathlib import Path
 
 import bumpversion
 import click
-from plumbum.cmd import git
 import pkg_resources
 from jinja2 import Template
 
 import changes
-from changes.config import BumpVersion
-from changes.models import Release, changes_to_release_type
+
+from changes.models import Release, BumpVersion
 from . import info, error, debug, STYLES
 
 
 def discard(release_name='', release_description=''):
-    bumpversion_part, release_type, proposed_version = changes_to_release_type(
-        changes.project_settings.repository
-    )
-    release = Release(
-        name=release_name,
-        release_date=date.today().isoformat(),
-        version=str(proposed_version),
-        description=release_description,
-    )
+    repository = changes.project_settings.repository
 
-    if release.version == str(changes.project_settings.repository.latest_version):
+    release = changes.release_from_pull_requests()
+    if release.version == str(repository.latest_version):
         info('No staged release to discard')
         return
 
     info('Discarding currently staged release {}'.format(release.version))
 
-    settings = changes.project_settings
-
-    release_notes_path = Path(settings.releases_directory).joinpath(
-        '{}.md'.format(release.version)
-    )
-
-    modified_bumpversion_files = BumpVersion.read_from_file(Path('.bumpversion.cfg')).version_files_to_replace
+    bumpversion = BumpVersion.read_from_file(Path('.bumpversion.cfg'))
     git_discard_files = (
-        modified_bumpversion_files +
+        bumpversion.version_files_to_replace +
         [
+            # 'CHANGELOG.md',
             '.bumpversion.cfg',
         ]
     )
@@ -48,60 +34,50 @@ def discard(release_name='', release_description=''):
     info('Running: git {}'.format(' '.join(
         ['checkout', '--'] + git_discard_files
     )))
-    git(['checkout', '--'] + git_discard_files)
+    repository.discard(git_discard_files)
 
-    if release_notes_path.exists():
+    if release.release_file_path.exists():
         info('Running: rm {}'.format(
-            release_notes_path,
+            release.release_file_path,
         ))
-        release_notes_path.unlink()
+        release.release_file_path.unlink()
 
 
 def stage(draft, release_name='', release_description=''):
-
     repository = changes.project_settings.repository
-    bumpversion_part, release_type, proposed_version = changes_to_release_type(repository)
 
-    if not repository.changes_since_last_version:
-        error("There aren't any changes to release since {}".format(proposed_version))
+    release = changes.release_from_pull_requests()
+    release.name = release_name
+    release.description = release_description
+
+    if not repository.pull_requests_since_latest_version:
+        error("There aren't any changes to release since {}".format(release.version))
         return
 
     info('Staging [{}] release for version {}'.format(
-        release_type,
-        proposed_version
+        release.release_type,
+        release.version
     ))
 
-    if BumpVersion.read_from_file(Path('.bumpversion.cfg')).current_version == str(proposed_version):
-        info('Version already bumped to {}'.format(proposed_version))
+    # Bumping versions
+    if BumpVersion.read_from_file(Path('.bumpversion.cfg')).current_version == str(release.version):
+        info('Version already bumped to {}'.format(release.version))
     else:
         bumpversion_arguments = (
             BumpVersion.DRAFT_OPTIONS if draft
             else BumpVersion.STAGE_OPTIONS
-        ) + [bumpversion_part]
+        ) + [release.bumpversion_part]
 
         info('Running: bumpversion {}'.format(
             ' '.join(bumpversion_arguments)
         ))
         bumpversion.main(bumpversion_arguments)
 
+    # Release notes generation
     info('Generating Release')
-    # prepare context for changelog documentation
-    project_labels = changes.project_settings.labels
-    for label, properties in project_labels.items():
-        pull_requests_with_label = [
-            pull_request
-            for pull_request in repository.changes_since_last_version
-            if label in pull_request.labels
-        ]
-
-        project_labels[label]['pull_requests'] = pull_requests_with_label
-
-    release = Release(
-        name=release_name,
-        release_date=date.today().isoformat(),
-        version=str(proposed_version),
-        description=release_description,
-        changes=project_labels,
+    release.notes = Release.generate_notes(
+        changes.project_settings.labels,
+        repository.pull_requests_since_latest_version,
     )
 
     # TODO: if project_settings.release_notes_template is None
@@ -117,7 +93,7 @@ def stage(draft, release_name='', release_description=''):
         releases_directory.mkdir(parents=True)
 
     release_notes_path = releases_directory.joinpath(
-        '{}.md'.format(release.version)
+        '{}.md'.format(release.release_note_filename)
     )
 
     if draft:
@@ -126,7 +102,8 @@ def stage(draft, release_name='', release_description=''):
     else:
         info('Writing release notes to {}'.format(release_notes_path))
         if release_notes_path.exists():
-            release_notes_content = release_notes_path.read_text(encoding='utf-8')
+            release_notes_content = release_notes_path.read_text(
+                encoding='utf-8')
             if release_notes_content != release_notes:
                 info('\n'.join(difflib.unified_diff(
                     release_notes_content.splitlines(),
@@ -136,10 +113,12 @@ def stage(draft, release_name='', release_description=''):
                 )))
                 if click.confirm(
                     click.style(
-                        '{} has modified content, overwrite?'.format(release_notes_path),
+                        '{} has modified content, overwrite?'.format(
+                            release_notes_path),
                         **STYLES['error']
                     )
                 ):
-                    release_notes_path.write_text(release_notes, encoding='utf-8')
+                    release_notes_path.write_text(
+                        release_notes, encoding='utf-8')
         else:
             release_notes_path.write_text(release_notes, encoding='utf-8')

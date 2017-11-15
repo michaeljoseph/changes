@@ -31,8 +31,8 @@ def run_tests():
     return None
 
 
-def run_test_command(test_command):
-    if test_command:
-        result = shell.dry_run(test_command, context.dry_run)
-        log.info('Test command "%s", returned %s', test_command, result)
+def run_test_command(context):
+    if context.test_command:
+        result = shell.dry_run(context.test_command, context.dry_run)
+        log.info('Test command "%s", returned %s', context.test_command, result)
     return True

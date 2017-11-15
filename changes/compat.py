@@ -1,6 +1,3 @@
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
-from builtins import *
-from future import standard_library
+import sys
 
-standard_library.install_aliases()
+IS_WINDOWS = 'win32' in str(sys.platform).lower()

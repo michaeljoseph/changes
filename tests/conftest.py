@@ -4,7 +4,8 @@ import textwrap
 from pathlib import Path
 
 import pytest
-import sys
+
+from changes import compat
 from click.testing import CliRunner
 from plumbum.cmd import git
 
@@ -172,7 +173,7 @@ def with_releases_directory_and_bumpversion_file_prompt(mocker):
 
 @pytest.fixture
 def with_auth_token_prompt(mocker):
-    _ = mocker.patch('changes.config.click.launch')
+    mocker.patch('changes.config.click.launch')
 
     prompt = mocker.patch('changes.config.click.prompt')
     prompt.return_value = 'foo'
@@ -206,12 +207,10 @@ def with_auth_token_envvar():
 
 @pytest.fixture
 def changes_config_in_tmpdir(monkeypatch, tmpdir):
-    IS_WINDOWS = 'win32' in str(sys.platform).lower()
-
     changes_config_file = Path(str(tmpdir.join('.changes')))
     monkeypatch.setattr(
         changes.config,
-        'expandvars' if IS_WINDOWS else 'expanduser',
+        'expandvars' if compat.IS_WINDOWS else 'expanduser',
         lambda x: str(changes_config_file)
     )
     assert not changes_config_file.exists()

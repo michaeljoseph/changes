@@ -4,7 +4,6 @@ import pytest
 from click.testing import CliRunner
 
 from changes import probe, exceptions
-from .conftest import PYTHON_MODULE
 
 
 def test_probe_project(python_module):

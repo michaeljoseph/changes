@@ -8,7 +8,7 @@ test: ## Run tests
 .PHONY: lint
 lint: ## Lint source
 	@echo "+ $@"
-	flake8 changes tests setup.py
+	flake8 --ignore=E501 changes tests setup.py
 
 .PHONY: ci
 ci: test lint ## Continuous Integration Commands

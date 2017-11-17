@@ -64,7 +64,7 @@ def generate_changelog(context):
         git_log_tag = git_log + ['%s..master' % context.current_version]
         git_log_content = git(git_log_tag)
         log.debug('content: %s' % git_log_content)
-    except:
+    except Exception:
         log.warn('Error diffing previous version, initial release')
         git_log_content = git(git_log)
 

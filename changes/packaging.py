@@ -34,7 +34,7 @@ def install_package(context):
                 try:
                     venv.install(distribution, tmp_dir)
                     log.info('Successfully installed %s', distribution)
-                    if context.test_command and verification.run_test_command(context.test_command):
+                    if context.test_command and verification.run_test_command(context):
                         log.info('Successfully ran test command: %s',
                                  context.test_command)
                 except Exception as e:

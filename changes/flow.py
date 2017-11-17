@@ -67,5 +67,5 @@ def perform_release(context):
         install_from_pypi(context)
 
         publish(context)
-    except:
+    except Exception:
         log.exception('Error releasing')

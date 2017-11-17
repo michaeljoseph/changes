@@ -1,6 +1,5 @@
 import io
 import os
-import sys
 from os.path import exists, expanduser, expandvars, join, curdir
 from pathlib import Path
 
@@ -10,16 +9,15 @@ import inflection
 import toml
 
 from changes.models import BumpVersion
-from changes import prompt
+from changes import prompt, compat
 from .commands import info, note, debug
 
 AUTH_TOKEN_ENVVAR = 'GITHUB_AUTH_TOKEN'
 
 # via https://github.com/jakubroztocil/httpie/blob/6bdfc7a/httpie/config.py#L9
-IS_WINDOWS = 'win32' in str(sys.platform).lower()
 DEFAULT_CONFIG_FILE = str(os.environ.get(
     'CHANGES_CONFIG_FILE',
-    expanduser('~/.changes') if not IS_WINDOWS else
+    expanduser('~/.changes') if not compat.IS_WINDOWS else
     expandvars(r'%APPDATA%\\.changes')
 ))
 
@@ -35,7 +33,7 @@ class Changes(object):
     def load(cls):
         tool_config_path = Path(str(os.environ.get(
             'CHANGES_CONFIG_FILE',
-            expanduser('~/.changes') if not IS_WINDOWS else
+            expanduser('~/.changes') if not compat.IS_WINDOWS else
             expandvars(r'%APPDATA%\\.changes')
         )))
 

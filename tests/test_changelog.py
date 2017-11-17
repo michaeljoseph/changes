@@ -1,3 +1,4 @@
+import pytest
 from changes import changelog
 from . import context
 
@@ -42,9 +43,6 @@ def test_replace_sha_with_commit_link():
     ]
     assert expected_content == changelog.replace_sha_with_commit_link(
         repo_url, log)
-
-
-import pytest
 
 
 @pytest.mark.skip('Towncrier')

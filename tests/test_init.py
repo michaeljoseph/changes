@@ -11,7 +11,7 @@ from .conftest import AUTH_TOKEN_ENVVAR, LABEL_URL, BUG_LABEL_JSON
 
 @pytest.fixture
 def answer_prompts(mocker):
-    _ = mocker.patch(
+    mocker.patch(
         'changes.config.click.launch',
         autospec=True,
     )

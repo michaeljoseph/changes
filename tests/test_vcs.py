@@ -1,5 +1,6 @@
 import json
 
+import pytest
 from mock import call
 import responses
 from click.testing import CliRunner
@@ -29,9 +30,6 @@ def test_tag_and_push(mocker):
             call('git tag --annotate 0.0.2 --message="0.0.2"', True),
             call('git push --tags', True)
         ])
-
-
-import pytest
 
 
 @pytest.mark.skip('requires changelog')

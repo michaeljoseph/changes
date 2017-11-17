@@ -97,9 +97,13 @@ class GitHub(object):
 
         upload_url = response['upload_url']
         upload_responses = (
-            [self.create_upload(upload_url, Path(upload)) for upload in uploads]
+            [
+                self.create_upload(upload_url, Path(upload))
+                for upload in uploads
+            ]
             if uploads
-            else []
+            else
+            []
         )
 
         return response, upload_responses

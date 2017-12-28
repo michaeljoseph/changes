@@ -9,7 +9,7 @@ twine==1.9.1
 wheel==0.30.0
 pkginfo==1.4.1
 toml==0.9.2
-invoke==0.21.0
+invoke==0.22.0
 bumpversion==0.5.3
 towncrier==17.8.0
 devpi==2.2.0

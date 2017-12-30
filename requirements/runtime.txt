@@ -17,5 +17,5 @@ tox==2.9.1
 uritemplate==3.0.0
 requests==2.18.4
 requests-cache==0.4.13
-attrs==17.3.0
+attrs==17.4.0
 inflection==0.3.1

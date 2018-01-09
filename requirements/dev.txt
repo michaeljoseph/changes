@@ -11,6 +11,6 @@ pytest-mock==1.6.3
 pytest-watch==4.1.0
 responses==0.8.1
 scrutinizer-ocular==1.0.3
-sphinx-bootstrap-theme==0.6.0
+sphinx-bootstrap-theme==0.6.1
 sphinxcontrib-httpdomain==1.5.0
 haikunator==2.1.0

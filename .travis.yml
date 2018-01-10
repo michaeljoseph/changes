@@ -12,9 +12,20 @@ after_success:
   - coverage combine
   - codecov
   - ocular
+  - npm install -g @zeus-ci/cli
+  - $(npm bin -g)/zeus upload -t "application/x-junit+xml" pytest.junit.xml
+  - $(npm bin -g)/zeus upload -t "application/x-cobertura+xml" coverage.xml
+after_failure:
+  - npm install -g @zeus-ci/cli
+  - $(npm bin -g)/zeus upload -t "application/x-junit+xml" pytest.junit.xml
+  - $(npm bin -g)/zeus upload -t "application/x-cobertura+xml" coverage.xml
 notifications:
   webhooks:
     urls:
       - https://webhooks.gitter.im/e/bb499a791e0cf35113e1
-    on_success: change
+      - https://zeus.ci/hooks/65289576-f62c-11e7-9bb7-0a580a284609/public/provider/travis/webhook
+    on_success: always
     on_failure: always
+    on_start: always
+    on_cancel: always
+    on_error: always

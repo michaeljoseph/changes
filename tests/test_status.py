@@ -21,6 +21,7 @@ def test_status(
         content_type='application/json'
     )
 
+    changes.initialise()
     status.status()
 
     expected_output = textwrap.dedent(

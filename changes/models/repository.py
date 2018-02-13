@@ -16,12 +16,11 @@ GITHUB_MERGED_PULL_REQUEST = re.compile(
 
 
 def git(command):
-    return git_command(
-        shlex.split(
-            command,
-            posix=not IS_WINDOWS
-        )
+    command = shlex.split(
+        command,
+        posix=not IS_WINDOWS
     )
+    return git_command[command]()
 
 
 def git_lines(command):

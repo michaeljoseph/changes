@@ -1,13 +1,14 @@
 import re
+import shlex
 
 import attr
-import semantic_version
-import shlex
 import giturlparse
+import semantic_version
 from cached_property import cached_property
 from plumbum.cmd import git as git_command
 
 from changes import services
+from changes.compat import IS_WINDOWS
 
 GITHUB_MERGED_PULL_REQUEST = re.compile(
     r'^([0-9a-f]{5,40}) Merge pull request #(\w+)'
@@ -15,7 +16,12 @@ GITHUB_MERGED_PULL_REQUEST = re.compile(
 
 
 def git(command):
-    return git_command(shlex.split(command))
+    return git_command(
+        shlex.split(
+            command,
+            posix=not IS_WINDOWS
+        )
+    )
 
 
 def git_lines(command):
@@ -126,7 +132,7 @@ class GitRepository(object):
     @staticmethod
     def commit(message):
         return git(
-            'commit --message="{}" '.format(message)
+            'commit --message="{}"'.format(message)
         )
 
     @staticmethod

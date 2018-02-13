@@ -130,9 +130,11 @@ class GitRepository(object):
 
     @staticmethod
     def commit(message):
-        return git(
-            'commit --message="{}"'.format(message)
-        )
+        # FIXME: message is one token
+        return git_command[
+            'commit',
+            '--message="{}"'.format(message)
+        ]()
 
     @staticmethod
     def discard(file_paths):

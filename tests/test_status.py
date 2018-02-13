@@ -10,7 +10,6 @@ from .conftest import github_merge_commit, ISSUE_URL, LABEL_URL, BUG_LABEL_JSON,
 @responses.activate
 def test_status(
     capsys,
-    git_repo,
     configured,
 ):
 
@@ -22,6 +21,7 @@ def test_status(
         content_type='application/json'
     )
 
+    changes.initialise()
     status.status()
 
     expected_output = textwrap.dedent(
@@ -43,7 +43,6 @@ def test_status(
 @responses.activate
 def test_status_with_changes(
     capsys,
-    git_repo,
     configured,
 ):
 

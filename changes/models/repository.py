@@ -1,37 +1,45 @@
 import re
+import shlex
 
 import attr
-import semantic_version
-import shlex
 import giturlparse
+import semantic_version
 from cached_property import cached_property
-from plumbum.cmd import git
+from plumbum.cmd import git as git_command
 
 from changes import services
+from changes.compat import IS_WINDOWS
 
 GITHUB_MERGED_PULL_REQUEST = re.compile(
     r'^([0-9a-f]{5,40}) Merge pull request #(\w+)'
 )
 
-# def gitx(args):
-#     if changes.debug:
-#         print('git {}'.format(args))
-#     return git(shlex.split(args))
+
+def git(command):
+    command = shlex.split(
+        command,
+        posix=not IS_WINDOWS
+    )
+    return git_command[command]()
+
+
+def git_lines(command):
+    return git(command).splitlines()
 
 
 @attr.s
 class GitRepository(object):
     VERSION_ZERO = semantic_version.Version('0.0.0')
-    # TODO: handle multiple remotes (cookiecutter [non-owner maintainer])
+    # TODO: handle multiple remotes (for non-owner maintainer workflows)
     REMOTE_NAME = 'origin'
 
     auth_token = attr.ib(default=None)
 
     @property
     def remote_url(self):
-        return git(shlex.split('config --get remote.{}.url'.format(
+        return git('config --get remote.{}.url'.format(
             self.REMOTE_NAME
-        )))
+        ))
 
     @property
     def parsed_repo(self):
@@ -61,21 +69,19 @@ class GitRepository(object):
     def commit_history(self):
         return [
             commit_message
-            for commit_message in git(shlex.split(
+            for commit_message in git_lines(
                 'log --oneline --no-color'
-            )).split('\n')
+            )
             if commit_message
         ]
 
     @property
     def first_commit_sha(self):
-        return git(
-            'rev-list', '--max-parents=0', 'HEAD'
-        )
+        return git('rev-list --max-parents=0 HEAD')
 
     @property
     def tags(self):
-        return git(shlex.split('tag --list')).split('\n')
+        return git_lines('tag --list')
 
     @property
     def versions(self):
@@ -97,9 +103,9 @@ class GitRepository(object):
 
         revision_range = ' {}..HEAD'.format(version) if version else ''
 
-        merge_commits = git(shlex.split(
+        merge_commits = git(
             'log --oneline --merges --no-color{}'.format(revision_range)
-        )).split('\n')
+        ).split('\n')
         return merge_commits
 
     @property
@@ -108,42 +114,44 @@ class GitRepository(object):
 
     @property
     def files_modified_in_last_commit(self):
-        return git(shlex.split('diff --name -only --diff -filter=d'))
+        return git('diff --name -only --diff -filter=d')
 
     @property
     def dirty_files(self):
         return [
             modified_path
-            for modified_path in git(shlex.split('-c color.status=false status --short --branch'))
+            for modified_path in git('-c color.status=false status --short --branch')
             if modified_path.startswith(' M')
         ]
 
     @staticmethod
     def add(files_to_add):
-        return git(['add'] + files_to_add)
+        return git('add {}'.format(' '.join(files_to_add)))
 
     @staticmethod
     def commit(message):
-        return git(shlex.split(
-            'commit --message="{}" '.format(message)
-        ))
+        # FIXME: message is one token
+        return git_command[
+            'commit',
+            '--message="{}"'.format(message)
+        ]()
 
     @staticmethod
     def discard(file_paths):
-        git(['checkout', '--'] + file_paths)
+        return git('checkout -- {}'.format(' '.join(file_paths)))
 
     @staticmethod
     def tag(version):
         # TODO: signed tags
         return git(
-            shlex.split('tag --annotate {version} --message="{version}"'.format(
+            'tag --annotate {version} --message="{version}"'.format(
                 version=version
-            ))
+            )
         )
 
     @staticmethod
     def push():
-        return git(shlex.split('push --tags'))
+        return git('push --tags')
 
 
 @attr.s

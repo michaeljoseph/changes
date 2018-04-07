@@ -7,7 +7,7 @@ flake8==3.5.0
 mock==2.0.0
 pytest==3.4.1
 pytest-cov==2.5.1
-pytest-mock==1.7.0
+pytest-mock==1.8.0
 pytest-watch==4.1.0
 responses==0.8.1
 scrutinizer-ocular==1.0.3

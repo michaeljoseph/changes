@@ -1,17 +1,32 @@
+VENV = venv/bin
+
 .DEFAULT_GOAL := help
 
-.PHONY: test
-test: ## Run tests
+.PHONY: clean
+clean: ## Remove Python file artifacts and virtualenv
 	@echo "+ $@"
-	pytest
+	@rm -rf venv
 
-.PHONY: lint
-lint: ## Lint source
+venv: ## Creates the virtualenv and installs requirements
+	python -m venv venv
+	$(VENV)/pip install -r requirements.txt
+
+requirements:venv ## Installs latest requirements
+	$(VENV)/pip install -Ur requirements.txt
+
+test:venv ## Run tests
 	@echo "+ $@"
-	flake8 --ignore=E501 changes tests setup.py
+	$(VENV)/pytest
 
-.PHONY: ci
-ci: test lint ## Continuous Integration Commands
+lint:venv ## Lint source
+	@echo "+ $@"
+	$(VENV)/flake8 --ignore=E501 changes tests setup.py
+
+ci:test lint ## Continuous Integration Commands
+
+watch:venv ## Run tests continuously on filesystem changes
+	@echo "+ $@"
+	$(VENV)/ptw
 
 .PHONY: docs
 docs: ## Generate documentation site
@@ -19,11 +34,6 @@ docs: ## Generate documentation site
 	@$(MAKE) -C docs clean
 	@$(MAKE) -C docs singlehtml
 	@echo "> Documentation generated in docs/_build/singlehtml/index.html"
-
-.PHONY: watch
-watch: ## Run tests continuously on filesystem changes
-	@echo "+ $@"
-	ptw
 
 .PHONY: help
 help:

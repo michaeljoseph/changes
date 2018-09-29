@@ -1,11 +1,10 @@
 language: python
 python:
-  - "3.5"
   - "3.6"
-before_success:
-  - coverage erase
-script:
-  - make ci
+  - "3.7-dev"
+before_success: coverage erase
+install: pip install tox-travis
+script: tox
 after_success:
   - coverage combine
   - codecov

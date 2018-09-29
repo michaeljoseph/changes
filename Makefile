@@ -9,24 +9,17 @@ clean: ## Remove Python file artifacts and virtualenv
 
 venv: ## Creates the virtualenv and installs requirements
 	python -m venv venv
-	$(VENV)/pip install -r requirements.txt
-
-requirements:venv ## Installs latest requirements
-	$(VENV)/pip install -Ur requirements.txt
+	$(VENV)/pip install tox
 
 test:venv ## Run tests
 	@echo "+ $@"
-	$(VENV)/pytest
+	$(VENV)/tox -e py37
 
 lint:venv ## Lint source
 	@echo "+ $@"
-	$(VENV)/flake8 --ignore=E501 changes tests setup.py
+	$(VENV)/tox -e lint
 
 ci:test lint ## Continuous Integration Commands
-
-watch:venv ## Run tests continuously on filesystem changes
-	@echo "+ $@"
-	$(VENV)/ptw
 
 .PHONY: docs
 docs: ## Generate documentation site

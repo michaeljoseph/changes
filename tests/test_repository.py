@@ -21,6 +21,7 @@ def test_repository_parses_versions(git_repo):
 
     assert v1 == repository.latest_version
 
+
 # FIXME
 # def test_latest_version_unreleased(git_repo):
 #     repository = models.GitRepository()
@@ -36,11 +37,7 @@ def test_latest_version(git_repo):
 
     repository = GitRepository()
 
-    expected_versions = [
-        Version('0.0.1'),
-        Version('0.0.2'),
-        Version('0.0.3'),
-    ]
+    expected_versions = [Version('0.0.1'), Version('0.0.2'), Version('0.0.3')]
     assert expected_versions == repository.versions
 
     assert Version('0.0.3') == repository.latest_version

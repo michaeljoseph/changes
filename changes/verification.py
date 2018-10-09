@@ -1,6 +1,6 @@
 import logging
 
-from plumbum import local, CommandNotFound
+from plumbum import CommandNotFound, local
 
 from changes import shell
 

@@ -2,11 +2,10 @@ import io
 import logging
 
 import click
-
 import requests
 from uritemplate import expand
 
-from changes import shell, probe
+from changes import probe, shell
 
 log = logging.getLogger(__name__)
 
@@ -22,8 +21,9 @@ EXT_TO_MIME_TYPE = {
 
 def commit_version_change(context):
     # TODO: signed commits?
-    shell.dry_run(COMMIT_TEMPLATE % (context.new_version,
-                                     context.module_name), context.dry_run)
+    shell.dry_run(
+        COMMIT_TEMPLATE % (context.new_version, context.module_name), context.dry_run
+    )
     shell.dry_run('git push', context.dry_run)
 
 
@@ -33,8 +33,10 @@ def tag_and_push(context):
     if probe.has_signing_key(context):
         tag_option = '--sign'
 
-    shell.dry_run(TAG_TEMPLATE % (tag_option, context.new_version,
-                                  context.new_version), context.dry_run)
+    shell.dry_run(
+        TAG_TEMPLATE % (tag_option, context.new_version, context.new_version),
+        context.dry_run,
+    )
 
     shell.dry_run('git push --tags', context.dry_run)
 
@@ -50,8 +52,7 @@ def create_github_release(context, gh_token, description):
 
     response = requests.post(
         'https://api.github.com/repos/{owner}/{repo}/releases'.format(
-            owner=context.owner,
-            repo=context.repo,
+            owner=context.owner, repo=context.repo
         ),
         auth=(gh_token, 'x-oauth-basic'),
         json=params,
@@ -63,16 +64,15 @@ def create_github_release(context, gh_token, description):
 
 def upload_release_distributions(context, gh_token, distributions, upload_url):
     for distribution in distributions:
-        click.echo('Uploading {distribution} to {upload_url}'.format(
-            distribution=distribution,
-            upload_url=upload_url
-        ))
+        click.echo(
+            'Uploading {distribution} to {upload_url}'.format(
+                distribution=distribution, upload_url=upload_url
+            )
+        )
         response = requests.post(
             expand(upload_url, dict(name=distribution.name)),
             auth=(gh_token, 'x-oauth-basic'),
-            headers={
-                'content-type': EXT_TO_MIME_TYPE[distribution.ext]
-            },
+            headers={'content-type': EXT_TO_MIME_TYPE[distribution.ext]},
             data=io.open(distribution, mode='rb'),
             verify=False,
         )

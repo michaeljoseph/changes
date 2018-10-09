@@ -1,21 +1,25 @@
+import shlex
 import textwrap
 from datetime import date
 from pathlib import Path
-import shlex
 
-from plumbum.cmd import git
 import responses
+from plumbum.cmd import git
 
 import changes
 from changes.commands import stage
-from .conftest import github_merge_commit, ISSUE_URL, LABEL_URL, PULL_REQUEST_JSON, BUG_LABEL_JSON
+
+from .conftest import (
+    BUG_LABEL_JSON,
+    ISSUE_URL,
+    LABEL_URL,
+    PULL_REQUEST_JSON,
+    github_merge_commit,
+)
 
 
 @responses.activate
-def test_stage_draft(
-    capsys,
-    configured,
-):
+def test_stage_draft(capsys, configured):
 
     github_merge_commit(111)
 
@@ -24,23 +28,21 @@ def test_stage_draft(
         ISSUE_URL,
         json=PULL_REQUEST_JSON,
         status=200,
-        content_type='application/json'
+        content_type='application/json',
     )
     responses.add(
         responses.GET,
         LABEL_URL,
         json=BUG_LABEL_JSON,
         status=200,
-        content_type='application/json'
+        content_type='application/json',
     )
 
     changes.initialise()
     stage.stage(draft=True)
 
     release_notes_path = Path(
-        'docs/releases/0.0.2-{}.md'.format(
-            date.today().isoformat()
-        )
+        'docs/releases/0.0.2-{}.md'.format(date.today().isoformat())
     )
     expected_output = textwrap.dedent(
         """\
@@ -60,27 +62,27 @@ def test_stage_draft(
         '    ',
         '* #111 The title of the pull request',
         '    ',
-        '...'
+        '...',
     ]
 
     out, _ = capsys.readouterr()
 
-    assert expected_output.splitlines() + expected_release_notes_content == out.splitlines()
+    assert (
+        expected_output.splitlines() + expected_release_notes_content
+        == out.splitlines()
+    )
 
     assert not release_notes_path.exists()
 
 
 @responses.activate
-def test_stage(
-    capsys,
-    configured,
-):
+def test_stage(capsys, configured):
     responses.add(
         responses.GET,
         LABEL_URL,
         json=BUG_LABEL_JSON,
         status=200,
-        content_type='application/json'
+        content_type='application/json',
     )
 
     github_merge_commit(111)
@@ -89,20 +91,16 @@ def test_stage(
         ISSUE_URL,
         json=PULL_REQUEST_JSON,
         status=200,
-        content_type='application/json'
+        content_type='application/json',
     )
 
     changes.initialise()
     stage.stage(
-        draft=False,
-        release_name='Icarus',
-        release_description='The first flight'
+        draft=False, release_name='Icarus', release_description='The first flight'
     )
 
     release_notes_path = Path(
-        'docs/releases/0.0.2-{}-Icarus.md'.format(
-            date.today().isoformat()
-        )
+        'docs/releases/0.0.2-{}-Icarus.md'.format(date.today().isoformat())
     )
     expected_output = textwrap.dedent(
         """\
@@ -145,16 +143,13 @@ def test_stage(
 
 
 @responses.activate
-def test_stage_discard(
-    capsys,
-    configured,
-):
+def test_stage_discard(capsys, configured):
     responses.add(
         responses.GET,
         LABEL_URL,
         json=BUG_LABEL_JSON,
         status=200,
-        content_type='application/json'
+        content_type='application/json',
     )
 
     github_merge_commit(111)
@@ -163,20 +158,16 @@ def test_stage_discard(
         ISSUE_URL,
         json=PULL_REQUEST_JSON,
         status=200,
-        content_type='application/json'
+        content_type='application/json',
     )
 
     changes.initialise()
     stage.stage(
-        draft=False,
-        release_name='Icarus',
-        release_description='The first flight'
+        draft=False, release_name='Icarus', release_description='The first flight'
     )
 
     release_notes_path = Path(
-        'docs/releases/0.0.2-{}-Icarus.md'.format(
-            date.today().isoformat()
-        )
+        'docs/releases/0.0.2-{}-Icarus.md'.format(date.today().isoformat())
     )
     assert release_notes_path.exists()
 
@@ -192,10 +183,7 @@ def test_stage_discard(
     ]
     assert '\n'.join(modified_files) == result
 
-    stage.discard(
-        release_name='Icarus',
-        release_description='The first flight'
-    )
+    stage.discard(release_name='Icarus', release_description='The first flight')
 
     expected_output = textwrap.dedent(
         """\
@@ -215,25 +203,16 @@ def test_stage_discard(
 
     result = git(shlex.split('-c color.status=false status --short --branch'))
 
-    modified_files = [
-        '## master',
-        '',
-    ]
+    modified_files = ['## master', '']
     assert '\n'.join(modified_files) == result
 
 
 @responses.activate
-def test_stage_discard_nothing_staged(
-    capsys,
-    configured,
-):
+def test_stage_discard_nothing_staged(capsys, configured):
 
     changes.initialise()
 
-    stage.discard(
-        release_name='Icarus',
-        release_description='The first flight'
-    )
+    stage.discard(release_name='Icarus', release_description='The first flight')
 
     expected_output = textwrap.dedent(
         """\

@@ -1,6 +1,6 @@
 import io
 import os
-from os.path import exists, expanduser, expandvars, join, curdir
+from os.path import curdir, exists, expanduser, expandvars, join
 from pathlib import Path
 
 import attr
@@ -8,18 +8,22 @@ import click
 import inflection
 import toml
 
+from changes import compat, prompt
 from changes.models import BumpVersion
-from changes import prompt, compat
-from .commands import info, note, debug
+
+from .commands import debug, info, note
 
 AUTH_TOKEN_ENVVAR = 'GITHUB_AUTH_TOKEN'
 
 # via https://github.com/jakubroztocil/httpie/blob/6bdfc7a/httpie/config.py#L9
-DEFAULT_CONFIG_FILE = str(os.environ.get(
-    'CHANGES_CONFIG_FILE',
-    expanduser('~/.changes') if not compat.IS_WINDOWS else
-    expandvars(r'%APPDATA%\\.changes')
-))
+DEFAULT_CONFIG_FILE = str(
+    os.environ.get(
+        'CHANGES_CONFIG_FILE',
+        expanduser('~/.changes')
+        if not compat.IS_WINDOWS
+        else expandvars(r'%APPDATA%\\.changes'),
+    )
+)
 
 PROJECT_CONFIG_FILE = '.changes.toml'
 DEFAULT_RELEASES_DIRECTORY = 'docs/releases'
@@ -31,17 +35,20 @@ class Changes(object):
 
     @classmethod
     def load(cls):
-        tool_config_path = Path(str(os.environ.get(
-            'CHANGES_CONFIG_FILE',
-            expanduser('~/.changes') if not compat.IS_WINDOWS else
-            expandvars(r'%APPDATA%\\.changes')
-        )))
+        tool_config_path = Path(
+            str(
+                os.environ.get(
+                    'CHANGES_CONFIG_FILE',
+                    expanduser('~/.changes')
+                    if not compat.IS_WINDOWS
+                    else expandvars(r'%APPDATA%\\.changes'),
+                )
+            )
+        )
 
         tool_settings = None
         if tool_config_path.exists():
-            tool_settings = Changes(
-                **(toml.load(tool_config_path.open())['changes'])
-            )
+            tool_settings = Changes(**(toml.load(tool_config_path.open())['changes']))
 
         # envvar takes precedence over config file settings
         auth_token = os.environ.get(AUTH_TOKEN_ENVVAR)
@@ -53,8 +60,10 @@ class Changes(object):
                 info('No auth token found, asking for it')
                 # to interact with the Git*H*ub API
                 note('You need a Github Auth Token for changes to create a release.')
-                click.pause('Press [enter] to launch the GitHub "New personal access '
-                            'token" page, to create a token for changes.')
+                click.pause(
+                    'Press [enter] to launch the GitHub "New personal access '
+                    'token" page, to create a token for changes.'
+                )
                 click.launch('https://github.com/settings/tokens/new')
                 auth_token = click.prompt('Enter your changes token')
 
@@ -62,9 +71,7 @@ class Changes(object):
                 tool_settings = Changes(auth_token=auth_token)
 
             tool_config_path.write_text(
-                toml.dumps({
-                    'changes': attr.asdict(tool_settings)
-                })
+                toml.dumps({'changes': attr.asdict(tool_settings)})
             )
 
         return tool_settings
@@ -89,15 +96,20 @@ class Project(object):
             )
 
         if not project_settings:
-            releases_directory = Path(click.prompt(
-                'Enter the directory to store your releases notes',
-                DEFAULT_RELEASES_DIRECTORY,
-                type=click.Path(exists=True, dir_okay=True)
-            ))
+            releases_directory = Path(
+                click.prompt(
+                    'Enter the directory to store your releases notes',
+                    DEFAULT_RELEASES_DIRECTORY,
+                    type=click.Path(exists=True, dir_okay=True),
+                )
+            )
 
             if not releases_directory.exists():
-                debug('Releases directory {} not found, creating it.'.format(
-                    releases_directory))
+                debug(
+                    'Releases directory {} not found, creating it.'.format(
+                        releases_directory
+                    )
+                )
                 releases_directory.mkdir(parents=True)
 
             project_settings = Project(
@@ -106,14 +118,11 @@ class Project(object):
             )
             # write config file
             changes_project_config_path.write_text(
-                toml.dumps({
-                    'changes': attr.asdict(project_settings)
-                })
+                toml.dumps({'changes': attr.asdict(project_settings)})
             )
 
         project_settings.repository = repository
-        project_settings.bumpversion = BumpVersion.load(
-            repository.latest_version)
+        project_settings.bumpversion = BumpVersion.load(repository.latest_version)
 
         return project_settings
 
@@ -124,10 +133,9 @@ def configure_labels(github_labels):
         labels_keyed_by_name[label['name']] = label
 
     # TODO: streamlined support for github defaults: enhancement, bug
-    changelog_worthy_labels = prompt.choose_labels([
-        properties['name']
-        for _, properties in labels_keyed_by_name.items()
-    ])
+    changelog_worthy_labels = prompt.choose_labels(
+        [properties['name'] for _, properties in labels_keyed_by_name.items()]
+    )
 
     # TODO: apply description transform in labels_prompt function
     described_labels = {}
@@ -154,14 +162,25 @@ DEFAULTS = {
 
 class Config:
     """Deprecated"""
+
     test_command = None
     pypi = None
     skip_changelog = None
     changelog_content = None
     repo = None
 
-    def __init__(self, module_name, dry_run, debug, no_input, requirements,
-                 new_version, current_version, repo_url, version_prefix):
+    def __init__(
+        self,
+        module_name,
+        dry_run,
+        debug,
+        no_input,
+        requirements,
+        new_version,
+        current_version,
+        repo_url,
+        version_prefix,
+    ):
         self.module_name = module_name
         # module_name => project_name => curdir
         self.dry_run = dry_run
@@ -169,9 +188,7 @@ class Config:
         self.no_input = no_input
         self.requirements = requirements
         self.new_version = (
-            version_prefix + new_version
-            if version_prefix
-            else new_version
+            version_prefix + new_version if version_prefix else new_version
         )
         self.current_version = current_version
 

@@ -1,8 +1,8 @@
+from pathlib import Path
+
 import attr
 import requests
 import uritemplate
-from pathlib import Path
-
 
 EXT_TO_MIME_TYPE = {
     '.gz': 'application/x-gzip',
@@ -13,15 +13,9 @@ EXT_TO_MIME_TYPE = {
 
 @attr.s
 class GitHub(object):
-    ISSUE_ENDPOINT = (
-        'https://api.github.com/repos{/owner}{/repo}/issues{/number}'
-    )
-    LABELS_ENDPOINT = (
-        'https://api.github.com/repos{/owner}{/repo}/labels'
-    )
-    RELEASES_ENDPOINT = (
-        'https://api.github.com/repos{/owner}{/repo}/releases'
-    )
+    ISSUE_ENDPOINT = 'https://api.github.com/repos{/owner}{/repo}/issues{/number}'
+    LABELS_ENDPOINT = 'https://api.github.com/repos{/owner}{/repo}/labels'
+    RELEASES_ENDPOINT = 'https://api.github.com/repos{/owner}{/repo}/releases'
 
     repository = attr.ib()
 
@@ -40,38 +34,21 @@ class GitHub(object):
     @property
     def headers(self):
         # TODO: requests.Session
-        return {
-            'Authorization': 'token {}'.format(self.auth_token)
-        }
+        return {'Authorization': 'token {}'.format(self.auth_token)}
 
     def pull_request(self, pr_num):
         pull_request_api_url = uritemplate.expand(
-            self.ISSUE_ENDPOINT,
-            dict(
-                owner=self.owner,
-                repo=self.repo,
-                number=pr_num
-            ),
+            self.ISSUE_ENDPOINT, dict(owner=self.owner, repo=self.repo, number=pr_num)
         )
 
-        return requests.get(
-            pull_request_api_url,
-            headers=self.headers,
-        ).json()
+        return requests.get(pull_request_api_url, headers=self.headers).json()
 
     def labels(self):
         labels_api_url = uritemplate.expand(
-            self.LABELS_ENDPOINT,
-            dict(
-                owner=self.owner,
-                repo=self.repo,
-            ),
+            self.LABELS_ENDPOINT, dict(owner=self.owner, repo=self.repo)
         )
 
-        return requests.get(
-            labels_api_url,
-            headers=self.headers,
-        ).json()
+        return requests.get(labels_api_url, headers=self.headers).json()
 
     def create_release(self, release, uploads=None):
         params = {
@@ -82,41 +59,28 @@ class GitHub(object):
         }
 
         releases_api_url = uritemplate.expand(
-            self.RELEASES_ENDPOINT,
-            dict(
-                owner=self.owner,
-                repo=self.repo,
-            )
+            self.RELEASES_ENDPOINT, dict(owner=self.owner, repo=self.repo)
         )
 
         response = requests.post(
-            releases_api_url,
-            headers=self.headers,
-            json=params,
+            releases_api_url, headers=self.headers, json=params
         ).json()
 
         upload_url = response['upload_url']
         upload_responses = (
-            [
-                self.create_upload(upload_url, Path(upload))
-                for upload in uploads
-            ]
+            [self.create_upload(upload_url, Path(upload)) for upload in uploads]
             if uploads
-            else
-            []
+            else []
         )
 
         return response, upload_responses
 
     def create_upload(self, upload_url, upload_path):
         requests.post(
-            uritemplate.expand(
-                upload_url,
-                {'name': upload_path.name},
+            uritemplate.expand(upload_url, {'name': upload_path.name}),
+            headers=dict(
+                **self.headers, **{'content-type': EXT_TO_MIME_TYPE[upload_path.ext]}
             ),
-            headers=dict(**self.headers, **{
-                'content-type': EXT_TO_MIME_TYPE[upload_path.ext],
-            }),
             data=upload_path.read_bytes(),
             verify=False,
         )

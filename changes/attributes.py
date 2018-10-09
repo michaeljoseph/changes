@@ -1,10 +1,9 @@
 import ast
 import logging
 import tempfile
-
-from plumbum.cmd import diff
 from pathlib import Path
 
+from plumbum.cmd import diff
 
 log = logging.getLogger(__name__)
 
@@ -41,6 +40,5 @@ def has_attribute(module_name, attribute_name):
     """Is this attribute present?"""
     init_file = '%s/__init__.py' % module_name
     return any(
-        [attribute_name in init_line for
-         init_line in open(init_file).readlines()]
+        [attribute_name in init_line for init_line in open(init_file).readlines()]
     )

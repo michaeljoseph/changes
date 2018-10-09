@@ -5,10 +5,11 @@ import click
 import requests_cache
 
 import changes
-from . import __version__
-from changes.commands import status as status_command
-from changes.commands import stage as stage_command
 from changes.commands import publish as publish_command
+from changes.commands import stage as stage_command
+from changes.commands import status as status_command
+
+from . import __version__
 
 VERSION = 'changes {}'.format(__version__)
 
@@ -46,23 +47,9 @@ def print_version(context, param, value):
     is_flag=True,
     default=False,
 )
-@click.option(
-    '--verbose',
-    help='Enables verbose output.',
-    is_flag=True,
-    default=False,
-)
-@click.version_option(
-    __version__,
-    '-V',
-    '--version',
-    message=VERSION
-)
-@click.group(
-    context_settings=dict(
-        help_option_names=[u'-h', u'--help']
-    ),
-)
+@click.option('--verbose', help='Enables verbose output.', is_flag=True, default=False)
+@click.version_option(__version__, '-V', '--version', message=VERSION)
+@click.group(context_settings=dict(help_option_names=[u'-h', u'--help']))
 def main(dry_run, verbose):
     """Ch-ch-changes"""
 
@@ -83,12 +70,7 @@ main.add_command(status)
 
 
 @click.command()
-@click.option(
-    '--draft',
-    help='Enables verbose output.',
-    is_flag=True,
-    default=False,
-)
+@click.option('--draft', help='Enables verbose output.', is_flag=True, default=False)
 @click.option(
     '--discard',
     help='Discards the changes made to release files',

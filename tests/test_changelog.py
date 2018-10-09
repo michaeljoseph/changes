@@ -1,13 +1,12 @@
 import pytest
+
 from changes import changelog
+
 from . import context
 
 
 def test_write_new_changelog(python_module):
-    content = [
-        'This is the heading\n\n',
-        'This is the first line\n',
-    ]
+    content = ['This is the heading\n\n', 'This is the first line\n']
 
     with open(context.tmp_file, 'w') as existing_file:
         existing_file.writelines(content)
@@ -23,16 +22,15 @@ def test_write_new_changelog(python_module):
         'https://github.com/someuser/test_app',
         context.tmp_file,
         'Now this is',
-        dry_run=False
+        dry_run=False,
     )
     expected_content = [
         '# [Changelog](https://github.com/someuser/test_app/releases)\n',
         'Now this is\n',
-        'This is the first line\n'
+        'This is the first line\n',
     ]
 
-    assert ''.join(expected_content) == ''.join(
-        open(context.tmp_file).readlines())
+    assert ''.join(expected_content) == ''.join(open(context.tmp_file).readlines())
 
 
 def test_replace_sha_with_commit_link():
@@ -41,8 +39,7 @@ def test_replace_sha_with_commit_link():
     expected_content = [
         '[dde9538](http://github.com/michaeljoseph/changes/commit/dde9538) Coverage for all python version runs'
     ]
-    assert expected_content == changelog.replace_sha_with_commit_link(
-        repo_url, log)
+    assert expected_content == changelog.replace_sha_with_commit_link(repo_url, log)
 
 
 @pytest.mark.skip('Towncrier')

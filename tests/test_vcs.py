@@ -1,7 +1,6 @@
 import json
 
 import pytest
-from mock import call
 import responses
 from click.testing import CliRunner
 from changes import packaging, vcs
@@ -14,8 +13,8 @@ def test_commit_version_change(mocker):
         dry_run = mocker.patch('changes.shell.dry_run')
         vcs.commit_version_change(context)
         dry_run.assert_has_calls([
-            call('git commit --message="0.0.2" test_app/__init__.py CHANGELOG.md', True),
-            call('git push', True)
+            mocker.call('git commit --message="0.0.2" test_app/__init__.py CHANGELOG.md', True),
+            mocker.call('git push', True)
         ])
 
 
@@ -27,8 +26,8 @@ def test_tag_and_push(mocker):
 
         vcs.tag_and_push(context)
         dry_run.assert_has_calls([
-            call('git tag --annotate 0.0.2 --message="0.0.2"', True),
-            call('git push --tags', True)
+            mocker.call('git tag --annotate 0.0.2 --message="0.0.2"', True),
+            mocker.call('git push --tags', True)
         ])
 
 
@@ -85,7 +84,5 @@ def test_signed_tag(mocker):
     vcs.tag_and_push(context)
     dry_run.assert_has_calls([
         'git tag --sign 0.0.2 --message="0.0.2"',
-        # call('git tag --sign 0.0.2 --message="0.0.2"', True),
         'git push --tags',
-        # call('git push --tags', True)
     ])

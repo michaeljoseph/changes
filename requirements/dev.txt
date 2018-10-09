@@ -1,9 +1,11 @@
 -r runtime.txt
 
 autopep8
+black
 codecov
 flake8
 haikunator
+isort
 pycodestyle<2.4.0
 pytest
 pytest-cov

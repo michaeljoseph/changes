@@ -15,6 +15,10 @@ test:venv ## Run tests
 	@echo "+ $@"
 	$(VENV)/tox -e py37
 
+style:venv ## Style source
+	@echo "+ $@"
+	$(VENV)/tox -e style
+
 lint:venv ## Lint source
 	@echo "+ $@"
 	$(VENV)/tox -e lint

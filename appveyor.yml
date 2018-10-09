@@ -19,6 +19,4 @@ test_script:
   - "%PYTHON%/Scripts/tox"
 
 after_test:
-  - "%PYTHON%/Scripts/coverage combine"
-  - "%PYTHON%/Scripts/codecov"
-  - "%PYTHON%/Scripts/ocular"
+  - "%PYTHON%/Scripts/tox -e coverage"

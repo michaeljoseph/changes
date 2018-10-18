@@ -9,7 +9,7 @@ pytest==3.4.1
 pytest-cov==2.5.1
 pytest-mock==1.7.0
 pytest-watch==4.1.0
-responses==0.8.1
+responses==0.10.0
 scrutinizer-ocular==1.0.3
 sphinx-bootstrap-theme==0.6.4
 sphinxcontrib-httpdomain==1.6.0

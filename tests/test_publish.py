@@ -10,14 +10,8 @@ from plumbum.cmd import git
 import changes
 from changes.commands import publish, stage
 
-from .conftest import (
-    BUG_LABEL_JSON,
-    ISSUE_URL,
-    LABEL_URL,
-    PULL_REQUEST_JSON,
-    RELEASES_URL,
-    github_merge_commit,
-)
+from .conftest import (BUG_LABEL_JSON, ISSUE_URL, LABEL_URL, PULL_REQUEST_JSON,
+                       RELEASES_URL, github_merge_commit)
 
 
 @pytest.fixture

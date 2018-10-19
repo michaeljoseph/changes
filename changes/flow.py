@@ -4,18 +4,10 @@ import click
 
 from changes.changelog import generate_changelog
 from changes.config import project_config, store_settings
-from changes.packaging import (
-    build_distributions,
-    install_from_pypi,
-    install_package,
-    upload_package,
-)
-from changes.vcs import (
-    commit_version_change,
-    create_github_release,
-    tag_and_push,
-    upload_release_distributions,
-)
+from changes.packaging import (build_distributions, install_from_pypi,
+                               install_package, upload_package)
+from changes.vcs import (commit_version_change, create_github_release,
+                         tag_and_push, upload_release_distributions)
 from changes.verification import run_tests
 from changes.version import increment_version
 

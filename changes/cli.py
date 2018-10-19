@@ -5,9 +5,11 @@ import click
 import requests_cache
 
 import changes
-from changes.commands import publish as publish_command
-from changes.commands import stage as stage_command
-from changes.commands import status as status_command
+from changes.commands import (
+    publish as publish_command,
+    stage as stage_command,
+    status as status_command,
+)
 
 from . import __version__
 

@@ -5,8 +5,13 @@ import responses
 import changes
 from changes.commands import status
 
-from .conftest import (BUG_LABEL_JSON, ISSUE_URL, LABEL_URL, PULL_REQUEST_JSON,
-                       github_merge_commit)
+from .conftest import (
+    BUG_LABEL_JSON,
+    ISSUE_URL,
+    LABEL_URL,
+    PULL_REQUEST_JSON,
+    github_merge_commit,
+)
 
 
 @responses.activate

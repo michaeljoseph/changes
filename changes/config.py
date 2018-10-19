@@ -24,7 +24,6 @@ DEFAULT_CONFIG_FILE = str(
         else expandvars(r'%APPDATA%\\.changes'),
     )
 )
-
 PROJECT_CONFIG_FILE = '.changes.toml'
 DEFAULT_RELEASES_DIRECTORY = 'docs/releases'
 

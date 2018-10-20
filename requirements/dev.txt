@@ -1,7 +1,7 @@
 -r runtime.txt
 
 autopep8
-black
+black==18.9b0
 codecov
 flake8
 haikunator

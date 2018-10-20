@@ -1,7 +1,7 @@
-import mock
 import pytest
 
 from changes import version
+
 from .conftest import PYTHON_MODULE
 
 
@@ -20,12 +20,9 @@ def test_current_version(python_module):
 
 
 @pytest.mark.skip('bumpversion')
-def test_get_new_version():
-    with mock.patch('builtins.input') as mock_raw_input:
+def test_get_new_version(mocker):
+    with mocker.patch('builtins.input') as mock_raw_input:
         mock_raw_input.return_value = None
         assert '0.1.0' == version.get_new_version(
-            PYTHON_MODULE,
-            '0.0.1',
-            True,
-            minor=True,
+            PYTHON_MODULE, '0.0.1', True, minor=True
         )

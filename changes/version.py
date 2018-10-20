@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 
@@ -15,14 +14,12 @@ def current_version(module_name):
     return attributes.extract_attribute(module_name, '__version__')
 
 
-def get_new_version(module_name, current_version, no_input,
-                    major=False, minor=False, patch=False):
+def get_new_version(
+    module_name, current_version, no_input, major=False, minor=False, patch=False
+):
 
     proposed_new_version = increment(
-        current_version,
-        major=major,
-        minor=minor,
-        patch=patch
+        current_version, major=major, minor=minor, patch=patch
     )
 
     if no_input:
@@ -30,7 +27,7 @@ def get_new_version(module_name, current_version, no_input,
     else:
         new_version = click.prompt(
             'What is the release version for "{0}" '.format(module_name),
-            default=proposed_new_version
+            default=proposed_new_version,
         )
     return new_version.strip()
 
@@ -63,9 +60,8 @@ def increment_version(context):
     """Increments the __version__ attribute of your module's __init__."""
 
     attributes.replace_attribute(
-        context.module_name,
-        '__version__',
-        context.new_version,
-        dry_run=context.dry_run)
-    log.info('Bumped version from %s to %s' %
-             (context.current_version, context.new_version))
+        context.module_name, '__version__', context.new_version, dry_run=context.dry_run
+    )
+    log.info(
+        'Bumped version from %s to %s' % (context.current_version, context.new_version)
+    )

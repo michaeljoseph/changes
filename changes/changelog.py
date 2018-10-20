@@ -1,5 +1,5 @@
-import logging
 import io
+import logging
 import re
 
 from plumbum.cmd import git
@@ -38,10 +38,7 @@ def replace_sha_with_commit_link(repo_url, git_log_content):
         if sha1_re:
             sha1 = sha1_re.group()
 
-            new_line = line.replace(
-                sha1,
-                '[%s](%s/commit/%s)' % (sha1, repo_url, sha1)
-            )
+            new_line = line.replace(sha1, '[%s](%s/commit/%s)' % (sha1, repo_url, sha1))
             log.debug('old line: %s\nnew line: %s', line, new_line)
             git_log_content[index] = new_line
 
@@ -52,9 +49,12 @@ def generate_changelog(context):
     """Generates an automatic changelog from your commit messages."""
 
     changelog_content = [
-        '\n## [%s](%s/compare/%s...%s)\n\n' % (
-            context.new_version, context.repo_url,
-            context.current_version, context.new_version,
+        '\n## [%s](%s/compare/%s...%s)\n\n'
+        % (
+            context.new_version,
+            context.repo_url,
+            context.current_version,
+            context.new_version,
         )
     ]
 
@@ -68,21 +68,16 @@ def generate_changelog(context):
         log.warn('Error diffing previous version, initial release')
         git_log_content = git(git_log)
 
-    git_log_content = replace_sha_with_commit_link(
-        context.repo_url, git_log_content)
+    git_log_content = replace_sha_with_commit_link(context.repo_url, git_log_content)
     # turn change log entries into markdown bullet points
     if git_log_content:
         [
-            changelog_content.append('* %s\n' % line)
-            if line else line
+            changelog_content.append('* %s\n' % line) if line else line
             for line in git_log_content[:-1]
         ]
 
     write_new_changelog(
-        context.repo_url,
-        'CHANGELOG.md',
-        changelog_content,
-        dry_run=context.dry_run
+        context.repo_url, 'CHANGELOG.md', changelog_content, dry_run=context.dry_run
     )
     log.info('Added content to CHANGELOG.md')
     context.changelog_content = changelog_content

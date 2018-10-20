@@ -3,7 +3,7 @@ import os
 import pytest
 from click.testing import CliRunner
 
-from changes import probe, exceptions
+from changes import exceptions, probe
 
 
 def test_probe_project(python_module):

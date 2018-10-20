@@ -1,6 +1,6 @@
-from changes import packaging
-
 from click.testing import CliRunner
+
+from changes import packaging
 
 from . import context
 

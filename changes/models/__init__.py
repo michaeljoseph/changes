@@ -30,15 +30,13 @@ class Release(object):
     @property
     def title(self):
         return '{version} ({release_date})'.format(
-            version=self.version,
-            release_date=self.release_date
+            version=self.version, release_date=self.release_date
         ) + ((' ' + self.name) if self.name else '')
 
     @property
     def release_note_filename(self):
         return '{version}-{release_date}'.format(
-            version=self.version,
-            release_date=self.release_date
+            version=self.version, release_date=self.release_date
         ) + (('-' + self.name) if self.name else '')
 
     @classmethod
@@ -58,14 +56,13 @@ class Release(object):
 @attr.s
 class BumpVersion(object):
     DRAFT_OPTIONS = [
-        '--dry-run', '--verbose',
-        '--no-commit', '--no-tag',
+        '--dry-run',
+        '--verbose',
+        '--no-commit',
+        '--no-tag',
         '--allow-dirty',
     ]
-    STAGE_OPTIONS = [
-        '--verbose', '--allow-dirty',
-        '--no-commit', '--no-tag',
-    ]
+    STAGE_OPTIONS = ['--verbose', '--allow-dirty', '--no-commit', '--no-tag']
 
     current_version = attr.ib()
     version_files_to_replace = attr.ib(default=attr.Factory(list))
@@ -85,16 +82,12 @@ class BumpVersion(object):
                     'Enter a path to a file that contains a version number '
                     "(enter a path of '.' when you're done selecting files)",
                     type=click.Path(
-                        exists=True,
-                        dir_okay=True,
-                        file_okay=True,
-                        readable=True
-                    )
+                        exists=True, dir_okay=True, file_okay=True, readable=True
+                    ),
                 )
 
                 if version_file_path_answer != input_terminator:
-                    user_supplied_versioned_file_paths.append(
-                        version_file_path_answer)
+                    user_supplied_versioned_file_paths.append(version_file_path_answer)
 
             bumpversion = cls(
                 current_version=latest_version,
@@ -114,8 +107,9 @@ class BumpVersion(object):
         filenames = []
         for section_name in config.sections():
 
-            section_name_match = re.compile(
-                "^bumpversion:(file|part):(.+)").match(section_name)
+            section_name_match = re.compile("^bumpversion:(file|part):(.+)").match(
+                section_name
+            )
 
             if not section_name_match:
                 continue
@@ -125,10 +119,7 @@ class BumpVersion(object):
             if section_prefix == "file":
                 filenames.append(section_value)
 
-        return cls(
-            current_version=current_version,
-            version_files_to_replace=filenames,
-        )
+        return cls(current_version=current_version, version_files_to_replace=filenames)
 
     def write_to_file(self, config_path: Path):
         bumpversion_cfg = textwrap.dedent(
@@ -139,11 +130,11 @@ class BumpVersion(object):
             """
         ).format(**attr.asdict(self))
 
-        bumpversion_files = '\n\n'.join([
-            '[bumpversion:file:{}]'.format(file_name)
-            for file_name in self.version_files_to_replace
-        ])
-
-        config_path.write_text(
-            bumpversion_cfg + bumpversion_files
+        bumpversion_files = '\n\n'.join(
+            [
+                '[bumpversion:file:{}]'.format(file_name)
+                for file_name in self.version_files_to_replace
+            ]
         )
+
+        config_path.write_text(bumpversion_cfg + bumpversion_files)

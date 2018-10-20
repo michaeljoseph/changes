@@ -6,31 +6,18 @@ import pytest
 import responses
 
 import changes
-from .conftest import AUTH_TOKEN_ENVVAR, LABEL_URL, BUG_LABEL_JSON
+
+from .conftest import AUTH_TOKEN_ENVVAR, BUG_LABEL_JSON, LABEL_URL
 
 
 @pytest.fixture
 def answer_prompts(mocker):
-    mocker.patch(
-        'changes.config.click.launch',
-        autospec=True,
-    )
+    mocker.patch('changes.config.click.launch', autospec=True)
 
-    prompt = mocker.patch(
-        'changes.config.click.prompt',
-        autospec=True,
-    )
-    prompt.side_effect = [
-        'foo',
-        'docs/releases',
-        'version.txt',
-        '.'
-    ]
+    prompt = mocker.patch('changes.config.click.prompt', autospec=True)
+    prompt.side_effect = ['foo', 'docs/releases', 'version.txt', '.']
 
-    prompt = mocker.patch(
-        'changes.config.prompt.choose_labels',
-        autospec=True
-    )
+    prompt = mocker.patch('changes.config.prompt.choose_labels', autospec=True)
     prompt.return_value = ['bug']
 
     saved_token = None
@@ -46,17 +33,14 @@ def answer_prompts(mocker):
 
 @responses.activate
 def test_init_prompts_for_auth_token_and_writes_tool_config(
-    capsys,
-    git_repo,
-    changes_config_in_tmpdir,
-    answer_prompts,
+    capsys, git_repo, changes_config_in_tmpdir, answer_prompts
 ):
     responses.add(
         responses.GET,
         LABEL_URL,
         json=BUG_LABEL_JSON,
         status=200,
-        content_type='application/json'
+        content_type='application/json',
     )
 
     changes.initialise()
@@ -96,7 +80,7 @@ def test_init_finds_auth_token_in_environment(
         LABEL_URL,
         json=BUG_LABEL_JSON,
         status=200,
-        content_type='application/json'
+        content_type='application/json',
     )
 
     changes.initialise()

@@ -1,7 +1,6 @@
 import logging
-
-from shutil import rmtree
 from pathlib import Path
+from shutil import rmtree
 
 from changes import shell, util, venv, verification
 
@@ -35,11 +34,13 @@ def install_package(context):
                     venv.install(distribution, tmp_dir)
                     log.info('Successfully installed %s', distribution)
                     if context.test_command and verification.run_test_command(context):
-                        log.info('Successfully ran test command: %s',
-                                 context.test_command)
+                        log.info(
+                            'Successfully ran test command: %s', context.test_command
+                        )
                 except Exception as e:
                     raise Exception(
-                        'Error installing distribution %s' % distribution, e)
+                        'Error installing distribution %s' % distribution, e
+                    )
     else:
         log.info('Dry run, skipping installation')
 
@@ -58,8 +59,9 @@ def upload_package(context):
         if not context.dry_run and not upload_result:
             raise Exception('Error uploading: %s' % upload_result)
         else:
-            log.info('Successfully uploaded %s:%s',
-                     context.module_name, context.new_version)
+            log.info(
+                'Successfully uploaded %s:%s', context.module_name, context.new_version
+            )
     else:
         log.info('Dry run, skipping package upload')
 
@@ -78,14 +80,15 @@ def install_from_pypi(context):
     try:
         result = shell.dry_run(install_cmd, context.dry_run)
         if not context.dry_run and not result:
-            log.error('Failed to install %s from %s',
-                      context.module_name, package_index)
+            log.error(
+                'Failed to install %s from %s', context.module_name, package_index
+            )
         else:
-            log.info('Successfully installed %s from %s',
-                     context.module_name, package_index)
+            log.info(
+                'Successfully installed %s from %s', context.module_name, package_index
+            )
 
     except Exception as e:
-        error_msg = 'Error installing %s from %s' % (
-            context.module_name, package_index)
+        error_msg = 'Error installing %s from %s' % (context.module_name, package_index)
         log.exception(error_msg)
         raise Exception(error_msg, e)

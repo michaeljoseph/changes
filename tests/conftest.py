@@ -4,12 +4,11 @@ import textwrap
 from pathlib import Path
 
 import pytest
-
-from changes import compat
 from click.testing import CliRunner
 from plumbum.cmd import git
 
 import changes
+from changes import compat
 
 pytest_plugins = 'pytester'
 
@@ -20,17 +19,10 @@ INIT_CONTENT = [
     "__version__ = '0.0.1'",
     "__url__ = 'https://github.com/someuser/test_app'",
     "__author__ = 'Some User'",
-    "__email__ = 'someuser@gmail.com'"
+    "__email__ = 'someuser@gmail.com'",
 ]
-SETUP_PY = [
-    'from setuptools import setup',
-    "setup(name='test_app'",
-]
-README_MARKDOWN = [
-    '# Test App',
-    '',
-    'This is the test application.'
-]
+SETUP_PY = ['from setuptools import setup', "setup(name='test_app'"]
+README_MARKDOWN = ['# Test App', '', 'This is the test application.']
 
 PYTHON_MODULE = 'test_app'
 
@@ -54,7 +46,7 @@ BUG_LABEL_JSON = [
         'url': 'https://api.github.com/repos/michaeljoseph/changes/labels/bug',
         'name': 'bug',
         'color': 'fc2929',
-        'default': True
+        'default': True,
     }
 ]
 
@@ -63,13 +55,9 @@ PULL_REQUEST_JSON = {
     'number': 111,
     'title': 'The title of the pull request',
     'body': 'An optional, longer description.',
-    'user': {
-        'login': 'michaeljoseph'
-    },
-    'labels': [
-        {'id': 1, 'name': 'bug'}
-    ],
-    'url': 'https://api.github.com/repos/michaeljoseph/test_app/issues/111'
+    'user': {'login': 'michaeljoseph'},
+    'labels': [{'id': 1, 'name': 'bug'}],
+    'url': 'https://api.github.com/repos/michaeljoseph/test_app/issues/111',
 }
 
 LABEL_URL = 'https://api.github.com/repos/michaeljoseph/test_app/labels'
@@ -79,7 +67,7 @@ BUG_LABEL_JSON = [
         'url': 'https://api.github.com/repos/michaeljoseph/test_app/labels/bug',
         'name': 'bug',
         'color': 'fc2929',
-        'default': True
+        'default': True,
     }
 ]
 
@@ -90,17 +78,23 @@ RELEASES_URL = 'https://api.github.com/repos/michaeljoseph/test_app/releases'
 def git_repo(tmpdir):
     with CliRunner().isolated_filesystem() as repo_dir:
         for file_path, content in FILE_CONTENT.items():
-            open(file_path, 'w').write(
-                '\n'.join(content)
-            )
+            open(file_path, 'w').write('\n'.join(content))
 
         git('init')
         git(shlex.split('config --local user.email "you@example.com"'))
-        git(shlex.split('remote add origin https://github.com/michaeljoseph/test_app.git'))
+        git(
+            shlex.split(
+                'remote add origin https://github.com/michaeljoseph/test_app.git'
+            )
+        )
 
         tmp_push_repo = Path(str(tmpdir))
         git('init', '--bare', str(tmp_push_repo))
-        git(shlex.split('remote set-url --push origin {}'.format(tmp_push_repo.as_uri())))
+        git(
+            shlex.split(
+                'remote set-url --push origin {}'.format(tmp_push_repo.as_uri())
+            )
+        )
 
         git('add', [file for file in FILE_CONTENT.keys()])
 
@@ -115,9 +109,7 @@ def python_module(git_repo):
     os.mkdir(PYTHON_MODULE)
 
     for file_path, content in PYTHON_PROJECT_CONTENT.items():
-        open(file_path, 'w').write(
-            '\n'.join(content)
-        )
+        open(file_path, 'w').write('\n'.join(content))
 
     git('add', [file for file in PYTHON_PROJECT_CONTENT.keys()])
     git('commit', '-m', 'Python project initialisation')
@@ -134,12 +126,10 @@ def github_merge_commit(pull_request_number):
         'commit --allow-empty -m "Test branch commit message"',
         'checkout master',
         'merge --no-ff {}'.format(branch_name),
-
         'commit --allow-empty --amend -m '
         '"Merge pull request #{} from test_app/{}"'.format(
-            pull_request_number,
-            branch_name,
-        )
+            pull_request_number, branch_name
+        ),
     ]
     for command in commands:
         git(shlex.split(command))
@@ -148,10 +138,7 @@ def github_merge_commit(pull_request_number):
 # prompts_for_tool_configuration
 @pytest.fixture
 def with_releases_directory_and_bumpversion_file_prompt(mocker):
-    prompt = mocker.patch(
-        'changes.config.click.prompt',
-        autospec=True
-    )
+    prompt = mocker.patch('changes.config.click.prompt', autospec=True)
     prompt.side_effect = [
         # release_directory
         'docs/releases',
@@ -164,10 +151,7 @@ def with_releases_directory_and_bumpversion_file_prompt(mocker):
         # 'Bug Fixes'
     ]
 
-    prompt = mocker.patch(
-        'changes.config.prompt.choose_labels',
-        autospec=True
-    )
+    prompt = mocker.patch('changes.config.prompt.choose_labels', autospec=True)
     prompt.return_value = ['bug']
 
 
@@ -211,7 +195,7 @@ def changes_config_in_tmpdir(monkeypatch, tmpdir):
     monkeypatch.setattr(
         changes.config,
         'expandvars' if compat.IS_WINDOWS else 'expanduser',
-        lambda x: str(changes_config_file)
+        lambda x: str(changes_config_file),
     )
     assert not changes_config_file.exists()
     return changes_config_file
@@ -219,15 +203,18 @@ def changes_config_in_tmpdir(monkeypatch, tmpdir):
 
 @pytest.fixture
 def configured(git_repo, changes_config_in_tmpdir):
-    changes_config_in_tmpdir.write_text(textwrap.dedent(
-        """\
+    changes_config_in_tmpdir.write_text(
+        textwrap.dedent(
+            """\
         [changes]
         auth_token = "foo"
         """
-    ))
+        )
+    )
 
-    Path('.changes.toml').write_text(textwrap.dedent(
-        """\
+    Path('.changes.toml').write_text(
+        textwrap.dedent(
+            """\
         [changes]
         releases_directory = "docs/releases"
 
@@ -239,16 +226,19 @@ def configured(git_repo, changes_config_in_tmpdir):
         description = "Bug"
         color = "f29513"
         """
-    ))
+        )
+    )
 
-    Path('.bumpversion.cfg').write_text(textwrap.dedent(
-        """\
+    Path('.bumpversion.cfg').write_text(
+        textwrap.dedent(
+            """\
         [bumpversion]
         current_version = 0.0.1
 
         [bumpversion:file:version.txt]
         """
-    ))
+        )
+    )
 
     for file_to_add in ['.changes.toml', '.bumpversion.cfg']:
         git('add', file_to_add)

@@ -1,6 +1,6 @@
 import contextlib
-from shutil import rmtree
 import tempfile
+from shutil import rmtree
 
 
 def extract(dictionary, keys):
@@ -11,9 +11,7 @@ def extract(dictionary, keys):
     :param keys: list of keys to extract
     :return dict: extracted dictionary
     """
-    return dict(
-        (k, dictionary[k]) for k in keys if k in dictionary
-    )
+    return dict((k, dictionary[k]) for k in keys if k in dictionary)
 
 
 def extract_arguments(arguments, long_keys, key_prefix='--'):
@@ -21,14 +19,10 @@ def extract_arguments(arguments, long_keys, key_prefix='--'):
     :param arguments: dict of command line arguments
 
     """
-    long_arguments = extract(
-        arguments,
-        long_keys,
+    long_arguments = extract(arguments, long_keys)
+    return dict(
+        [(key.replace(key_prefix, ''), value) for key, value in long_arguments.items()]
     )
-    return dict([
-        (key.replace(key_prefix, ''), value)
-        for key, value in long_arguments.items()
-    ])
 
 
 @contextlib.contextmanager

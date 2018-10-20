@@ -26,6 +26,7 @@ pip-log.txt
 .tox
 nosetests.xml
 /.travis-solo
+.pytest*
 
 # Translations
 *.mo
@@ -37,10 +38,11 @@ nosetests.xml
 
 /docs/_build
 .idea
+.vscode
 *.iml
 .noseids
 .ropeproject
 
 # Virtual environments
-env/
+venv/
 .cache

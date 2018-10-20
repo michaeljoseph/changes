@@ -1,8 +1,9 @@
 environment:
   matrix:
-    - PYTHON: "C:\\Python35"
-      TOX_ENV: "py35"
-
+    - PYTHON: "C:\\Python36"
+      TOX_ENV: "py36"
+    - PYTHON: "C:\\Python37"
+      TOX_ENV: "py37"
 
 init:
   - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
@@ -10,13 +11,9 @@ init:
 
 install:
   - "%PYTHON%/Scripts/easy_install -U pip"
-  - "%PYTHON%/Scripts/pip install -r requirements.txt"
+  - "%PYTHON%/Scripts/pip install tox"
 
 build: false
 
 test_script:
-  - "%PYTHON%/Scripts/pytest"
-
-after_test:
-  - "%PYTHON%/Scripts/coverage combine"
-  - "%PYTHON%/Scripts/codecov"
+  - "%PYTHON%/Scripts/tox"

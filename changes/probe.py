@@ -1,5 +1,4 @@
 import logging
-
 from os.path import exists
 
 from plumbum import local
@@ -16,11 +15,15 @@ TOOLS = ['git', 'diff', 'python']
 TEST_RUNNERS = ['pytest', 'nose', 'tox']
 
 README_EXTENSIONS = [
-    '.md', '.rst',
-    '.txt', ''
-    '.wiki', '.rdoc',
-    '.org', '.pod',
-    '.creole', '.textile'
+    '.md',
+    '.rst',
+    '.txt',
+    '' '.wiki',
+    '.rdoc',
+    '.org',
+    '.pod',
+    '.creole',
+    '.textile',
 ]
 
 
@@ -36,9 +39,7 @@ def report_and_raise(probe_name, probe_result, failure_msg):
 def has_setup():
     """`setup.py`"""
     return report_and_raise(
-        'Has a setup.py',
-        exists('setup.py'),
-        'Your project needs a setup.py'
+        'Has a setup.py', exists('setup.py'), 'Your project needs a setup.py'
     )
 
 
@@ -62,9 +63,7 @@ def has_test_runner():
 def has_changelog():
     """CHANGELOG.md"""
     return report_and_raise(
-        'CHANGELOG.md',
-        exists('CHANGELOG.md'),
-        'Create a CHANGELOG.md file'
+        'CHANGELOG.md', exists('CHANGELOG.md'), 'Create a CHANGELOG.md file'
     )
 
 
@@ -73,7 +72,7 @@ def has_readme():
     return report_and_raise(
         'README',
         any([exists('README{}'.format(ext)) for ext in README_EXTENSIONS]),
-        'Create a (valid) README'
+        'Create a (valid) README',
     )
 
 
@@ -81,14 +80,14 @@ def has_metadata(python_module):
     """`<module_name>/__init__.py` with `__version__` and `__url__`"""
     init_path = '{}/__init__.py'.format(python_module)
     has_metadata = (
-        exists(init_path) and
-        attributes.has_attribute(python_module, '__version__') and
-        attributes.has_attribute(python_module, '__url__')
+        exists(init_path)
+        and attributes.has_attribute(python_module, '__version__')
+        and attributes.has_attribute(python_module, '__url__')
     )
     return report_and_raise(
         'Has module metadata',
         has_metadata,
-        'Your %s/__init__.py must contain __version__ and __url__ attributes'
+        'Your %s/__init__.py must contain __version__ and __url__ attributes',
     )
 
 
@@ -103,6 +102,10 @@ def probe_project(python_module):
     """
     log.info('Checking project for changes requirements.')
     return (
-        has_tools() and has_setup() and has_metadata(python_module) and
-        has_test_runner() and has_readme() and has_changelog()
+        has_tools()
+        and has_setup()
+        and has_metadata(python_module)
+        and has_test_runner()
+        and has_readme()
+        and has_changelog()
     )

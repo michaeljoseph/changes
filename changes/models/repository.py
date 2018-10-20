@@ -10,16 +10,11 @@ from plumbum.cmd import git as git_command
 from changes import services
 from changes.compat import IS_WINDOWS
 
-GITHUB_MERGED_PULL_REQUEST = re.compile(
-    r'^([0-9a-f]{5,40}) Merge pull request #(\w+)'
-)
+GITHUB_MERGED_PULL_REQUEST = re.compile(r'^([0-9a-f]{5,40}) Merge pull request #(\w+)')
 
 
 def git(command):
-    command = shlex.split(
-        command,
-        posix=not IS_WINDOWS
-    )
+    command = shlex.split(command, posix=not IS_WINDOWS)
     return git_command[command]()
 
 
@@ -37,9 +32,7 @@ class GitRepository(object):
 
     @property
     def remote_url(self):
-        return git('config --get remote.{}.url'.format(
-            self.REMOTE_NAME
-        ))
+        return git('config --get remote.{}.url'.format(self.REMOTE_NAME))
 
     @property
     def parsed_repo(self):
@@ -69,9 +62,7 @@ class GitRepository(object):
     def commit_history(self):
         return [
             commit_message
-            for commit_message in git_lines(
-                'log --oneline --no-color'
-            )
+            for commit_message in git_lines('log --oneline --no-color')
             if commit_message
         ]
 
@@ -131,10 +122,7 @@ class GitRepository(object):
     @staticmethod
     def commit(message):
         # FIXME: message is one token
-        return git_command[
-            'commit',
-            '--message="{}"'.format(message)
-        ]()
+        return git_command['commit', '--message="{}"'.format(message)]()
 
     @staticmethod
     def discard(file_paths):
@@ -144,9 +132,7 @@ class GitRepository(object):
     def tag(version):
         # TODO: signed tags
         return git(
-            'tag --annotate {version} --message="{version}"'.format(
-                version=version
-            )
+            'tag --annotate {version} --message="{version}"'.format(version=version)
         )
 
     @staticmethod
@@ -210,17 +196,11 @@ class PullRequest(object):
 
     @property
     def label_names(self):
-        return [
-            label['name']
-            for label in self.labels
-        ]
+        return [label['name'] for label in self.labels]
 
     @classmethod
     def from_github(cls, api_response):
-        return cls(**{
-            k.name: api_response[k.name]
-            for k in attr.fields(cls)
-        })
+        return cls(**{k.name: api_response[k.name] for k in attr.fields(cls)})
 
     @classmethod
     def from_number(cls, number):

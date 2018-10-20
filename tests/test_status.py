@@ -4,21 +4,25 @@ import responses
 
 import changes
 from changes.commands import status
-from .conftest import github_merge_commit, ISSUE_URL, LABEL_URL, BUG_LABEL_JSON, PULL_REQUEST_JSON
+
+from .conftest import (
+    BUG_LABEL_JSON,
+    ISSUE_URL,
+    LABEL_URL,
+    PULL_REQUEST_JSON,
+    github_merge_commit,
+)
 
 
 @responses.activate
-def test_status(
-    capsys,
-    configured,
-):
+def test_status(capsys, configured):
 
     responses.add(
         responses.GET,
         LABEL_URL,
         json=BUG_LABEL_JSON,
         status=200,
-        content_type='application/json'
+        content_type='application/json',
     )
 
     changes.initialise()
@@ -41,17 +45,14 @@ def test_status(
 
 
 @responses.activate
-def test_status_with_changes(
-    capsys,
-    configured,
-):
+def test_status_with_changes(capsys, configured):
 
     responses.add(
         responses.GET,
         LABEL_URL,
         json=BUG_LABEL_JSON,
         status=200,
-        content_type='application/json'
+        content_type='application/json',
     )
 
     github_merge_commit(111)
@@ -60,7 +61,7 @@ def test_status_with_changes(
         ISSUE_URL,
         json=PULL_REQUEST_JSON,
         status=200,
-        content_type='application/json'
+        content_type='application/json',
     )
 
     changes.initialise()

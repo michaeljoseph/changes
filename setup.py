@@ -1,5 +1,6 @@
 import io
 import re
+
 from setuptools import setup
 
 init_py = io.open('changes/__init__.py').read()
@@ -15,11 +16,7 @@ setup(
     url=metadata['url'],
     packages=['changes'],
     install_requires=io.open('requirements/runtime.txt').readlines(),
-    entry_points={
-        'console_scripts': [
-            'changes = changes:main',
-        ],
-    },
+    entry_points={'console_scripts': ['changes = changes:main']},
     license=open('LICENSE').read(),
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -27,8 +24,8 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: Implementation :: CPython',
     ],
 )

@@ -5,7 +5,7 @@ black
 codecov
 flake8
 haikunator
-isort
+isort==4.3.4
 pycodestyle<2.4.0
 pytest
 pytest-cov

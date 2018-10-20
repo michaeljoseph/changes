@@ -14,4 +14,4 @@ pytest-watch
 responses
 scrutinizer-ocular
 sphinx-bootstrap-theme
-sphinxcontrib-httpdomain
+sphinxcontrib-httpdomain==1.7.0

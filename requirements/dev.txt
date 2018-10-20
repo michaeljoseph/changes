@@ -4,7 +4,7 @@ autopep8
 black
 codecov
 flake8
-haikunator
+haikunator==2.1.0
 isort
 pycodestyle<2.4.0
 pytest

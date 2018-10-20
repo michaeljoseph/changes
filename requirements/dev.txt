@@ -12,6 +12,6 @@ pytest-cov
 pytest-mock
 pytest-watch
 responses
-scrutinizer-ocular
+scrutinizer-ocular==1.0.3
 sphinx-bootstrap-theme
 sphinxcontrib-httpdomain

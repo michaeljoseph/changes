@@ -6,7 +6,7 @@ codecov
 flake8
 haikunator
 isort
-pycodestyle<2.4.0
+pycodestyle==2.4.0
 pytest
 pytest-cov
 pytest-mock

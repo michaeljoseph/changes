@@ -1,6 +1,6 @@
 -r runtime.txt
 
-autopep8
+autopep8==1.4.1
 black
 codecov
 flake8

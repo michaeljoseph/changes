@@ -8,7 +8,7 @@ haikunator
 isort
 pycodestyle<2.4.0
 pytest
-pytest-cov
+pytest-cov==2.6.0
 pytest-mock
 pytest-watch
 responses

@@ -10,7 +10,7 @@ pycodestyle<2.4.0
 pytest
 pytest-cov
 pytest-mock
-pytest-watch
+pytest-watch==4.2.0
 responses
 scrutinizer-ocular
 sphinx-bootstrap-theme

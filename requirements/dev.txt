@@ -2,7 +2,7 @@
 
 autopep8
 black
-codecov
+codecov==2.0.15
 flake8
 haikunator
 isort

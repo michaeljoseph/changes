@@ -17,6 +17,3 @@ build: false
 
 test_script:
   - "%PYTHON%/Scripts/tox"
-
-after_test:
-  - "%PYTHON%/Scripts/tox -e coverage"

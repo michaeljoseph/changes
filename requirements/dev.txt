@@ -9,7 +9,7 @@ isort
 pycodestyle<2.4.0
 pytest
 pytest-cov
-pytest-mock
+pytest-mock==1.10.0
 pytest-watch
 responses
 scrutinizer-ocular

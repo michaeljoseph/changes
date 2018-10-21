@@ -3,10 +3,7 @@ jobs:
   build:
     working_directory: ~/changes
     docker:
-      - image: circleci/python:3.6.4
+      - image: themattrix/tox
     steps:
-    - checkout  # checkout source code to working directory
-    - run:
-        command: |
-          sudo pip install tox
-          tox
+    - checkout
+    - run: tox

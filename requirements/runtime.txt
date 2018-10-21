@@ -12,7 +12,7 @@ invoke==0.22.1
 bumpversion==0.5.3
 towncrier==17.8.0
 devpi==2.2.0
-tox==2.9.1
+tox==3.5.2
 uritemplate==3.0.0
 requests==2.20.0
 requests-cache==0.4.13

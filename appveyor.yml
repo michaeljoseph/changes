@@ -1,19 +1,12 @@
 environment:
   matrix:
-    - PYTHON: "C:\\Python36"
-      TOX_ENV: "py36"
-    - PYTHON: "C:\\Python37"
-      TOX_ENV: "py37"
-
-init:
-  - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
-  - "git config --system http.sslcainfo \"C:\\Program Files\\Git\\mingw64\\ssl\\certs\\ca-bundle.crt\""
+    - TOX_ENV: "py36"
+    - TOX_ENV: "py37"
 
 install:
-  - "%PYTHON%/Scripts/easy_install -U pip"
-  - "%PYTHON%/Scripts/pip install tox"
+  - C:\Python36\python -m pip install tox
 
 build: false
 
 test_script:
-  - "%PYTHON%/Scripts/tox"
+  - C:\Python36\Scripts\tox -e %TOX_ENV%

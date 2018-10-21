@@ -1,0 +1,10 @@
+schedule: "every week"
+
+label_prs: hygiene
+
+requirements:
+  - requirements/runtime.txt:
+      update: insecure
+  - requirements/dev.txt:
+      update: all
+      pin: False

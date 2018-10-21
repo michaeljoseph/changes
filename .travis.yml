@@ -9,6 +9,8 @@ matrix:
             dist: xenial
         -   env: TOXENV=lint
             python: 3.6
+        -   env: TOXENV=safety
+            python: 3.6
 
 install: pip install tox-travis
 script: tox

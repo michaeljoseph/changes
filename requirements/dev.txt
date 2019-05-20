@@ -13,5 +13,5 @@ pytest-mock
 pytest-watch
 responses
 scrutinizer-ocular
-sphinx-bootstrap-theme==0.6.5
+sphinx-bootstrap-theme==0.7.1
 sphinxcontrib-httpdomain

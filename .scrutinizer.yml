@@ -108,4 +108,4 @@ filter:
 
 tools:
     external_code_coverage:
-        runs: 3 
+        runs: 3

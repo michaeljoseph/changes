@@ -1,0 +1,63 @@
+[tool.poetry]
+name = "changes"
+version = "0.7.0"
+description = "changes manages software project releases"
+authors = ["Michael Joseph <michaeljoseph+github@gmail.com>"]
+repository = "https://github.com/michaeljoseph/changes"
+homepage = "https://changes.readthedocs.io/en/latest/"
+license = "MIT"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+]
+packages = [
+  { include = "changes" }
+]
+include = [
+    "README.md",
+    "LICENSE",
+    "tests/**/*",
+    "docs/**/*",
+    "CHANGELOG.md",
+]
+
+[tool.poetry.scripts]
+changes = "changes.main"
+
+[tool.poetry.dependencies]
+python = "^3.6"
+click = "^7.0"
+plumbum = "^1.6"
+requests = "^2.22"
+"giturlparse.py" = "^0.0.5"
+semantic_version = "^2.6"
+uritemplate = "^3.0"
+bumpversion = "^0.5.3"
+attrs = "^19.1"
+requests-cache = "^0.5.0"
+inflection = "^0.3.1"
+cached-property = "^1.5"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.0"
+pytest-cov = "^2.7"
+pytest-mock = "^1.10"
+pytest-watch = "^4.2"
+responses = "^0.10.6"
+haikunator = "^2.1"
+pre-commit = "^1.18"
+sphinxcontrib-httpdomain = "^1.7"
+sphinx-bootstrap-theme = "^0.7.1"
+
+[tool.black]
+line-length = 88
+skip-string-normalization = "True"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

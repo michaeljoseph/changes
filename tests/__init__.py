@@ -1,6 +1,5 @@
 from changes.config import Config
 
-
 module_name = 'test_app'
 context = Config(
     module_name,

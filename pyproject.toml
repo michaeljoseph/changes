@@ -53,6 +53,8 @@ haikunator = "^2.1"
 pre-commit = "^1.18"
 sphinxcontrib-httpdomain = "^1.7"
 sphinx-bootstrap-theme = "^0.7.1"
+mkdocs = "^1.0"
+pdoc3 = "^0.6.3"
 
 [tool.black]
 line-length = 88

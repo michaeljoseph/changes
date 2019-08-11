@@ -41,7 +41,6 @@ bumpversion = "^0.5.3"
 attrs = "^19.1"
 requests-cache = "^0.5.0"
 inflection = "^0.3.1"
-cached-property = "^1.5"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.0"

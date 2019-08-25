@@ -1,1 +1,6 @@
-site_name: changes
+site_name: ♻️changes
+markdown_extensions:
+    - markdown_include.include:
+        base_path: docs
+    - pymdownx.emoji:
+        emoji_generator: !!python/name:pymdownx.emoji.to_png

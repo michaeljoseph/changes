@@ -52,6 +52,8 @@ haikunator = "^2.1"
 pre-commit = "^1.18"
 mkdocs = "^1.0"
 pdoc3 = "^0.6.3"
+pymdown-extensions = "^6.0"
+markdown_include = "^0.5.1"
 
 [tool.black]
 line-length = 88

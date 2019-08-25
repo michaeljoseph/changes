@@ -54,6 +54,8 @@ mkdocs = "^1.0"
 pdoc3 = "^0.6.3"
 pymdown-extensions = "^6.0"
 markdown_include = "^0.5.1"
+pytest-html = "^1.22"
+pytest-md = "^0.2.0"
 
 [tool.black]
 line-length = 88

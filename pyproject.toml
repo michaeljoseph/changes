@@ -2,6 +2,7 @@
 name = "changes"
 version = "0.7.0"
 description = "changes manages software project releases"
+readme = "README.md"
 authors = ["Michael Joseph <michaeljoseph+github@gmail.com>"]
 repository = "https://github.com/michaeljoseph/changes"
 homepage = "https://changes.readthedocs.io/en/latest/"
@@ -20,14 +21,15 @@ packages = [
 ]
 include = [
     "README.md",
+    "CHANGELOG.md",
     "LICENSE",
     "tests/**/*",
     "docs/**/*",
-    "CHANGELOG.md",
+    "site/**/*"
 ]
 
 [tool.poetry.scripts]
-changes = "changes.main"
+changes = "changes.cli:main"
 
 [tool.poetry.dependencies]
 python = "^3.6"
@@ -53,6 +55,7 @@ pre-commit = "^1.18"
 mkdocs = "^1.0"
 pdoc3 = "^0.6.3"
 pymdown-extensions = "^6.0"
+mkdocs-material = "^4.4"
 markdown_include = "^0.5.1"
 pytest-html = "^1.22"
 pytest-md = "^0.2.0"

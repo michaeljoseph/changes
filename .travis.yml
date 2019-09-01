@@ -1,19 +1,16 @@
 dist: bionic
 language: python
-matrix:
-  include:
-    - env: TOXENV=py36
-      python: 3.6
-    - env: TOXENV=py37
-      python: 3.7
-    - env: TOXENV=lint
-      python: 3.7
-    - env: TOXENV=docs
-      python: 3.7
+python:
+  - "3.6"      # current default Python on Travis CI
+  - "3.7"
+  - "3.7-dev"  # 3.7 development branch
+  - "3.8-dev"  # 3.8 development branch
+  - "nightly"  # nightly build
 install: pip install tox
-script: tox
+script:
+    - tox
 after_success:
-  - tox -e coverage,safety
+  - tox -e report-coverage
 notifications:
   webhooks:
     urls:

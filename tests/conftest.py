@@ -82,6 +82,7 @@ def git_repo(tmpdir):
 
         git('init')
         git(shlex.split('config --local user.email "you@example.com"'))
+        git(shlex.split('config --local user.name "Your Name"'))
         git(
             shlex.split(
                 'remote add origin https://github.com/michaeljoseph/test_app.git'

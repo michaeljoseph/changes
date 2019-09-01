@@ -3,7 +3,14 @@ jobs:
   build:
     working_directory: ~/changes
     docker:
-      - image: themattrix/tox
+      - image: circleci/python:3.6.8
     steps:
     - checkout
+    - restore_cache:  # ensure this step occurs *before* installing dependencies
+        key: deps-{{ .Branch }}-{{ checksum "poetry.lock" }}
+    - run: sudo pip install tox
     - run: tox
+    - save_cache:
+        key: deps-{{ .Branch }}-{{ checksum "poetry.lock" }}
+        paths:
+          - ".tox"

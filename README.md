@@ -167,37 +167,27 @@ To git@github.com:michaeljoseph/changes.git
  * [new tag]         0.2.0 -> 0.2.0
 ```
 
-## Documentation
+## Development
 
-[API Documentation]
+Use tox to test and lint in development:
 
-## Testing
+```bash
+$ pip install tox
 
-Install development requirements:
+$ tox -av
+...
+default environments:
+lint            -> pre-commit with black, flake8, isort
+test            -> pytests
+safety          -> security check with safety
+docs            -> mkdocs and pdoc3
+package         -> builds source and wheel distributions
 
-    pip install -r requirements.txt
-
-Then run the tests with:
-
-    py.test
-
-Lint the project with:
-
-    flake8 changes tests
-
-## API documentation
-
-Generate the documentation with:
-
-    (cd docs && make singlehtml)
-
-To monitor changes to Python files and execute flake8 and nosetests
-automatically, execute the following from the root project directory:
-
-    tdaemon -t py
+additional environments:
+report-coverage -> codecov and scrutinizer integration
+```
 
 [GitHub]:https://github.com
 [Semantic Versioning]:http://semver.org
-[API Documentation]:http://changes.rtfd.org
 [`py.test`]:http://pytest.org
 [`tox`]:http://tox.rtfd.org

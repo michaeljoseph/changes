@@ -7,10 +7,12 @@ python:
   - "3.8-dev"  # 3.8 development branch
   - "nightly"  # nightly build
 install: pip install tox
-script:
-    - tox
-after_success:
-  - tox -e report-coverage
+script: tox -e test
+after_success: tox -e report-coverage
+jobs:
+  include:
+    - stage: lint, security check and generate docs and distributions
+      script: tox -e lint,safety,docs,package
 notifications:
   webhooks:
     urls:

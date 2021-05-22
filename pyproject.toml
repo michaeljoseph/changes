@@ -25,7 +25,6 @@ include = [
     "LICENSE",
     "tests/**/*",
     "docs/**/*",
-    "site/**/*"
 ]
 
 [tool.poetry.scripts]
@@ -54,8 +53,8 @@ haikunator = "^2.1"
 pre-commit = "^1.18"
 mkdocs = "^1.0"
 pdoc3 = "^0.6.3"
-pymdown-extensions = "^6.0"
-mkdocs-material = "^4.4"
+pymdown-extensions = "^8.0"
+mkdocs-material = "^7.0"
 markdown_include = "^0.5.1"
 pytest-html = "^1.22"
 pytest-md = "^0.2.0"

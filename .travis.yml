@@ -6,7 +6,7 @@ python:
   - "3.7-dev"  # 3.7 development branch
   - "3.8-dev"  # 3.8 development branch
   - "nightly"  # nightly build
-install: pip install tox
+install: pip install --upgrade tox pip wheel
 script: tox -e test
 after_success: tox -e report-coverage
 jobs:

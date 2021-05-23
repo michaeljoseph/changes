@@ -1,6 +1,41 @@
-site_name: ♻️changes
+site_name: ♻️ changes
+
+theme:
+    name: material
+    features:
+       - navigation.tabs
+       - navigation.instant
+    favicon: images/favicon.ico
+    icon:
+      logo: fontawesome/solid/recycle
+
+nav:
+  - Changes: index.md
+  - Design: design.md
+  - Test Report: tests.md
+
 markdown_extensions:
-    - markdown_include.include:
-        base_path: docs
+    - codehilite:
     - pymdownx.emoji:
-        emoji_generator: !!python/name:pymdownx.emoji.to_png
+        emoji_index: !!python/name:materialx.emoji.twemoji
+        emoji_generator: !!python/name:materialx.emoji.to_svg
+    - pymdownx.details:
+    - pymdownx.highlight:
+        css_class: codehilite
+    - pymdownx.magiclink:
+    - pymdownx.snippets:
+        base_path: docs/_snippets
+        check_paths: true
+    - pymdownx.superfences:
+        custom_fences:
+            - name: mermaid
+              class: mermaid
+              format: !!python/name:pymdownx.superfences.fence_div_format
+    - pymdownx.tabbed:
+    - toc:
+        permalink: link
+
+extra_css:
+  - https://cdnjs.cloudflare.com/ajax/libs/mermaid/7.0.9/mermaid.neutral.css
+extra_javascript:
+  - https://cdnjs.cloudflare.com/ajax/libs/mermaid/7.0.9/mermaid.min.js

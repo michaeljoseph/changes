@@ -39,7 +39,7 @@ Commands:
   status   Shows current project release status.
 ```
 
-## Development
+## 🛠 Development
 
 Use <code>[tox]</code> to `test`, `lint` and generate the `docs`:
 

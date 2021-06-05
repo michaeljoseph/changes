@@ -5,7 +5,7 @@ theme:
     features:
        - navigation.tabs
        - navigation.instant
-    favicon: images/favicon.ico
+    favicon: media/favicon.ico
     icon:
       logo: fontawesome/solid/recycle
 

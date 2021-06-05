@@ -11,7 +11,7 @@
 
 :musical_note: [Ch-ch-changes](http://www.youtube.com/watch?v=pl3vxEudif8) :musical_note:
 
-![changes](https://github.com/michaeljoseph/changes/raw/master/resources/changes.png)
+![changes](media/changes.png)
 
 ## ⚡️ Quickstart
 
@@ -38,6 +38,15 @@ Commands:
   stage    Stages a release
   status   Shows current project release status.
 ```
+
+## 📺 Demo
+
+<details>
+  <summary>Expand</summary>
+  <img
+    src="media/demo.svg"
+    alt="changes demo"/>
+</details>
 
 ## 🛠 Development
 

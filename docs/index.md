@@ -1,6 +1,5 @@
-# ♻️ changes
 
---8<-- "badges.md"
+--8<-- "README.md"
 
 --8<-- "shoulders.md"
 

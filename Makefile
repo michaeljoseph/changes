@@ -26,11 +26,9 @@ lint:venv ## Lint source
 ci:test lint ## Continuous Integration Commands
 
 .PHONY: docs
-docs: ## Generate documentation site
+docs:venv ## Generate documentation site
 	@echo "+ $@"
-	@$(MAKE) -C docs clean
-	@$(MAKE) -C docs singlehtml
-	@echo "> Documentation generated in docs/_build/singlehtml/index.html"
+	$(VENV)/tox -e docs
 
 .PHONY: help
 help:

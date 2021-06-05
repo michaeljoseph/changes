@@ -72,7 +72,7 @@ main.add_command(status)
 
 
 @click.command()
-@click.option('--draft', help='Enables verbose output.', is_flag=True, default=False)
+@click.option('--draft', help='Dry-run mode.', is_flag=True, default=False)
 @click.option(
     '--discard',
     help='Discards the changes made to release files',

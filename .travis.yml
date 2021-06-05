@@ -1,21 +1,17 @@
+dist: bionic
 language: python
-matrix:
-    include:
-        -   env: TOXENV=py36
-            python: 3.6
-        -   env: TOXENV=py37
-            python: 3.7
-            sudo: required
-            dist: xenial
-        -   env: TOXENV=lint
-            python: 3.6
-        -   env: TOXENV=safety
-            python: 3.6
-
-install: pip install tox-travis
-script: tox
-after_success:
-  - tox -e coverage
+python:
+  - "3.7"
+  - "3.8"
+  - "3.9"
+  - "nightly"
+install: pip install --upgrade tox pip wheel
+script: tox -e test
+after_success: tox -e report-coverage
+jobs:
+  include:
+    - stage: lint, security check and generate docs and distributions
+      script: tox -e lint,safety,docs,package
 notifications:
   webhooks:
     urls:

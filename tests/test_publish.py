@@ -94,9 +94,7 @@ def test_publish(capsys, configured, answer_prompts):
     expected_release_notes_content = [
         'The first flight',
         '## Bug',
-        '    ',
         '* #111 The title of the pull request',
-        '    ',
     ]
 
     post = textwrap.dedent(
@@ -128,8 +126,6 @@ def test_publish(capsys, configured, answer_prompts):
         '# 0.0.2 ({}) Icarus'.format(date.today().isoformat()),
         'The first flight',
         '## Bug',
-        '    ',
         '* #111 The title of the pull request',
-        '    ',
     ]
     assert expected_release_notes == release_notes_path.read_text().splitlines()

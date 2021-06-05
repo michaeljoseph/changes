@@ -21,10 +21,10 @@ name = "enhancement"
 color = "84b6eb"
 default = true
 description = "Enhancements"
-[changes.labels.hygiene]
+[changes.labels.chore]
 id = 721722843
-url = "https://api.github.com/repos/michaeljoseph/changes/labels/hygiene"
-name = "hygiene"
+url = "https://api.github.com/repos/michaeljoseph/changes/labels/chore"
+name = "chore"
 color = "5319e7"
 default = false
-description = "Hygienes"
+description = "Chores"

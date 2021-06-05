@@ -59,9 +59,7 @@ def test_stage_draft(capsys, configured):
         '# 0.0.2 ({})'.format(date.today().isoformat()),
         '',
         '## Bug',
-        '    ',
         '* #111 The title of the pull request',
-        '    ',
         '...',
     ]
 
@@ -120,9 +118,7 @@ def test_stage(capsys, configured):
         '# 0.0.2 ({}) Icarus'.format(date.today().isoformat()),
         'The first flight',
         '## Bug',
-        '    ',
         '* #111 The title of the pull request',
-        '    ',
     ]
     assert expected_release_notes == release_notes_path.read_text().splitlines()
 

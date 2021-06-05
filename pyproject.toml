@@ -31,7 +31,7 @@ include = [
 changes = "changes.cli:main"
 
 [tool.poetry.dependencies]
-python = ">=3.7"
+python = ">=3.7,<4.0"
 click = "^7."
 plumbum = "^1.6"
 requests = "^2.22"
@@ -52,13 +52,10 @@ pytest-watch = "^4.2"
 responses = "^0.10.6"
 haikunator = "^2.1"
 pre-commit = "^1.18"
-mkdocs = "^1.0"
-pdoc3 = "^0.6.3"
-pymdown-extensions = "^8.0"
-mkdocs-material = "^7.0"
 markdown_include = "^0.5.1"
 pytest-html = "^1.22"
 pytest-md = "^0.2.0"
+portray = "1.6.0"
 
 [tool.black]
 line-length = 88
@@ -67,3 +64,74 @@ skip-string-normalization = "True"
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
+
+[tool.portray.mkdocs]
+site_name = "♻️ changes"
+nav = [
+  { Changes = "index.md" },
+  { Design = "design.md" },
+  { "Test Report" = "tests.md" }
+]
+markdown_extensions = [
+    "admonition",
+    "codehilite",
+    "extra",
+    "mkdocs-click",
+    "pymdownx.details",
+    "pymdownx.emoji",
+    "pymdownx.magiclink",
+    "pymdownx.tabbed",
+]
+extra_mardown_extensions = [
+
+]
+extra_css = [
+  "https://cdnjs.cloudflare.com/ajax/libs/mermaid/7.0.9/mermaid.neutral.css"
+]
+extra_javascript = [
+  "https://cdnjs.cloudflare.com/ajax/libs/mermaid/7.0.9/mermaid.min.js"
+]
+
+[tool.portray.mkdocs.theme]
+name = "material"
+site_description = "changes manages software project releases"
+features = [ "navigation.tabs", "navigation.instant" ]
+favicon = "media/favicon.ico"
+icon = { logo = "fontawesome/solid/recycle" }
+
+# # FIXME
+# ⠋ Rendering complete website from Markdown using MkDocs{'emoji_index': '!!python/name:pymdownx.emoji.twemoji', 'emoji_generator': '!!python/name:pymdownx.emoji.to_svg', 'title': 'short', 'alt': 'unicode', 'remove_variation_selector': False, 'options': {}}
+# ⠸ Rendering complete website from Markdown using MkDocs[('markdown_extensions', ValidationError('unsupported callable'))]
+
+#   File "/Users/michaeljoseph/Source/changes/.tox/docs/lib/python3.9/site-packages/portray/render.py", line 69, in mkdocs
+#     config_instance = _mkdocs_config(config)
+#   File "/Users/michaeljoseph/Source/changes/.tox/docs/lib/python3.9/site-packages/portray/render.py", line 178, in _mkdocs_config
+#     raise _mkdocs_exceptions.ConfigurationError(
+# mkdocs.exceptions.ConfigurationError: Aborted with 1 Configuration Errors!
+
+# portray/render.py:172
+#     config_instance = mkdocs_config.Config(schema=mkdocs_config.DEFAULT_SCHEMA)
+#     config_instance.load_dict(config)
+#     errors, warnings = config_instance.validate()
+
+# [[tool.portray.mkdocs.extra_markdown_extensions]]
+# [tool.portray.mkdocs.extra_markdown_extensions."pymdownx.emoji"]
+# emoji_index = "!!python/name:pymdownx.emoji.gemoji"
+# emoji_generator = "!!python/name:pymdownx.emoji.to_svg"
+
+[[tool.portray.mkdocs.extra_markdown_extensions]]
+[tool.portray.mkdocs.extra_markdown_extensions."pymdownx.highlight"]
+css_class = "codehilite"
+
+[[tool.portray.mkdocs.extra_markdown_extensions]]
+[tool.portray.mkdocs.extra_markdown_extensions."pymdownx.snippets"]
+base_path = "docs/_snippets"
+check_paths = true
+
+[[tool.portray.mkdocs.extra_markdown_extensions]]
+[tool.portray.mkdocs.extra_markdown_extensions."pymdownx.superfences"]
+custom_fences = [{ name = "mermaid", class = "mermaid", formatter = "!!python/name:pymdownx.superfences.fence_div_format" }]
+
+[[tool.portray.mkdocs.extra_markdown_extensions]]
+[tool.portray.mkdocs.extra_markdown_extensions.toc]
+permalink = true

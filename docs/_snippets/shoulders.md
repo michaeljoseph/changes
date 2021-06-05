@@ -1,5 +1,5 @@
 <!-- TODO: generate from pyproject.toml -->
-## 🌟 Built with 
+## 🌟 Built with
 
 * <code>[tox]</code> - standardize testing in Python
 * <code>[poetry]</code> - Python dependency management and packaging made easy

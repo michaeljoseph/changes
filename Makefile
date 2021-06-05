@@ -2,7 +2,7 @@ VENV = venv/bin
 
 .DEFAULT_GOAL := help
 
-.PHONY: clean venv help 
+.PHONY: clean venv help
 clean: ## Remove Python file artifacts and virtualenv
 	@echo "+ $@"
 	@rm -rf venv

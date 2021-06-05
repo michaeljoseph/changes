@@ -13,8 +13,9 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
 ]
 packages = [
   { include = "changes" }
@@ -31,8 +32,8 @@ include = [
 changes = "changes.cli:main"
 
 [tool.poetry.dependencies]
-python = "^3.6"
-click = "^7.0"
+python = ">=3.7"
+click = "^7."
 plumbum = "^1.6"
 requests = "^2.22"
 "giturlparse.py" = "^0.0.5"
@@ -42,6 +43,8 @@ bumpversion = "^0.5.3"
 attrs = "^19.1"
 requests-cache = "^0.5.0"
 inflection = "^0.3.1"
+mkdocs-click = "^0.4.0"
+pip = "^21.1.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.0"

@@ -2,7 +2,7 @@ VENV = venv/bin
 
 .DEFAULT_GOAL := help
 
-.PHONY: clean
+.PHONY: clean venv help
 clean: ## Remove Python file artifacts and virtualenv
 	@echo "+ $@"
 	@rm -rf venv
@@ -25,11 +25,9 @@ lint:venv ## Lint source
 
 ci:test lint ## Continuous Integration Commands
 
-.PHONY: docs
 docs:venv ## Generate documentation site
 	@echo "+ $@"
 	$(VENV)/tox -e docs
 
-.PHONY: help
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-16s\033[0m %s\n", $$1, $$2}'

@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/changes
     docker:
-      - image: circleci/python:3.6.8
+      - image: circleci/python:3.7.9
     steps:
     - checkout
     - restore_cache:  # ensure this step occurs *before* installing dependencies

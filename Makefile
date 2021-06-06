@@ -22,6 +22,8 @@ docs:venv ## Generate documentation site
 	$(VENV)/tox -qe docs
 
 serve:venv ## Serve documentation site
+	@cp test-reports/test-report.html site/
+	@cp -R test-reports/coverage_html site/coverage
 	$(VENV)/tox -qe docs -- serve
 
 help:

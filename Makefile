@@ -4,7 +4,6 @@ VENV = venv/bin
 
 .PHONY: clean venv help
 clean: ## Remove Python file artifacts and virtualenv
-	@echo "+ $@"
 	@rm -rf venv
 
 venv: ## Creates the virtualenv and installs requirements
@@ -12,22 +11,18 @@ venv: ## Creates the virtualenv and installs requirements
 	$(VENV)/pip install tox
 
 test:venv ## Run tests
-	@echo "+ $@"
-	$(VENV)/tox -e py37
-
-style:venv ## Style source
-	@echo "+ $@"
-	$(VENV)/tox -e style
+	$(VENV)/tox -qe test
 
 lint:venv ## Lint source
-	@echo "+ $@"
-	$(VENV)/tox -e lint
+	$(VENV)/tox -qe lint
 
 ci:test lint ## Continuous Integration Commands
 
 docs:venv ## Generate documentation site
-	@echo "+ $@"
-	$(VENV)/tox -e docs
+	$(VENV)/tox -qe docs
+
+serve:venv ## Serve documentation site
+	$(VENV)/tox -qe docs -- serve
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-16s\033[0m %s\n", $$1, $$2}'

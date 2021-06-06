@@ -49,23 +49,17 @@ Commands:
 
 ## 🛠 Development
 
-Use <code>[tox]</code> to `test`, `lint` and generate the `docs`:
+Use the `Makefile` targets to `test`, `lint` and generate the `docs`:
 
 ```bash
-$ pip install -r requirements.txt
-
-$ tox -av
-...
-default environments:
-lint            -> pre-commit with black, flake8, isort
-test            -> pytests
-safety          -> security check with safety
-docs            -> mkdocs and pdoc3
-package         -> builds source and wheel distributions
-
-additional environments:
-report-coverage -> codecov and scrutinizer integration
+$ make
+ci               Continuous Integration Commands
+clean            Remove Python file artifacts and virtualenv
+docs             Generate documentation site
+lint             Lint source
+serve            Serve documentation site
+test             Run tests
+venv             Creates the virtualenv and installs requirements
 ```
 
 [Ch-ch-changes]: http://www.youtube.com/watch?v=pl3vxEudif8
-[tox]: https://tox.readthedocs.io/en/latest/

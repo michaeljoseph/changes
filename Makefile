@@ -18,8 +18,13 @@ lint:venv ## Lint source
 
 ci:test lint ## Continuous Integration Commands
 
-docs:venv ## Generate documentation site
+docs:test ## Generate documentation site
 	$(VENV)/tox -qe docs
+	@cp test-reports/test-report.html site/
+	@cp -R test-reports/coverage_html site/coverage
+
+package:docs ## Package project
+	$(VENV)/tox -qe package
 
 serve:venv ## Serve documentation site
 	@cp test-reports/test-report.html site/

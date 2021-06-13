@@ -62,12 +62,23 @@ jobs:
           name: changes-docs-${{ github.event.number }}
           path: site/
 
+      - name: Deploy to Surge
+        uses: afc163/surge-preview@v1
+        id: preview_step
+        if: github.event_name == 'pull_request'
+        with:
+          surge_token: ${{ secrets.SURGE_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          dist: site
+          teardown: 'true'
+          build: |
+            echo "mkdocs has built site/ already"
+      - name: Get the preview_url
+        run: echo "${{ steps.preview_step.outputs.preview_url }}"
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         if: github.ref == 'refs/heads/main'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
-
-# TODO: https://github.com/marketplace/actions/surge-pr-preview
-# TODO: https://github.com/marketplace/actions/surge-pr-preview

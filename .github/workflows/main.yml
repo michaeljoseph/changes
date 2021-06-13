@@ -1,4 +1,4 @@
-name: Test and Lint
+name: Test, Lint and Document
 on:
   push:
     branches: [ main ]
@@ -6,7 +6,7 @@ on:
   pull_request:
   workflow_dispatch:
 jobs:
-  test-and-lint:
+  tests-and-lints:
     name: Test and Lint ${{ matrix.python-version }} on ${{ matrix.platform }}
     runs-on: ${{ matrix.platform }}
     strategy:
@@ -35,9 +35,9 @@ jobs:
             test-reports/coverage_html
         if: ${{ always() }}
 
-  docs:
+  documents:
     name: "Build and deploy documentation"
-    needs: test-and-lint
+    needs: tests-and-lints
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

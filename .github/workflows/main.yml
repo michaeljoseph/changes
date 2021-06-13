@@ -62,7 +62,7 @@ jobs:
           name: changes-docs-${{ github.event.number }}
           path: site/
 
-      - name: Deploy to Surge
+      - name: Deploy PR preview to Surge
         uses: afc163/surge-preview@v1
         id: preview_step
         if: github.event_name == 'pull_request'
@@ -82,3 +82,8 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site
+
+      - name: Deploy to Surge
+        if: github.ref == 'refs/heads/main'
+        run: |
+          npx surge site changes.michaeljoseph.surge.sh

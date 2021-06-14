@@ -1,0 +1,12 @@
+pull_request_rules:
+  - name: Automatic merge when CI passes and labeled ready-to-merge
+    conditions:
+      - check-success-or-neutral=Test and Lint 3.9 on macos-latest [🛡 GitHub branch protection]
+      - check-success-or-neutral=Test and Lint 3.9 on windows-latest [🛡 GitHub branch protection]
+      - check-success-or-neutral=Test and Lint 3.9 on ubuntu-latest 
+      - label=ready-to-merge
+      - base=main
+      - label=ready-to-merge
+    actions:
+      merge:
+        method: merge

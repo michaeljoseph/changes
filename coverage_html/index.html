@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Coverage report</title>
+    <link rel="icon" sizes="32x32" href="favicon_32.png">
+    <link rel="stylesheet" href="style.css" type="text/css">
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="jquery.ba-throttle-debounce.min.js"></script>
+    <script type="text/javascript" src="jquery.tablesorter.min.js"></script>
+    <script type="text/javascript" src="jquery.hotkeys.js"></script>
+    <script type="text/javascript" src="coverage_html.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(coverage.index_ready);
+    </script>
+</head>
+<body class="indexfile">
+<div id="header">
+    <div class="content">
+        <h1>Coverage report:
+            <span class="pc_cov">75%</span>
+        </h1>
+        <img id="keyboard_icon" src="keybd_closed.png" alt="Show keyboard shortcuts" />
+        <form id="filter_container">
+            <input id="filter" type="text" value="" placeholder="filter..." />
+        </form>
+    </div>
+</div>
+<div class="help_panel">
+    <img id="panel_icon" src="keybd_open.png" alt="Hide keyboard shortcuts" />
+    <p class="legend">Hot-keys on this page</p>
+    <div>
+    <p class="keyhelp">
+        <span class="key">n</span>
+        <span class="key">s</span>
+        <span class="key">m</span>
+        <span class="key">x</span>
+        <span class="key">c</span> &nbsp; change column sorting
+    </p>
+    </div>
+</div>
+<div id="index">
+    <table class="index">
+        <thead>
+            <tr class="tablehead" title="Click to sort">
+                <th class="name left headerSortDown shortkey_n">Module</th>
+                <th class="shortkey_s">statements</th>
+                <th class="shortkey_m">missing</th>
+                <th class="shortkey_x">excluded</th>
+                <th class="right shortkey_c">coverage</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr class="total">
+                <td class="name left">Total</td>
+                <td>913</td>
+                <td>231</td>
+                <td>0</td>
+                <td class="right" data-ratio="682 913">75%</td>
+            </tr>
+        </tfoot>
+        <tbody>
+            <tr class="file">
+                <td class="name left"><a href="changes___init___py.html">changes/__init__.py</a></td>
+                <td>38</td>
+                <td>2</td>
+                <td>0</td>
+                <td class="right" data-ratio="36 38">95%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="changes___main___py.html">changes/__main__.py</a></td>
+                <td>2</td>
+                <td>2</td>
+                <td>0</td>
+                <td class="right" data-ratio="0 2">0%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="changes_attributes_py.html">changes/attributes.py</a></td>
+                <td>26</td>
+                <td>15</td>
+                <td>0</td>
+                <td class="right" data-ratio="11 26">42%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="changes_changelog_py.html">changes/changelog.py</a></td>
+                <td>46</td>
+                <td>16</td>
+                <td>0</td>
+                <td class="right" data-ratio="30 46">65%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="changes_cli_py.html">changes/cli.py</a></td>
+                <td>53</td>
+                <td>21</td>
+                <td>0</td>
+                <td class="right" data-ratio="32 53">60%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="changes_commands___init___py.html">changes/commands/__init__.py</a></td>
+                <td>16</td>
+                <td>2</td>
+                <td>0</td>
+                <td class="right" data-ratio="14 16">88%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="changes_commands_publish_py.html">changes/commands/publish.py</a></td>
+                <td>27</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="27 27">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="changes_commands_stage_py.html">changes/commands/stage.py</a></td>
+                <td>56</td>
+                <td>9</td>
+                <td>0</td>
+                <td class="right" data-ratio="47 56">84%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="changes_commands_status_py.html">changes/commands/status.py</a></td>
+                <td>17</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="17 17">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="changes_compat_py.html">changes/compat.py</a></td>
+                <td>2</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="2 2">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="changes_config_py.html">changes/config.py</a></td>
+                <td>96</td>
+                <td>7</td>
+                <td>0</td>
+                <td class="right" data-ratio="89 96">93%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="changes_exceptions_py.html">changes/exceptions.py</a></td>
+                <td>2</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="2 2">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="changes_flow_py.html">changes/flow.py</a></td>
+                <td>38</td>
+                <td>38</td>
+                <td>0</td>
+                <td class="right" data-ratio="0 38">0%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="changes_models___init___py.html">changes/models/__init__.py</a></td>
+                <td>73</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="73 73">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="changes_models_repository_py.html">changes/models/repository.py</a></td>
+                <td>137</td>
+                <td>10</td>
+                <td>0</td>
+                <td class="right" data-ratio="127 137">93%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="changes_packaging_py.html">changes/packaging.py</a></td>
+                <td>54</td>
+                <td>26</td>
+                <td>0</td>
+                <td class="right" data-ratio="28 54">52%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="changes_probe_py.html">changes/probe.py</a></td>
+                <td>41</td>
+                <td>1</td>
+                <td>0</td>
+                <td class="right" data-ratio="40 41">98%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="changes_prompt_py.html">changes/prompt.py</a></td>
+                <td>30</td>
+                <td>26</td>
+                <td>0</td>
+                <td class="right" data-ratio="4 30">13%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="changes_services_py.html">changes/services.py</a></td>
+                <td>38</td>
+                <td>1</td>
+                <td>0</td>
+                <td class="right" data-ratio="37 38">97%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="changes_shell_py.html">changes/shell.py</a></td>
+                <td>9</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="right" data-ratio="9 9">100%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="changes_util_py.html">changes/util.py</a></td>
+                <td>14</td>
+                <td>4</td>
+                <td>0</td>
+                <td class="right" data-ratio="10 14">71%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="changes_vcs_py.html">changes/vcs.py</a></td>
+                <td>29</td>
+                <td>9</td>
+                <td>0</td>
+                <td class="right" data-ratio="20 29">69%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="changes_venv_py.html">changes/venv.py</a></td>
+                <td>14</td>
+                <td>4</td>
+                <td>0</td>
+                <td class="right" data-ratio="10 14">71%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="changes_verification_py.html">changes/verification.py</a></td>
+                <td>26</td>
+                <td>19</td>
+                <td>0</td>
+                <td class="right" data-ratio="7 26">27%</td>
+            </tr>
+            <tr class="file">
+                <td class="name left"><a href="changes_version_py.html">changes/version.py</a></td>
+                <td>29</td>
+                <td>19</td>
+                <td>0</td>
+                <td class="right" data-ratio="10 29">34%</td>
+            </tr>
+        </tbody>
+    </table>
+    <p id="no_rows">
+        No items found using the specified filter.
+    </p>
+</div>
+<div id="footer">
+    <div class="content">
+        <p>
+            <a class="nav" href="https://coverage.readthedocs.io">coverage.py v5.5</a>,
+            created at 2021-06-15 21:55 +0000
+        </p>
+    </div>
+</div>
+</body>
+</html>

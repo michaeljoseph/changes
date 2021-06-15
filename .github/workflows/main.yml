@@ -1,0 +1,89 @@
+name: Test, Lint and Document
+on:
+  push:
+    branches: [ main ]
+    tags: [ "*" ]
+  pull_request:
+  workflow_dispatch:
+jobs:
+  tests-and-lints:
+    name: Test and Lint ${{ matrix.python-version }} on ${{ matrix.platform }}
+    runs-on: ${{ matrix.platform }}
+    strategy:
+      matrix:
+        platform: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: [3.7, 3.8, 3.9]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Lint and run tests with Python ${{ matrix.python-version }} on ${{ matrix.platform }}
+        env:
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          python -m pip install --upgrade pip tox tox-gh-actions
+          tox -e lint,test,report-coverage
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results-${{ matrix.python-version }}-${{ matrix.platform }}
+          path: |
+            test-reports/junit.xml
+            test-reports/cobertura.xml
+            test-reports/coverage_html
+        if: ${{ always() }}
+
+  documents:
+    name: "Build and deploy documentation"
+    needs: tests-and-lints
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.8"
+
+      - name: Build documentation
+        run: |
+          python -m pip install --upgrade pip tox
+          tox -e docs
+
+      - name: Download test report artifacts into doc site
+        uses: actions/download-artifact@v2
+        with:
+          name: test-results-3.9-macos-latest
+          path: site
+
+      - name: Upload the generated documentation site (TODO for packaging)
+        uses: actions/upload-artifact@v2
+        with:
+          name: changes-docs-${{ github.event.number }}
+          path: site/
+
+      - name: Deploy PR preview to Surge
+        uses: afc163/surge-preview@v1
+        id: preview_step
+        if: github.event_name == 'pull_request'
+        with:
+          surge_token: ${{ secrets.SURGE_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          dist: site
+          teardown: 'true'
+          build: |
+            echo "mkdocs has built site/ already"
+      - name: Get the preview_url
+        run: echo "${{ steps.preview_step.outputs.preview_url }}"
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+
+      - name: Deploy to Surge
+        if: github.ref == 'refs/heads/main'
+        run: |
+          npx surge site changes.michaeljoseph.surge.sh

@@ -47,3 +47,6 @@ nosetests.xml
 # Virtual environments
 venv/
 .cache
+
+cache.sqlite
+test-reports/

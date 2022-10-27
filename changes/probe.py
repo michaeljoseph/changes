@@ -29,7 +29,7 @@ README_EXTENSIONS = [
 
 def report_and_raise(probe_name, probe_result, failure_msg):
     """Logs the probe result and raises on failure"""
-    log.info('%s? %s' % (probe_name, probe_result))
+    log.info(f'{probe_name}? {probe_result}')
     if not probe_result:
         raise exceptions.ProbeException(failure_msg)
     else:
@@ -48,16 +48,16 @@ def has_binary(command):
         local.which(command)
         return True
     except CommandNotFound:
-        log.info('%s does not exist' % command)
+        log.info(f'{command} does not exist')
         return False
 
 
 def has_tools():
-    return any([has_binary(tool) for tool in TOOLS])
+    return any(has_binary(tool) for tool in TOOLS)
 
 
 def has_test_runner():
-    return any([has_binary(runner) for runner in TEST_RUNNERS])
+    return any(has_binary(runner) for runner in TEST_RUNNERS)
 
 
 def has_changelog():
@@ -71,14 +71,14 @@ def has_readme():
     """README"""
     return report_and_raise(
         'README',
-        any([exists('README{}'.format(ext)) for ext in README_EXTENSIONS]),
+        any(exists(f'README{ext}') for ext in README_EXTENSIONS),
         'Create a (valid) README',
     )
 
 
 def has_metadata(python_module):
     """`<module_name>/__init__.py` with `__version__` and `__url__`"""
-    init_path = '{}/__init__.py'.format(python_module)
+    init_path = f'{python_module}/__init__.py'
     has_metadata = (
         exists(init_path)
         and attributes.has_attribute(python_module, '__version__')

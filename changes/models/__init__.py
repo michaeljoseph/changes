@@ -31,13 +31,13 @@ class Release(object):
     def title(self):
         return '{version} ({release_date})'.format(
             version=self.version, release_date=self.release_date
-        ) + ((' ' + self.name) if self.name else '')
+        ) + (f' {self.name}' if self.name else '')
 
     @property
     def release_note_filename(self):
         return '{version}-{release_date}'.format(
             version=self.version, release_date=self.release_date
-        ) + (('-' + self.name) if self.name else '')
+        ) + (f'-{self.name}' if self.name else '')
 
     @classmethod
     def generate_notes(cls, project_labels, pull_requests_since_latest_version):
@@ -77,7 +77,7 @@ class BumpVersion(object):
 
             version_file_path_answer = None
             input_terminator = '.'
-            while not version_file_path_answer == input_terminator:
+            while version_file_path_answer != input_terminator:
                 version_file_path_answer = click.prompt(
                     'Enter a path to a file that contains a version number '
                     "(enter a path of '.' when you're done selecting files)",
@@ -132,9 +132,10 @@ class BumpVersion(object):
 
         bumpversion_files = '\n\n'.join(
             [
-                '[bumpversion:file:{}]'.format(file_name)
+                f'[bumpversion:file:{file_name}]'
                 for file_name in self.version_files_to_replace
             ]
         )
+
 
         config_path.write_text(bumpversion_cfg + bumpversion_files)

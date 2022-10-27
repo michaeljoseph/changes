@@ -8,4 +8,4 @@ def test_version():
     runner = CliRunner()
     result = runner.invoke(main, ['--version'])
     assert result.exit_code == 0
-    assert result.output == 'changes {}\n'.format(changes.__version__)
+    assert result.output == f'changes {changes.__version__}\n'

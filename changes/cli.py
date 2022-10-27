@@ -13,7 +13,7 @@ from changes.commands import (
 
 from . import __version__
 
-VERSION = 'changes {}'.format(__version__)
+VERSION = f'changes {__version__}'
 
 
 @contextlib.contextmanager
@@ -62,7 +62,7 @@ def status(repo_directory):
     """
     Shows current project release status.
     """
-    repo_directory = repo_directory if repo_directory else '.'
+    repo_directory = repo_directory or '.'
 
     with work_in(repo_directory):
         status_command.status()

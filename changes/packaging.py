@@ -13,12 +13,12 @@ def build_distributions(context):
 
     build_package_command = 'python setup.py clean sdist bdist_wheel'
     result = shell.dry_run(build_package_command, context.dry_run)
-    packages = Path('dist').files() if not context.dry_run else "nothing"
+    packages = "nothing" if context.dry_run else Path('dist').files()
 
     if not result:
-        raise Exception('Error building packages: %s' % result)
+        raise Exception(f'Error building packages: {result}')
     else:
-        log.info('Built %s' % ', '.join(packages))
+        log.info(f"Built {', '.join(packages)}")
     return packages
 
 
@@ -38,9 +38,7 @@ def install_package(context):
                             'Successfully ran test command: %s', context.test_command
                         )
                 except Exception as e:
-                    raise Exception(
-                        'Error installing distribution %s' % distribution, e
-                    )
+                    raise Exception(f'Error installing distribution {distribution}', e)
     else:
         log.info('Dry run, skipping installation')
 
@@ -50,14 +48,13 @@ def upload_package(context):
     """Uploads your project packages to pypi with twine."""
 
     if not context.dry_run and build_distributions(context):
-        upload_args = 'twine upload '
-        upload_args += ' '.join(Path('dist').files())
+        upload_args = 'twine upload ' + ' '.join(Path('dist').files())
         if context.pypi:
-            upload_args += ' -r %s' % context.pypi
+            upload_args += f' -r {context.pypi}'
 
         upload_result = shell.dry_run(upload_args, context.dry_run)
         if not context.dry_run and not upload_result:
-            raise Exception('Error uploading: %s' % upload_result)
+            raise Exception(f'Error uploading: {upload_result}')
         else:
             log.info(
                 'Successfully uploaded %s:%s', context.module_name, context.new_version
@@ -70,11 +67,11 @@ def install_from_pypi(context):
     """Attempts to install your package from pypi."""
 
     tmp_dir = venv.create_venv()
-    install_cmd = '%s/bin/pip install %s' % (tmp_dir, context.module_name)
+    install_cmd = f'{tmp_dir}/bin/pip install {context.module_name}'
 
     package_index = 'pypi'
     if context.pypi:
-        install_cmd += '-i %s' % context.pypi
+        install_cmd += f'-i {context.pypi}'
         package_index = context.pypi
 
     try:
@@ -89,6 +86,6 @@ def install_from_pypi(context):
             )
 
     except Exception as e:
-        error_msg = 'Error installing %s from %s' % (context.module_name, package_index)
+        error_msg = f'Error installing {context.module_name} from {package_index}'
         log.exception(error_msg)
         raise Exception(error_msg, e)

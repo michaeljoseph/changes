@@ -14,11 +14,11 @@ def echo(message, style):
 
 
 def debug(message):
-    echo('{}...'.format(message), 'debug')
+    echo(f'{message}...', 'debug')
 
 
 def info(message):
-    echo('{}...'.format(message), 'info')
+    echo(f'{message}...', 'info')
 
 
 def note(message):

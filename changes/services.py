@@ -34,7 +34,7 @@ class GitHub(object):
     @property
     def headers(self):
         # TODO: requests.Session
-        return {'Authorization': 'token {}'.format(self.auth_token)}
+        return {'Authorization': f'token {self.auth_token}'}
 
     def pull_request(self, pr_num):
         pull_request_api_url = uritemplate.expand(

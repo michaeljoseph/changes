@@ -31,7 +31,7 @@ class GitRepository(object):
 
     @property
     def remote_url(self):
-        return git('config --get remote.{}.url'.format(self.REMOTE_NAME))
+        return git(f'config --get remote.{self.REMOTE_NAME}.url')
 
     @property
     def parsed_repo(self):
@@ -91,12 +91,9 @@ class GitRepository(object):
         if version == semantic_version.Version('0.0.0'):
             version = self.first_commit_sha
 
-        revision_range = ' {}..HEAD'.format(version) if version else ''
+        revision_range = f' {version}..HEAD' if version else ''
 
-        merge_commits = git(
-            'log --oneline --merges --no-color{}'.format(revision_range)
-        ).split('\n')
-        return merge_commits
+        return git(f'log --oneline --merges --no-color{revision_range}').split('\n')
 
     @property
     def merges_since_latest_version(self):
@@ -116,16 +113,16 @@ class GitRepository(object):
 
     @staticmethod
     def add(files_to_add):
-        return git('add {}'.format(' '.join(files_to_add)))
+        return git(f"add {' '.join(files_to_add)}")
 
     @staticmethod
     def commit(message):
         # FIXME: message is one token
-        return git_command['commit', '--message="{}"'.format(message)]()
+        return git_command['commit', f'--message="{message}"']()
 
     @staticmethod
     def discard(file_paths):
-        return git('checkout -- {}'.format(' '.join(file_paths)))
+        return git(f"checkout -- {' '.join(file_paths)}")
 
     @staticmethod
     def tag(version):
@@ -163,9 +160,7 @@ class GitHubRepository(GitRepository):
 
         for commit_msg in self.merges_since(self.latest_version):
 
-            matches = GITHUB_MERGED_PULL_REQUEST.findall(commit_msg)
-
-            if matches:
+            if matches := GITHUB_MERGED_PULL_REQUEST.findall(commit_msg):
                 _, pull_request_number = matches[0]
                 pull_request_numbers.append(pull_request_number)
 

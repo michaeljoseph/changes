@@ -41,9 +41,7 @@ def test_stage_draft(capsys, configured):
     changes.initialise()
     stage.stage(draft=True)
 
-    release_notes_path = Path(
-        'docs/releases/0.0.2-{}.md'.format(date.today().isoformat())
-    )
+    release_notes_path = Path(f'docs/releases/0.0.2-{date.today().isoformat()}.md')
     expected_output = textwrap.dedent(
         """\
         Staging [fix] release for version 0.0.2...
@@ -56,12 +54,13 @@ def test_stage_draft(capsys, configured):
     )
 
     expected_release_notes_content = [
-        '# 0.0.2 ({})'.format(date.today().isoformat()),
+        f'# 0.0.2 ({date.today().isoformat()})',
         '',
         '## Bug',
         '* #111 The title of the pull request',
         '...',
     ]
+
 
     out, _ = capsys.readouterr()
 
@@ -98,8 +97,9 @@ def test_stage(capsys, configured):
     )
 
     release_notes_path = Path(
-        'docs/releases/0.0.2-{}-Icarus.md'.format(date.today().isoformat())
+        f'docs/releases/0.0.2-{date.today().isoformat()}-Icarus.md'
     )
+
     expected_output = textwrap.dedent(
         """\
         Staging [fix] release for version 0.0.2...
@@ -115,11 +115,12 @@ def test_stage(capsys, configured):
 
     assert release_notes_path.exists()
     expected_release_notes = [
-        '# 0.0.2 ({}) Icarus'.format(date.today().isoformat()),
+        f'# 0.0.2 ({date.today().isoformat()}) Icarus',
         'The first flight',
         '## Bug',
         '* #111 The title of the pull request',
     ]
+
     assert expected_release_notes == release_notes_path.read_text().splitlines()
 
     # changelog_path = Path('CHANGELOG.md')
@@ -163,8 +164,9 @@ def test_stage_discard(capsys, configured):
     )
 
     release_notes_path = Path(
-        'docs/releases/0.0.2-{}-Icarus.md'.format(date.today().isoformat())
+        f'docs/releases/0.0.2-{date.today().isoformat()}-Icarus.md'
     )
+
     assert release_notes_path.exists()
 
     result = git(shlex.split('-c color.status=false status --short --branch'))

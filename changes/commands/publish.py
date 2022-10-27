@@ -16,28 +16,28 @@ def publish():
         info('No staged release to publish')
         return
 
-    info('Publishing release {}'.format(release.version))
+    info(f'Publishing release {release.version}')
 
     files_to_add = BumpVersion.read_from_file(
         Path('.bumpversion.cfg')
     ).version_files_to_replace
     files_to_add += ['.bumpversion.cfg', str(release.release_file_path)]
 
-    info('Running: git add {}'.format(' '.join(files_to_add)))
+    info(f"Running: git add {' '.join(files_to_add)}")
     repository.add(files_to_add)
 
     commit_message = release.release_file_path.read_text(encoding='utf-8')
-    info('Running: git commit --message="{}"'.format(commit_message))
+    info(f'Running: git commit --message="{commit_message}"')
     repository.commit(commit_message)
 
-    info('Running: git tag {}'.format(release.version))
+    info(f'Running: git tag {release.version}')
     repository.tag(release.version)
 
-    if click.confirm('Happy to publish release {}'.format(release.version)):
+    if click.confirm(f'Happy to publish release {release.version}'):
         info('Running: git push --tags')
         repository.push()
 
         info('Creating GitHub Release')
         repository.create_release(release)
 
-        info('Published release {}'.format(release.version))
+        info(f'Published release {release.version}')

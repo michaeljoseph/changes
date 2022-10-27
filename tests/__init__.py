@@ -6,15 +6,16 @@ context = Config(
     True,
     True,
     True,
-    '%s/requirements.txt' % module_name,
+    f'{module_name}/requirements.txt',
     '0.0.2',
     '0.0.1',
     'https://github.com/someuser/test_app',
     None,
 )
+
 context.gh_token = 'foo'
-context.requirements = '%s/requirements.txt' % module_name
-context.tmp_file = '%s/__init__.py' % module_name
+context.requirements = f'{module_name}/requirements.txt'
+context.tmp_file = f'{module_name}/__init__.py'
 context.initial_init_content = [
     '"""A test app"""',
     '',

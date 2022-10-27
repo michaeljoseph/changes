@@ -71,8 +71,9 @@ def test_publish(capsys, configured, answer_prompts):
     )
 
     release_notes_path = Path(
-        'docs/releases/0.0.2-{}-Icarus.md'.format(date.today().isoformat())
+        f'docs/releases/0.0.2-{date.today().isoformat()}-Icarus.md'
     )
+
     assert release_notes_path.exists()
 
     publish.publish()
@@ -123,9 +124,10 @@ def test_publish(capsys, configured, answer_prompts):
 
     assert release_notes_path.exists()
     expected_release_notes = [
-        '# 0.0.2 ({}) Icarus'.format(date.today().isoformat()),
+        f'# 0.0.2 ({date.today().isoformat()}) Icarus',
         'The first flight',
         '## Bug',
         '* #111 The title of the pull request',
     ]
+
     assert expected_release_notes == release_notes_path.read_text().splitlines()

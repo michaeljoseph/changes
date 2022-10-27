@@ -19,11 +19,12 @@ AUTH_TOKEN_ENVVAR = 'GITHUB_AUTH_TOKEN'
 DEFAULT_CONFIG_FILE = str(
     os.environ.get(
         'CHANGES_CONFIG_FILE',
-        expanduser('~/.changes')
-        if not compat.IS_WINDOWS
-        else expandvars(r'%APPDATA%\\.changes'),
+        expandvars(r'%APPDATA%\\.changes')
+        if compat.IS_WINDOWS
+        else expanduser('~/.changes'),
     )
 )
+
 PROJECT_CONFIG_FILE = '.changes.toml'
 DEFAULT_RELEASES_DIRECTORY = 'docs/releases'
 
@@ -38,20 +39,19 @@ class Changes(object):
             str(
                 os.environ.get(
                     'CHANGES_CONFIG_FILE',
-                    expanduser('~/.changes')
-                    if not compat.IS_WINDOWS
-                    else expandvars(r'%APPDATA%\\.changes'),
+                    expandvars(r'%APPDATA%\\.changes')
+                    if compat.IS_WINDOWS
+                    else expanduser('~/.changes'),
                 )
             )
         )
+
 
         tool_settings = None
         if tool_config_path.exists():
             tool_settings = Changes(**(toml.load(tool_config_path.open())['changes']))
 
-        # envvar takes precedence over config file settings
-        auth_token = os.environ.get(AUTH_TOKEN_ENVVAR)
-        if auth_token:
+        if auth_token := os.environ.get(AUTH_TOKEN_ENVVAR):
             info('Found Github Auth Token in the environment')
             tool_settings = Changes(auth_token=auth_token)
         elif not (tool_settings and tool_settings.auth_token):
@@ -104,11 +104,7 @@ class Project(object):
             )
 
             if not releases_directory.exists():
-                debug(
-                    'Releases directory {} not found, creating it.'.format(
-                        releases_directory
-                    )
-                )
+                debug(f'Releases directory {releases_directory} not found, creating it.')
                 releases_directory.mkdir(parents=True)
 
             project_settings = Project(
@@ -127,10 +123,7 @@ class Project(object):
 
 
 def configure_labels(github_labels):
-    labels_keyed_by_name = {}
-    for label in github_labels:
-        labels_keyed_by_name[label['name']] = label
-
+    labels_keyed_by_name = {label['name']: label for label in github_labels}
     # TODO: streamlined support for github defaults: enhancement, bug
     changelog_worthy_labels = prompt.choose_labels(
         [properties['name'] for _, properties in labels_keyed_by_name.items()]

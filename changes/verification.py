@@ -20,8 +20,7 @@ def get_test_runner():
 
 def run_tests():
     """Executes your tests."""
-    test_runner = get_test_runner()
-    if test_runner:
+    if test_runner := get_test_runner():
         result = test_runner()
         log.info('Test execution returned:\n%s' % result)
         return result

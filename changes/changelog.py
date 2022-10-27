@@ -33,12 +33,10 @@ def write_new_changelog(repo_url, filename, content_lines, dry_run=True):
 def replace_sha_with_commit_link(repo_url, git_log_content):
     git_log_content = git_log_content.split('\n')
     for index, line in enumerate(git_log_content):
-        # http://stackoverflow.com/a/468378/5549
-        sha1_re = re.match(r'^[0-9a-f]{5,40}\b', line)
-        if sha1_re:
+        if sha1_re := re.match(r'^[0-9a-f]{5,40}\b', line):
             sha1 = sha1_re.group()
 
-            new_line = line.replace(sha1, '[%s](%s/commit/%s)' % (sha1, repo_url, sha1))
+            new_line = line.replace(sha1, f'[{sha1}]({repo_url}/commit/{sha1})')
             log.debug('old line: %s\nnew line: %s', line, new_line)
             git_log_content[index] = new_line
 
@@ -61,16 +59,16 @@ def generate_changelog(context):
     git_log_content = None
     git_log = 'log --oneline --no-merges --no-color'.split(' ')
     try:
-        git_log_tag = git_log + ['%s..master' % context.current_version]
+        git_log_tag = git_log + [f'{context.current_version}..master']
         git_log_content = git(git_log_tag)
-        log.debug('content: %s' % git_log_content)
+        log.debug(f'content: {git_log_content}')
     except Exception:
         log.warn('Error diffing previous version, initial release')
         git_log_content = git(git_log)
 
-    git_log_content = replace_sha_with_commit_link(context.repo_url, git_log_content)
-    # turn change log entries into markdown bullet points
-    if git_log_content:
+    if git_log_content := replace_sha_with_commit_link(
+        context.repo_url, git_log_content
+    ):
         [
             changelog_content.append('* %s\n' % line) if line else line
             for line in git_log_content[:-1]

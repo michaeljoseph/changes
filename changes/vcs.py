@@ -29,10 +29,7 @@ def commit_version_change(context):
 
 def tag_and_push(context):
     """Tags your git repo with the new version number"""
-    tag_option = '--annotate'
-    if probe.has_signing_key(context):
-        tag_option = '--sign'
-
+    tag_option = '--sign' if probe.has_signing_key(context) else '--annotate'
     shell.dry_run(
         TAG_TEMPLATE % (tag_option, context.new_version, context.new_version),
         context.dry_run,

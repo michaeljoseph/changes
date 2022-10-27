@@ -21,8 +21,9 @@ def choose_labels(alternatives):
         raise TypeError
 
     choice_map = OrderedDict(
-        ('{}'.format(i), value) for i, value in enumerate(alternatives, 1)
+        (f'{i}', value) for i, value in enumerate(alternatives, 1)
     )
+
     # prepend a termination option
     input_terminator = '0'
     choice_map.update({input_terminator: '<done>'})
@@ -35,16 +36,17 @@ def choose_labels(alternatives):
         (
             'Select labels:',
             '\n'.join(choice_lines),
-            'Choose from {}'.format(', '.join(choice_indexes)),
+            f"Choose from {', '.join(choice_indexes)}",
         )
     )
+
 
     user_choices = set()
     user_choice = None
 
-    while not user_choice == input_terminator:
+    while user_choice != input_terminator:
         if user_choices:
-            note('Selected labels: [{}]'.format(', '.join(user_choices)))
+            note(f"Selected labels: [{', '.join(user_choices)}]")
 
         user_choice = click.prompt(
             prompt, type=click.Choice(choice_indexes), default=input_terminator

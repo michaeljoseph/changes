@@ -20,7 +20,7 @@ def discard(release_name='', release_description=''):
         info('No staged release to discard')
         return
 
-    info('Discarding currently staged release {}'.format(release.version))
+    info(f'Discarding currently staged release {release.version}')
 
     bumpversion = BumpVersion.read_from_file(Path('.bumpversion.cfg'))
     git_discard_files = bumpversion.version_files_to_replace + [
@@ -28,11 +28,11 @@ def discard(release_name='', release_description=''):
         '.bumpversion.cfg'
     ]
 
-    info('Running: git {}'.format(' '.join(['checkout', '--'] + git_discard_files)))
+    info(f"Running: git {' '.join(['checkout', '--'] + git_discard_files)}")
     repository.discard(git_discard_files)
 
     if release.release_file_path.exists():
-        info('Running: rm {}'.format(release.release_file_path))
+        info(f'Running: rm {release.release_file_path}')
         release.release_file_path.unlink()
 
 
@@ -44,26 +44,22 @@ def stage(draft, release_name='', release_description=''):
     release.description = release_description
 
     if not repository.pull_requests_since_latest_version:
-        error("There aren't any changes to release since {}".format(release.version))
+        error(f"There aren't any changes to release since {release.version}")
         return
 
-    info(
-        'Staging [{}] release for version {}'.format(
-            release.release_type, release.version
-        )
-    )
+    info(f'Staging [{release.release_type}] release for version {release.version}')
 
     # Bumping versions
     if BumpVersion.read_from_file(Path('.bumpversion.cfg')).current_version == str(
         release.version
     ):
-        info('Version already bumped to {}'.format(release.version))
+        info(f'Version already bumped to {release.version}')
     else:
         bumpversion_arguments = (
             BumpVersion.DRAFT_OPTIONS if draft else BumpVersion.STAGE_OPTIONS
         ) + [release.bumpversion_part]
 
-        info('Running: bumpversion {}'.format(' '.join(bumpversion_arguments)))
+        info(f"Running: bumpversion {' '.join(bumpversion_arguments)}")
         bumpversion.main(bumpversion_arguments)
 
     # Release notes generation
@@ -84,14 +80,15 @@ def stage(draft, release_name='', release_description=''):
         releases_directory.mkdir(parents=True)
 
     release_notes_path = releases_directory.joinpath(
-        '{}.md'.format(release.release_note_filename)
+        f'{release.release_note_filename}.md'
     )
 
+
     if draft:
-        info('Would have created {}:'.format(release_notes_path))
+        info(f'Would have created {release_notes_path}:')
         debug(release_notes)
     else:
-        info('Writing release notes to {}'.format(release_notes_path))
+        info(f'Writing release notes to {release_notes_path}')
         if release_notes_path.exists():
             release_notes_content = release_notes_path.read_text(encoding='utf-8')
             if release_notes_content != release_notes:
@@ -107,10 +104,8 @@ def stage(draft, release_name='', release_description=''):
                 )
                 if click.confirm(
                     click.style(
-                        '{} has modified content, overwrite?'.format(
-                            release_notes_path
-                        ),
-                        **STYLES['error']
+                        f'{release_notes_path} has modified content, overwrite?',
+                        **STYLES['error'],
                     )
                 ):
                     release_notes_path.write_text(release_notes, encoding='utf-8')

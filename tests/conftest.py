@@ -27,10 +27,11 @@ README_MARKDOWN = ['# Test App', '', 'This is the test application.']
 PYTHON_MODULE = 'test_app'
 
 PYTHON_PROJECT_CONTENT = {
-    '%s/__init__.py' % PYTHON_MODULE: INIT_CONTENT,
+    f'{PYTHON_MODULE}/__init__.py': INIT_CONTENT,
     'setup.py': SETUP_PY,
     'requirements.txt': ['pytest'],
 }
+
 
 FILE_CONTENT = {
     'version.txt': ['0.0.1'],
@@ -91,13 +92,9 @@ def git_repo(tmpdir):
 
         tmp_push_repo = Path(str(tmpdir))
         git('init', '--bare', str(tmp_push_repo))
-        git(
-            shlex.split(
-                'remote set-url --push origin {}'.format(tmp_push_repo.as_uri())
-            )
-        )
+        git(shlex.split(f'remote set-url --push origin {tmp_push_repo.as_uri()}'))
 
-        git('add', [file for file in FILE_CONTENT.keys()])
+        git('add', list(FILE_CONTENT.keys()))
 
         git('commit', '-m', 'Initial commit')
         git(shlex.split('tag 0.0.1'))
@@ -112,7 +109,7 @@ def python_module(git_repo):
     for file_path, content in PYTHON_PROJECT_CONTENT.items():
         open(file_path, 'w').write('\n'.join(content))
 
-    git('add', [file for file in PYTHON_PROJECT_CONTENT.keys()])
+    git('add', list(PYTHON_PROJECT_CONTENT.keys()))
     git('commit', '-m', 'Python project initialisation')
 
     yield
@@ -123,15 +120,13 @@ def github_merge_commit(pull_request_number):
 
     branch_name = Haikunator().haikunate()
     commands = [
-        'checkout -b {}'.format(branch_name),
+        f'checkout -b {branch_name}',
         'commit --allow-empty -m "Test branch commit message"',
         'checkout master',
-        'merge --no-ff {}'.format(branch_name),
-        'commit --allow-empty --amend -m '
-        '"Merge pull request #{} from test_app/{}"'.format(
-            pull_request_number, branch_name
-        ),
+        f'merge --no-ff {branch_name}',
+        f'commit --allow-empty --amend -m "Merge pull request #{pull_request_number} from test_app/{branch_name}"',
     ]
+
     for command in commands:
         git(shlex.split(command))
 

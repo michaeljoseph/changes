@@ -12,5 +12,5 @@ def dry_run(command, dry_run):
         # http://plumbum.readthedocs.org/en/latest/local_commands.html#run-and-popen
         return local[cmd_parts[0]](cmd_parts[1:])
     else:
-        log.info('Dry run of %s, skipping' % command)
+        log.info(f'Dry run of {command}, skipping')
     return True
